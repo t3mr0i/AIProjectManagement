@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "1.0.0",
+  "repository": "https://github.com/makeplane/plane",
+  "edition": "public-community-source",
+  "analysisRef": "preview",
+  "analysisCommit": "d616636119d20a531a815c78d364bdb47d552a2d",
+  "analysisCommitTime": "2026-09-24T09:45:14Z",
+  "observedPackageVersion": "1.4.2",
+  "observedNodeEngine": ">=22.22.0",
+  "observedPackageManager": "pnpm@11.10.0",
+  "status": "implementation-baseline",
+  "implementationBaselineApproved": true,
+  "implementationBaselineApprovedBy": "repository owner instruction to implement PRD 0.2 on this fork (2026-09-24)",
+  "implementationCommit": "d616636119d20a531a815c78d364bdb47d552a2d",
+  "implementationCommitEqualsAnalysisCommit": true,
+  "licensePathApproved": false,
+  "licensePathNote": "L01 open: no external distribution, OEM/closed-fork use or public hosting is authorized by this lock.",
+  "securityBaselineApproved": false,
+  "notes": [
+    "The fork's extension commits are applied on top of implementationCommit; tools/project-hub/verify_upstream_lock.py checks that implementationCommit is an ancestor of HEAD and that no other upstream commit was merged silently.",
+    "Upstream bumps follow docs/project-hub/UPSTREAM_BUMP.md and must update this file in the same change."
+  ]
+}

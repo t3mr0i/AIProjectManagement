@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0.0",
+  "skills": [
+    {
+      "name": "package-clarify",
+      "version": "0.2.0",
+      "sha256": "f568e6d21d23424d9d00b13c1e8ce0d8096c0e693c44401dafdc95821e72e29f",
+      "approved": true,
+      "approved_by": "PRD 0.2 pack (draft skills, contract 1.1.0)"
+    },
+    {
+      "name": "package-execute",
+      "version": "0.2.0",
+      "sha256": "919a56949687848d572fe7b4621058ac20638eb513cd7c0bbf657b399b1160f2",
+      "approved": true,
+      "approved_by": "PRD 0.2 pack (draft skills, contract 1.1.0)"
+    },
+    {
+      "name": "package-handoff",
+      "version": "0.2.0",
+      "sha256": "39df60f95310980dc101e5799e63f97e5ec6259a48a85526dba938b630c1067a",
+      "approved": true,
+      "approved_by": "PRD 0.2 pack (draft skills, contract 1.1.0)"
+    }
+  ]
+}
