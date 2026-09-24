@@ -168,6 +168,8 @@ class MergeRequestLink(IssueScopedModel):
     commits = models.JSONField(default=list, blank=True)
     run = models.ForeignKey("package_flow.ExecutionRun", on_delete=models.SET_NULL, null=True, related_name="+")
     last_event_at = models.DateTimeField(null=True, blank=True)
+    # Merge requested through the gate but not yet confirmed by a provider event (202 semantics).
+    pending_merge = models.JSONField(default=dict, blank=True)
 
     class Meta:
         db_table = "pf_merge_request_links"
@@ -208,10 +210,19 @@ class Evidence(IssueScopedModel):
     occurred_at = models.DateTimeField()
     url = models.URLField(max_length=1000, blank=True, default="")
     detail = models.JSONField(default=dict, blank=True)
+    # Provider-derived idempotency key (connection + check id + status); empty for manual evidence.
+    dedup_key = models.CharField(max_length=255, blank=True, default="")
 
     class Meta:
         db_table = "pf_evidence"
         ordering = ("-occurred_at",)
+        constraints = [
+            models.UniqueConstraint(
+                fields=["issue", "dedup_key"],
+                condition=~Q(dedup_key="") & Q(deleted_at__isnull=True),
+                name="pf_evidence_dedup",
+            )
+        ]
 
 
 class ReviewApproval(IssueScopedModel):
@@ -261,10 +272,19 @@ class Delivery(IssueScopedModel):
     occurred_at = models.DateTimeField()
     reverts = models.ForeignKey("self", on_delete=models.SET_NULL, null=True, blank=True, related_name="+")
     detail = models.JSONField(default=dict, blank=True)
+    # One business delivery fact per key (e.g. ``merge:<binding>:<mr>``) regardless of raw source (PF10).
+    dedup_key = models.CharField(max_length=255, blank=True, default="")
 
     class Meta:
         db_table = "pf_deliveries"
         ordering = ("occurred_at",)
+        constraints = [
+            models.UniqueConstraint(
+                fields=["issue", "dedup_key"],
+                condition=~Q(dedup_key="") & Q(deleted_at__isnull=True),
+                name="pf_delivery_dedup",
+            )
+        ]
 
 
 class SpecSyncState(IssueScopedModel):
