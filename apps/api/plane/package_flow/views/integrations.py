@@ -131,7 +131,10 @@ class WebhookIngressView(APIView):
         try:
             status_code, payload = svc.ingest_webhook(connection_id, request.headers, body)
         except DomainError as exc:
-            return Response(exc.as_dict(), status=exc.status_code)
+            response = Response(exc.as_dict(), status=exc.status_code)
+            if exc.status_code == 429 and exc.detail.get("retry_after"):
+                response["Retry-After"] = str(exc.detail["retry_after"])
+            return response
         return Response(payload, status=status_code)
 
 

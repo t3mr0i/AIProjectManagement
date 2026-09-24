@@ -442,6 +442,13 @@ class Adapter:
         """``True``/``False`` if ``ancestor`` is contained in ``descendant``; ``None`` if unknown."""
         return None
 
+    def update_work_item(self, ctx: ProviderContext, external_id: str, fields: dict, *, op_id: str = "") -> dict:
+        """Bounded outbound write of platform-owned canonical fields (``title``, ``priority``).
+
+        Returns ``{"ok": bool, "status": int, "pushed": {field: provider_value}}``.
+        """
+        self._unsupported("write_work_items")
+
     # -- helpers -------------------------------------------------------------
     def _get(self, url, ctx, params=None):
         return self.transport.request("GET", url, headers=self.auth_headers(ctx), params=params)

@@ -46,6 +46,7 @@ from .base import (
 )
 
 PRIORITY_MAP = {1: "urgent", 2: "high", 3: "medium", 4: "low"}
+REVERSE_PRIORITY = {v: k for k, v in PRIORITY_MAP.items()}
 
 
 def _field_new(fields, name):
@@ -348,3 +349,27 @@ class AzureDevOpsAdapter(Adapter):
         policies = [p for p in resp.body.get("value") or [] if p.get("isEnabled") and p.get("isBlocking")]
         reviewers = [p for p in policies if "reviewer" in ((p.get("type") or {}).get("displayName") or "").lower()]
         return {"protected": bool(policies), "requires_approval": bool(reviewers)}
+
+    def update_work_item(self, ctx, external_id, fields, *, op_id=""):
+        ops, pushed = [], {}
+        if fields.get("title"):
+            ops.append({"op": "add", "path": "/fields/System.Title", "value": fields["title"]})
+            pushed["title"] = fields["title"]
+        if fields.get("priority") in REVERSE_PRIORITY:
+            ops.append(
+                {
+                    "op": "add",
+                    "path": "/fields/Microsoft.VSTS.Common.Priority",
+                    "value": REVERSE_PRIORITY[fields["priority"]],
+                }
+            )
+            pushed["priority"] = REVERSE_PRIORITY[fields["priority"]]
+        if not ops:
+            return {"ok": True, "status": 204, "pushed": {}}
+        resp = self.transport.request(
+            "PATCH",
+            f"{ctx.instance_url.rstrip('/')}/_apis/wit/workitems/{quote(str(external_id))}?api-version=7.1",
+            headers={**self.auth_headers(ctx), "Content-Type": "application/json-patch+json"},
+            json=ops,
+        )
+        return {"ok": resp.ok, "status": resp.status, "pushed": pushed}

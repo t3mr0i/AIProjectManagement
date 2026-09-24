@@ -284,3 +284,84 @@ class TestReconciliation:
         ev.refresh_from_db()
         assert ev.status == "processed" and ev.attempts == 2
         assert IntegrationConnection.objects.get(pk=c.pk).backlog_count == 0
+
+
+JIRA_PUT = "/rest/api/3/issue/10001"
+
+
+@pytest.mark.unit
+class TestOutboundSync:
+    def test_platform_owned_title_pushed_once_echo_ignored_concurrent_conflicts(self, tracker, fake_transport):
+        issue = tracker["issue"]
+        fake_transport.add("PUT", JIRA_PUT, status=204)
+        issue.name = "Export invoices as CSV"
+        issue.save()
+        [put] = fake_transport.called("PUT", JIRA_PUT)
+        assert put["json"] == {"fields": {"summary": "Export invoices as CSV"}}
+        link = ExternalLink.objects.get(pk=tracker["link"].pk)
+        assert link.observed_fields["_last_op"]["fields"] == {"title": "Export invoices as CSV"}
+        assert link.observed_fields["_last_push"]["ok"] is True
+        op_id = link.observed_fields["_last_op"]["op_id"]
+        issue.save()  # no relevant change -> no second push
+        assert len(fake_transport.called("PUT")) == 1
+        # Our own write comes back from Jira: recognised as echo.
+        send_jira(tracker["jira"], jira_update(summary="Export invoices as CSV"), "echo-t")
+        assert not SyncConflict.objects.exists()
+        assert ExternalLink.objects.get(pk=link.pk).observed_fields["_last_op"]["op_id"] == op_id
+        # A different concurrent external edit in the same window is not swallowed.
+        send_jira(tracker["jira"], jira_update(summary="Something else", updated="2026-09-01T10:02:00.000+0000"), "c-t")
+        [conflict] = SyncConflict.objects.all()
+        assert conflict.field == "title" and conflict.external_value == "Something else"
+        assert conflict.platform_value == "Export invoices as CSV"
+        issue.refresh_from_db()
+        assert issue.name == "Export invoices as CSV"
+        assert len(fake_transport.called("PUT")) == 1
+
+    def test_external_owned_field_never_pushed(self, tracker, fake_transport):
+        issue, link = tracker["issue"], tracker["link"]
+        link.field_ownership = {"priority": "external"}
+        link.save()
+        fake_transport.add("PUT", JIRA_PUT, status=204)
+        issue.priority = "urgent"
+        issue.save()
+        send_jira(tracker["jira"], jira_update(priority="Low"), "ext-p")  # applied natively, not echoed back
+        issue.refresh_from_db()
+        assert issue.priority == "low"
+        assert fake_transport.called("PUT") == []
+
+    def test_offline_connection_queues_push_until_reconcile(self, tracker, fake_transport):
+        issue, jira = tracker["issue"], tracker["jira"]
+        IntegrationConnection.objects.filter(pk=jira.pk).update(status="offline")
+        fake_transport.add("PUT", JIRA_PUT, status=204)
+        issue.priority = "high"
+        issue.save()
+        assert fake_transport.called("PUT") == []
+        link = ExternalLink.objects.get(pk=tracker["link"].pk)
+        assert link.observed_fields["_pending_push"]["fields"] == {"priority": "high"}
+        jira.refresh_from_db()
+        assert svc.connection_health(jira)["backlog_count"] == 1
+        result = svc.reconcile_connection(jira.id)
+        assert result["status"] == "active" and result["pushed"] == 1
+        [put] = fake_transport.called("PUT", JIRA_PUT)
+        assert put["json"] == {"fields": {"priority": {"name": "High"}}}
+        link.refresh_from_db()
+        assert "_pending_push" not in link.observed_fields
+        assert svc.connection_health(IntegrationConnection.objects.get(pk=jira.pk))["backlog_count"] == 0
+
+    def test_disabled_connection_never_pushes(self, world, tracker, fake_transport):
+        svc.disconnect_connection(tracker["jira"], world.owner)
+        issue = tracker["issue"]
+        issue.name = "changed while disconnected"
+        issue.save()
+        assert fake_transport.calls == []
+        assert "_pending_push" not in ExternalLink.objects.get(pk=tracker["link"].pk).observed_fields
+
+    def test_transport_failure_is_queued_not_lost(self, tracker):
+        from plane.package_flow.adapters.base import override_transport
+
+        issue = tracker["issue"]
+        with override_transport(FailingTransport()):
+            issue.priority = "low"
+            issue.save()
+        link = ExternalLink.objects.get(pk=tracker["link"].pk)
+        assert link.observed_fields["_pending_push"]["fields"] == {"priority": "low"}

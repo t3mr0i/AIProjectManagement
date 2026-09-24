@@ -265,3 +265,37 @@ class TestOutboundViaInjectedTransport:
         t = FakeTransport()
         get_adapter("gitlab", transport=t).normalize({}, json.loads(json.dumps(gl_mr())))
         assert t.calls == []
+
+
+@pytest.mark.unit
+class TestTrackerWriteBack:
+    def test_linear_and_azure_bounded_updates(self):
+        t = FakeTransport()
+        t.add("POST", "api.linear.app/graphql", body={"data": {"issueUpdate": {"success": True}}})
+        t.add("PATCH", "/_apis/wit/workitems/42", body={"id": 42})
+        res = get_adapter("linear", transport=t).update_work_item(
+            ProviderContext("https://linear.app", token="lin_api_x"), "L1", {"title": "T", "priority": "urgent"}
+        )
+        assert res["ok"] and t.calls[0]["json"]["variables"] == {"id": "L1", "input": {"title": "T", "priority": 1}}
+        res = get_adapter("azure_devops", transport=t).update_work_item(
+            ProviderContext("https://dev.azure.com/org", token="pat"), "42", {"priority": "low"}
+        )
+        assert res["ok"]
+        patch = t.called("PATCH")[0]
+        assert patch["json"] == [{"op": "add", "path": "/fields/Microsoft.VSTS.Common.Priority", "value": 4}]
+        assert patch["headers"]["Content-Type"] == "application/json-patch+json"
+
+    def test_none_priority_is_not_pushed(self):
+        t = FakeTransport()
+        res = get_adapter("jira", transport=t).update_work_item(
+            ProviderContext("https://a.atlassian.net"), "1", {"priority": "none"}
+        )
+        assert res["pushed"] == {} and t.calls == []
+
+    def test_git_only_adapters_refuse_writes(self):
+        from plane.package_flow.adapters.base import CapabilityUnsupported
+
+        with pytest.raises(CapabilityUnsupported):
+            get_adapter("generic_git", transport=FakeTransport()).update_work_item(
+                ProviderContext("https://git.example.test"), "1", {"title": "x"}
+            )

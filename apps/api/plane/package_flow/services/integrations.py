@@ -90,6 +90,20 @@ def echo_window() -> timedelta:
     return timedelta(seconds=int(getattr(settings, "PACKAGE_FLOW_ECHO_WINDOW_SECONDS", 600)))
 
 
+def webhook_max_age():
+    """Replay window; ``0``/``None`` disables it."""
+    value = getattr(settings, "PACKAGE_FLOW_WEBHOOK_MAX_AGE_SECONDS", 7 * 24 * 3600)
+    return timedelta(seconds=int(value)) if value else None
+
+
+def webhook_rate_limit():
+    """``(max_requests, window_seconds)`` per connection; ``max_requests`` 0 disables limiting."""
+    return (
+        int(getattr(settings, "PACKAGE_FLOW_WEBHOOK_RATE_LIMIT", 600)),
+        int(getattr(settings, "PACKAGE_FLOW_WEBHOOK_RATE_WINDOW_SECONDS", 60)),
+    )
+
+
 def overlap_window() -> timedelta:
     return timedelta(seconds=int(getattr(settings, "PACKAGE_FLOW_RECONCILE_OVERLAP_SECONDS", 300)))
 
@@ -298,9 +312,14 @@ def is_stale(c, now=None) -> bool:
 
 
 def backlog(c) -> int:
-    return InboundEvent.objects.filter(
+    """Unprocessed inbound events plus outbound pushes queued while offline."""
+    inbound = InboundEvent.objects.filter(
         connection=c, status__in=(InboundEvent.Status.RECEIVED, InboundEvent.Status.FAILED)
     ).count()
+    outbound = ExternalLink.objects.filter(
+        connection=c, deleted_at__isnull=True, observed_fields__has_key="_pending_push"
+    ).count()
+    return inbound + outbound
 
 
 def connection_health(c) -> dict:
@@ -359,6 +378,35 @@ class InvalidSignature(DomainError):
     code = "INVALID_SIGNATURE"
 
 
+class RateLimited(DomainError):
+    status_code = 429
+    code = "RATE_LIMITED"
+
+
+def _check_rate_limit(connection_id):
+    """Fixed-window counter per connection in the Django cache (Redis). Fails open if the cache is down."""
+    limit, window = webhook_rate_limit()
+    if limit <= 0 or window <= 0:
+        return
+    from django.core.cache import cache
+
+    now = int(timezone.now().timestamp())
+    bucket = now // window
+    key = f"pf:webhook-rate:{connection_id}:{bucket}"
+    try:
+        cache.add(key, 0, timeout=window + 5)
+        count = cache.incr(key)
+    except Exception:  # noqa: BLE001 - never lose deliveries because the cache is unavailable
+        logger.warning("package_flow webhook rate limiter unavailable; allowing delivery")
+        return
+    if count > limit:
+        retry_after = max(1, (bucket + 1) * window - now)
+        raise RateLimited(
+            "Too many webhook deliveries for this connection",
+            detail={"retry_after": retry_after, "limit": limit, "window_seconds": window},
+        )
+
+
 def ingest_webhook(connection_id, headers, body: bytes):
     """Authenticate, durably store, ack. Returns ``(http_status, response_body)``."""
     c = IntegrationConnection.objects.filter(id=connection_id, deleted_at__isnull=True).first()
@@ -368,6 +416,8 @@ def ingest_webhook(connection_id, headers, body: bytes):
     if not adapter.verify_webhook(headers, body or b"", decrypt_secret(c.webhook_secret)):
         logger.info("package_flow webhook rejected: bad signature (connection=%s)", c.id)
         raise InvalidSignature("Webhook signature invalid")
+    # Only authenticated deliveries count against the quota (a forger cannot exhaust it).
+    _check_rate_limit(c.id)
     try:
         payload = json.loads((body or b"{}").decode("utf-8"))
     except (ValueError, UnicodeDecodeError):
@@ -381,6 +431,9 @@ def ingest_webhook(connection_id, headers, body: bytes):
         occurred = next((n.occurred_at for n in normalized if n.occurred_at), None)
     except Exception:  # noqa: BLE001 - store anyway; processing will surface the error
         event_type, occurred = "unparsed", None
+    # Replay window: an event whose *provider* timestamp is too old is stored as ignored, never processed.
+    max_age = webhook_max_age()
+    too_old = bool(max_age and occurred and occurred < timezone.now() - max_age)
     try:
         with transaction.atomic():
             ev = InboundEvent.objects.create(
@@ -390,10 +443,14 @@ def ingest_webhook(connection_id, headers, body: bytes):
                 event_type=event_type,
                 occurred_at=occurred,
                 payload={"headers": adapter.persistable_headers(headers), "body": payload},
+                status=InboundEvent.Status.IGNORED if too_old else InboundEvent.Status.RECEIVED,
+                error=f"outside replay window ({int(max_age.total_seconds())}s)" if too_old else "",
             )
     except IntegrityError:
         existing = InboundEvent.objects.filter(connection=c, external_event_id=delivery).first()
         return 200, {"accepted": True, "duplicate": True, "event_id": str(existing.id) if existing else None}
+    if too_old:
+        return 202, {"accepted": True, "duplicate": False, "ignored": "outside_replay_window", "event_id": str(ev.id)}
     schedule_processing(ev.id)
     return 202, {"accepted": True, "duplicate": False, "event_id": str(ev.id)}
 
@@ -575,9 +632,12 @@ def reconcile_connection(connection_id) -> dict:
                     summary=f"{c.provider} integration recovered",
                 )
     IntegrationConnection.objects.filter(pk=c.pk).update(**updates)
+    pushed = 0
     if not poll_error and failed == 0:
         ExternalLink.objects.filter(connection=c, sync_state="stale").update(sync_state="ok")
+        pushed = flush_pending_pushes(c.id)
     return {
+        "pushed": pushed,
         "status": updates.get("status", c.status),
         "replayed": replayed,
         "failed": failed,
@@ -706,6 +766,7 @@ def _apply_to_link(link, n):
         conflict_created = True
     observed["_field_at"] = field_at
     if applied:
+        issue._pf_sync_origin = "external"  # the outbound hook must not echo this back
         issue.save(update_fields=[*applied, "updated_at"])
     link.observed_fields = observed
     link.last_synced_at = now
@@ -755,9 +816,146 @@ def propose_or_apply_field(issue, field, value, *, principal, source="platform",
         )
         return {"applied": False, "proposal_id": str(proposal.id), "owner": proposal.content["owner"]}
     setattr(issue, _NATIVE_ATTR[field], value)
+    issue._pf_sync_origin = "platform_explicit"  # pushed below, not again by the hook
     issue.save(update_fields=[_NATIVE_ATTR[field], "updated_at"])
-    ops = [record_outbound_op(lk, {field: value}) for lk in links if lk.connection.status != DISABLED]
+    ops = push_platform_fields(issue, {field: value})
     return {"applied": True, "operation_ids": ops}
+
+
+# ---------------------------------------------------------------------------
+# Bounded outbound sync (I12): platform-owned title/priority -> tracker
+# ---------------------------------------------------------------------------
+
+PUSHABLE_FIELDS = ("title", "priority")
+
+
+def _push_targets(issue, links=None):
+    qs = links
+    if qs is None:
+        qs = ExternalLink.objects.select_related("connection").filter(
+            issue_id=issue.id, object_type="issue", represents_package=True, deleted_at__isnull=True
+        )
+    return [lk for lk in qs if lk.sync_state != "disconnected" and lk.connection.deleted_at is None]
+
+
+def push_platform_fields(issue, changed, links=None) -> list:
+    """Push platform-owned field changes to linked trackers. Returns the operation ids.
+
+    * external-owned fields are never pushed (FR-I03, AC22)
+    * disabled connections are skipped; offline/degraded ones queue the push as backlog (FR-I05)
+    * the op is recorded in ``observed_fields["_last_op"]`` *before* the call so the echo is recognised
+    """
+    ops = []
+    for link in _push_targets(issue, links):
+        fields = {f: v for f, v in changed.items() if f in PUSHABLE_FIELDS and field_owner(link, f) == PLATFORM}
+        c = link.connection
+        if not fields or c.status == DISABLED:
+            continue
+        if declaration_for(c).level("write_work_items") not in (SUPPORTED, PARTIAL):
+            continue
+        op_id = record_outbound_op(link, fields)
+        ops.append(op_id)
+        if c.status in (OFFLINE, DEGRADED):
+            _queue_push(link, fields, op_id, reason=f"connection {c.status}")
+            continue
+        _schedule_push(link.id, op_id)
+    return ops
+
+
+def _queue_push(link, fields, op_id, reason=""):
+    observed = dict(link.observed_fields or {})
+    pending = dict(observed.get("_pending_push") or {})
+    merged = {**(pending.get("fields") or {}), **fields}
+    observed["_pending_push"] = {"op_id": op_id, "fields": merged, "at": timezone.now().isoformat(), "reason": reason}
+    link.observed_fields = observed
+    link.save(update_fields=["observed_fields", "updated_at"])
+    IntegrationConnection.objects.filter(pk=link.connection_id).update(backlog_count=backlog(link.connection))
+
+
+def _schedule_push(link_id, op_id):
+    if getattr(settings, "PACKAGE_FLOW_INLINE_TASKS", False):
+        execute_push(link_id, op_id)
+        return
+
+    def _enqueue():
+        try:
+            from plane.package_flow.tasks import push_external_fields as task
+
+            task.delay(str(link_id), op_id)
+        except Exception:  # noqa: BLE001
+            logger.warning("package_flow: broker enqueue failed, pushing inline")
+            try:
+                execute_push(link_id, op_id)
+            except Exception:  # noqa: BLE001
+                logger.exception("package_flow: inline push failed")
+
+    transaction.on_commit(_enqueue)
+
+
+def execute_push(link_id, op_id) -> bool:
+    """Send one recorded outbound op. Network failure → queued as backlog, retried by reconcile."""
+    with transaction.atomic():
+        link = ExternalLink.objects.select_for_update().select_related("connection").filter(pk=link_id).first()
+        if link is None:
+            return False
+        observed = dict(link.observed_fields or {})
+        pending = observed.get("_pending_push") or {}
+        last_op = observed.get("_last_op") or {}
+        if pending.get("op_id") == op_id:
+            fields = pending.get("fields") or {}
+            # Queued (merged) values are sent now: refresh the echo correlation to this moment.
+            observed["_last_op"] = {"op_id": op_id, "fields": dict(fields), "at": timezone.now().isoformat()}
+            link.observed_fields = observed
+            link.save(update_fields=["observed_fields", "updated_at"])
+        elif last_op.get("op_id") == op_id:
+            fields = last_op.get("fields") or {}
+        else:
+            return False  # superseded by a newer op
+        # Ownership may have changed since the op was recorded (AC22).
+        fields = {f: v for f, v in fields.items() if field_owner(link, f) == PLATFORM}
+        c = link.connection
+        if not fields or c.status == DISABLED:
+            observed.pop("_pending_push", None)
+            link.observed_fields = observed
+            link.save(update_fields=["observed_fields", "updated_at"])
+            return False
+        adapter = get_adapter(c.provider)
+        try:
+            result = adapter.update_work_item(provider_context(c), link.external_id, fields, op_id=op_id)
+        except (TransportError, CapabilityUnsupported) as exc:
+            _queue_push(link, fields, op_id, reason=type(exc).__name__)
+            IntegrationConnection.objects.filter(pk=c.pk).update(last_error=f"push failed: {type(exc).__name__}")
+            return False
+        status = result.get("status") or 0
+        if not result.get("ok") and (status >= 500 or status == 429):
+            _queue_push(link, fields, op_id, reason=f"provider {status}")
+            return False
+        observed = dict(link.observed_fields or {})
+        observed.pop("_pending_push", None)
+        observed["_last_push"] = {
+            "op_id": op_id,
+            "fields": fields,
+            "ok": bool(result.get("ok")),
+            "status": status,
+            "at": timezone.now().isoformat(),
+        }
+        link.observed_fields = observed
+        link.save(update_fields=["observed_fields", "updated_at"])
+        IntegrationConnection.objects.filter(pk=c.pk).update(backlog_count=backlog(c))
+        if not result.get("ok"):
+            IntegrationConnection.objects.filter(pk=c.pk).update(last_error=f"push rejected by provider: {status}")
+        return bool(result.get("ok"))
+
+
+def flush_pending_pushes(connection_id) -> int:
+    sent = 0
+    for link in ExternalLink.objects.filter(
+        connection_id=connection_id, deleted_at__isnull=True, observed_fields__has_key="_pending_push"
+    ):
+        op_id = (link.observed_fields.get("_pending_push") or {}).get("op_id")
+        if op_id and execute_push(link.id, op_id):
+            sent += 1
+    return sent
 
 
 # ---------------------------------------------------------------------------
@@ -859,10 +1057,12 @@ def resolve_conflict(conflict, user, resolution) -> SyncConflict:
     issue = conflict.issue
     if resolution == "take_external" and conflict.field in _NATIVE_ATTR:
         setattr(issue, _NATIVE_ATTR[conflict.field], conflict.external_value)
+        issue._pf_sync_origin = "external"
         issue.save(update_fields=[_NATIVE_ATTR[conflict.field], "updated_at"])
     elif resolution == "keep_platform" and conflict.link_id:
-        # The platform value must be pushed back; record the op for echo detection.
-        record_outbound_op(conflict.link, {conflict.field: conflict.platform_value})
+        # The platform value is pushed back (op recorded for echo detection); only platform-owned
+        # fields are ever pushed.
+        push_platform_fields(issue, {conflict.field: conflict.platform_value}, links=[conflict.link])
     conflict.status = "resolved"
     conflict.resolution = resolution
     conflict.updated_by = user

@@ -6,6 +6,7 @@
 """Webhook ingress, inbox durability, connection API (FR-I04, PRD §13.4, AC02)."""
 
 import json
+from datetime import timedelta
 from uuid import uuid4
 
 import pytest
@@ -228,3 +229,41 @@ class TestConnectionApi:
             format="json",
         )
         assert r.status_code == 403
+
+
+@pytest.mark.unit
+class TestIngressLimits:
+    def test_rate_limit_per_connection_returns_429_with_retry_after(self, world, settings):
+        settings.CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache", "LOCATION": "pf-rl"}}
+        settings.PACKAGE_FLOW_WEBHOOK_RATE_LIMIT = 2
+        settings.PACKAGE_FLOW_WEBHOOK_RATE_WINDOW_SECONDS = 60
+        c = make_connection(world)
+        other = make_connection(world, instance_url="https://other.example.test")
+        client = APIClient()
+        assert post_webhook(client, c, gl_mr(), gl_headers("r1")).status_code == 202
+        assert post_webhook(client, c, gl_mr(), gl_headers("r2")).status_code == 202
+        r = post_webhook(client, c, gl_mr(), gl_headers("r3"))
+        assert r.status_code == 429 and r.json()["code"] == "RATE_LIMITED"
+        assert 1 <= int(r["Retry-After"]) <= 60
+        assert not InboundEvent.objects.filter(connection=c, external_event_id="gitlab:r3").exists()
+        # Quota is per connection; bad signatures do not consume it.
+        assert post_webhook(client, other, gl_mr(), gl_headers("o1")).status_code == 202
+
+    def test_replay_window_stores_old_event_as_ignored(self, world, settings):
+        settings.PACKAGE_FLOW_WEBHOOK_MAX_AGE_SECONDS = 7 * 24 * 3600
+        from django.utils import timezone as tz
+
+        project = world.project()
+        issue = world.issue(project)
+        c = make_connection(world)
+        make_binding(world, project, c)
+        old = (tz.now() - timedelta(days=8)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        r = post_webhook(APIClient(), c, gl_mr(description=f"PH-{issue.id}", updated_at=old), gl_headers("old-1"))
+        assert r.status_code == 202 and r.json()["ignored"] == "outside_replay_window"
+        ev = InboundEvent.objects.get(id=r.json()["event_id"])
+        assert ev.status == "ignored" and "replay window" in ev.error
+        assert not MergeRequestLink.objects.filter(issue=issue).exists()
+        fresh = tz.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+        r = post_webhook(APIClient(), c, gl_mr(description=f"PH-{issue.id}", updated_at=fresh), gl_headers("new-1"))
+        assert r.status_code == 202 and "ignored" not in r.json()
+        assert MergeRequestLink.objects.filter(issue=issue).exists()

@@ -95,6 +95,21 @@ app.conf.beat_schedule = {
 }
 
 
+# Project Hub package-flow periodic jobs (additive; tasks in plane/package_flow/tasks.py).
+app.conf.beat_schedule.update(
+    {
+        "package-flow-reconcile-integrations": {
+            "task": "plane.package_flow.tasks.reconcile_all_connections",
+            "schedule": crontab(minute="*/10"),  # inbox replay + provider poll with overlap window
+        },
+        "package-flow-expire-claim-leases": {
+            "task": "plane.package_flow.tasks.expire_leases",
+            "schedule": schedule(run_every=timedelta(minutes=1)),
+        },
+    }
+)
+
+
 # Setup logging
 @after_setup_logger.connect
 def setup_loggers(logger, *args, **kwargs):

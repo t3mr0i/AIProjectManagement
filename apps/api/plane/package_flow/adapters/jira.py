@@ -18,6 +18,8 @@ changelog id.
 Git capabilities are ``unsupported``: Jira is a tracker, not a code host.
 """
 
+from urllib.parse import quote
+
 from .base import (
     ISSUE_UPDATED,
     PARTIAL,
@@ -49,6 +51,10 @@ PRIORITY_MAP = {
 }
 
 FIELD_MAP = {"priority": "priority", "summary": "title", "status": "status"}
+
+
+# Plane priority -> Jira priority name (``none`` is never pushed).
+REVERSE_PRIORITY = {"urgent": "Highest", "high": "High", "medium": "Medium", "low": "Low"}
 
 
 def map_priority(name):
@@ -157,3 +163,33 @@ class JiraAdapter(Adapter):
                 url=issue.get("self") or "",
             )
         ]
+
+    # -- outbound (bounded write-back, I12) -----------------------------------
+    def auth_headers(self, ctx):
+        if not ctx.token:
+            return {}
+        # Cloud: "email:api_token" -> Basic; Data Center PAT -> Bearer.
+        if ":" in ctx.token:
+            import base64
+
+            return {"Authorization": "Basic " + base64.b64encode(ctx.token.encode()).decode("ascii")}
+        return {"Authorization": f"Bearer {ctx.token}"}
+
+    def update_work_item(self, ctx, external_id, fields, *, op_id=""):
+        payload, pushed = {}, {}
+        if fields.get("title"):
+            payload["summary"] = fields["title"]
+            pushed["title"] = fields["title"]
+        if fields.get("priority") in REVERSE_PRIORITY:
+            payload["priority"] = {"name": REVERSE_PRIORITY[fields["priority"]]}
+            pushed["priority"] = payload["priority"]["name"]
+        if not payload:
+            return {"ok": True, "status": 204, "pushed": {}}
+        api = "3" if (ctx.instance_type or "cloud") == "cloud" else "2"
+        resp = self.transport.request(
+            "PUT",
+            f"{ctx.instance_url.rstrip('/')}/rest/api/{api}/issue/{quote(str(external_id), safe='')}",
+            headers={**self.auth_headers(ctx), "Content-Type": "application/json"},
+            json={"fields": payload},
+        )
+        return {"ok": resp.ok, "status": resp.status, "pushed": pushed}

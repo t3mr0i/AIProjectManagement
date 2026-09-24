@@ -29,6 +29,9 @@ from .base import (
 
 # Linear priority integers → Plane priorities (0 = no priority).
 PRIORITY_MAP = {0: "none", 1: "urgent", 2: "high", 3: "medium", 4: "low"}
+REVERSE_PRIORITY = {v: k for k, v in PRIORITY_MAP.items()}
+GRAPHQL_URL = "https://api.linear.app/graphql"
+ISSUE_UPDATE = "mutation($id: String!, $input: IssueUpdateInput!) { issueUpdate(id: $id, input: $input) { success } }"
 
 
 class LinearAdapter(Adapter):
@@ -120,3 +123,28 @@ class LinearAdapter(Adapter):
                 url=payload.get("url") or data.get("url") or "",
             )
         ]
+
+    # -- outbound (bounded write-back, I12) -----------------------------------
+    def auth_headers(self, ctx):
+        # API keys are sent verbatim; OAuth tokens as Bearer.
+        if not ctx.token:
+            return {}
+        return {"Authorization": ctx.token if ctx.token.startswith("lin_api_") else f"Bearer {ctx.token}"}
+
+    def update_work_item(self, ctx, external_id, fields, *, op_id=""):
+        data = {}
+        if fields.get("title"):
+            data["title"] = fields["title"]
+        if fields.get("priority") in REVERSE_PRIORITY:
+            data["priority"] = REVERSE_PRIORITY[fields["priority"]]
+        if not data:
+            return {"ok": True, "status": 204, "pushed": {}}
+        resp = self.transport.request(
+            "POST",
+            GRAPHQL_URL,
+            headers={**self.auth_headers(ctx), "Content-Type": "application/json"},
+            json={"query": ISSUE_UPDATE, "variables": {"id": str(external_id), "input": data}},
+        )
+        body = resp.body if isinstance(resp.body, dict) else {}
+        success = bool(((body.get("data") or {}).get("issueUpdate") or {}).get("success"))
+        return {"ok": resp.ok and success and not body.get("errors"), "status": resp.status, "pushed": data}

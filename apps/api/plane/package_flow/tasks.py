@@ -43,3 +43,20 @@ def reconcile_all_connections():
         except Exception as exc:  # noqa: BLE001 - one bad connection must not stop the sweep
             results[str(connection_id)] = f"error:{type(exc).__name__}"
     return results
+
+
+@shared_task(name="plane.package_flow.tasks.push_external_fields")
+def push_external_fields(link_id, op_id):
+    """Bounded outbound tracker write (I12); idempotent per recorded op id."""
+    from plane.package_flow.services.integrations import execute_push
+
+    return execute_push(link_id, op_id)
+
+
+@shared_task(name="plane.package_flow.tasks.expire_leases")
+def expire_leases():
+    """Periodic lease expiry for runner claims (FR-G04)."""
+    from plane.package_flow.services.execution import expire_leases as expire
+
+    result = expire()
+    return result if isinstance(result, (int, str, list, dict, type(None))) else str(result)

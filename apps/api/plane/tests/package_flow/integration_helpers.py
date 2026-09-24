@@ -49,6 +49,9 @@ class FakeTransport(HttpTransport):
 @pytest.fixture(autouse=True)
 def fake_transport(settings):
     settings.PACKAGE_FLOW_INLINE_TASKS = True
+    # Fixture payloads carry fixed historical timestamps; tests of the replay window/rate limit opt in.
+    settings.PACKAGE_FLOW_WEBHOOK_MAX_AGE_SECONDS = 0
+    settings.PACKAGE_FLOW_WEBHOOK_RATE_LIMIT = 0
     transport = FakeTransport()
     with override_transport(transport):
         yield transport
