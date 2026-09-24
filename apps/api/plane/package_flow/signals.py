@@ -5,3 +5,4 @@
 """Native-mutation hooks are registered in services.native_hooks."""
 
 from .services import native_hooks  # noqa: F401
+from .services import collab_hooks  # noqa: F401
