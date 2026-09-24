@@ -1,0 +1,94 @@
+{
+  "//": "Project Hub runner tasks. Copy to .vscode/tasks.json of the MANAGED repository (or merge). All tasks call the same `ph-runner` CLI contract as the JetBrains External Tools (FR-G03). Credentials stay in ~/.config/project-hub/runner.json, never in this file.",
+  "version": "2.0.0",
+  "inputs": [
+    { "id": "project", "type": "promptString", "description": "Plane project id" },
+    { "id": "workItem", "type": "promptString", "description": "Work item (issue) id" },
+    { "id": "approval", "type": "promptString", "description": "Execution approval id" },
+    {
+      "id": "repo",
+      "type": "promptString",
+      "description": "Repository binding id (empty = only one in scope)",
+      "default": ""
+    },
+    { "id": "run", "type": "promptString", "description": "Run id (printed by 'Take over package')" },
+    { "id": "phase", "type": "promptString", "description": "Progress phase, e.g. implementing / testing" },
+    { "id": "question", "type": "promptString", "description": "Question for the package owner" },
+    {
+      "id": "selfReport",
+      "type": "promptString",
+      "description": "What you verified yourself (stored as local_self_report)"
+    }
+  ],
+  "tasks": [
+    {
+      "label": "Project Hub: take over package (human mode)",
+      "type": "process",
+      "command": "ph-runner",
+      "args": [
+        "run",
+        "--mode",
+        "human",
+        "--project",
+        "${input:project}",
+        "--work-item",
+        "${input:workItem}",
+        "--approval",
+        "${input:approval}",
+        "--repo",
+        "${input:repo}"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Project Hub: keep lease alive",
+      "type": "process",
+      "command": "ph-runner",
+      "args": ["heartbeat", "--run", "${input:run}", "--watch"],
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Project Hub: report progress",
+      "type": "process",
+      "command": "ph-runner",
+      "args": ["report", "--run", "${input:run}", "--progress", "${input:phase}"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Project Hub: ask question",
+      "type": "process",
+      "command": "ph-runner",
+      "args": ["report", "--run", "${input:run}", "--question", "${input:question}"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Project Hub: self-report",
+      "type": "process",
+      "command": "ph-runner",
+      "args": ["report", "--run", "${input:run}", "--self-report", "${input:selfReport}"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Project Hub: run approved checks and push work branch",
+      "type": "process",
+      "command": "ph-runner",
+      "args": ["push", "--run", "${input:run}", "--run-checks"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Project Hub: status",
+      "type": "process",
+      "command": "ph-runner",
+      "args": ["status"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Project Hub: release claim",
+      "type": "process",
+      "command": "ph-runner",
+      "args": ["release", "--run", "${input:run}"],
+      "problemMatcher": []
+    }
+  ]
+}

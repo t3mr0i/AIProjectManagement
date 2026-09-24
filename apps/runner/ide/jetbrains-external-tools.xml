@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Project Hub runner as JetBrains External Tools (IntelliJ, PyCharm, WebStorm, ...).
+  Install: copy this file to <IDE config dir>/tools/ProjectHub.xml and restart the IDE
+  (e.g. ~/.config/JetBrains/<Product><Version>/tools/). The tools then appear under
+  Tools > External Tools > Project Hub and can be bound to keymaps.
+
+  Every tool calls the same `ph-runner` CLI contract as the VS Code tasks (FR-G03).
+  $Prompt$ asks for a value when the tool runs. Credentials are NOT stored here; they
+  live in ~/.config/project-hub/runner.json (0600, written by `ph-runner login`).
+-->
+<toolSet name="Project Hub">
+  <tool name="Take over package (human mode)" description="Claim, start run, prepare runner-owned worktree" showInMainMenu="true" showInEditor="false" showInProject="true" showInSearchPopup="true" disabled="false" useConsole="true" showConsoleOnStdOut="true" showConsoleOnStdErr="true" synchronizeAfterRun="true">
+    <exec>
+      <option name="COMMAND" value="ph-runner" />
+      <option name="PARAMETERS" value="run --mode human --project $Prompt$ --work-item $Prompt$ --approval $Prompt$" />
+      <option name="WORKING_DIRECTORY" value="$ProjectFileDir$" />
+    </exec>
+  </tool>
+  <tool name="Keep lease alive" description="Heartbeat until stopped or cancelled" showInMainMenu="true" showInEditor="false" showInProject="true" showInSearchPopup="true" disabled="false" useConsole="true" showConsoleOnStdOut="false" showConsoleOnStdErr="true" synchronizeAfterRun="false">
+    <exec>
+      <option name="COMMAND" value="ph-runner" />
+      <option name="PARAMETERS" value="heartbeat --watch --run $Prompt$" />
+      <option name="WORKING_DIRECTORY" value="$ProjectFileDir$" />
+    </exec>
+  </tool>
+  <tool name="Report progress" description="Coarse progress phase for the package" showInMainMenu="true" showInEditor="true" showInProject="true" showInSearchPopup="true" disabled="false" useConsole="true" showConsoleOnStdOut="true" showConsoleOnStdErr="true" synchronizeAfterRun="false">
+    <exec>
+      <option name="COMMAND" value="ph-runner" />
+      <option name="PARAMETERS" value="report --run $Prompt$ --progress $Prompt$" />
+      <option name="WORKING_DIRECTORY" value="$ProjectFileDir$" />
+    </exec>
+  </tool>
+  <tool name="Ask question" description="Create a question on the package" showInMainMenu="true" showInEditor="true" showInProject="true" showInSearchPopup="true" disabled="false" useConsole="true" showConsoleOnStdOut="true" showConsoleOnStdErr="true" synchronizeAfterRun="false">
+    <exec>
+      <option name="COMMAND" value="ph-runner" />
+      <option name="PARAMETERS" value="report --run $Prompt$ --question $Prompt$" />
+      <option name="WORKING_DIRECTORY" value="$ProjectFileDir$" />
+    </exec>
+  </tool>
+  <tool name="Self-report" description="Developer claim (trust: local_self_report)" showInMainMenu="true" showInEditor="true" showInProject="true" showInSearchPopup="true" disabled="false" useConsole="true" showConsoleOnStdOut="true" showConsoleOnStdErr="true" synchronizeAfterRun="false">
+    <exec>
+      <option name="COMMAND" value="ph-runner" />
+      <option name="PARAMETERS" value="report --run $Prompt$ --self-report $Prompt$" />
+      <option name="WORKING_DIRECTORY" value="$ProjectFileDir$" />
+    </exec>
+  </tool>
+  <tool name="Run checks and push work branch" description="Verify commits against policy, run approved checks, push ph/ branch" showInMainMenu="true" showInEditor="false" showInProject="true" showInSearchPopup="true" disabled="false" useConsole="true" showConsoleOnStdOut="true" showConsoleOnStdErr="true" synchronizeAfterRun="true">
+    <exec>
+      <option name="COMMAND" value="ph-runner" />
+      <option name="PARAMETERS" value="push --run-checks --run $Prompt$" />
+      <option name="WORKING_DIRECTORY" value="$ProjectFileDir$" />
+    </exec>
+  </tool>
+  <tool name="Status" description="Server-confirmed status of runs started here" showInMainMenu="true" showInEditor="false" showInProject="true" showInSearchPopup="true" disabled="false" useConsole="true" showConsoleOnStdOut="true" showConsoleOnStdErr="true" synchronizeAfterRun="false">
+    <exec>
+      <option name="COMMAND" value="ph-runner" />
+      <option name="PARAMETERS" value="status" />
+      <option name="WORKING_DIRECTORY" value="$ProjectFileDir$" />
+    </exec>
+  </tool>
+  <tool name="Release claim" description="Release the claim of a run" showInMainMenu="true" showInEditor="false" showInProject="true" showInSearchPopup="true" disabled="false" useConsole="true" showConsoleOnStdOut="true" showConsoleOnStdErr="true" synchronizeAfterRun="false">
+    <exec>
+      <option name="COMMAND" value="ph-runner" />
+      <option name="PARAMETERS" value="release --run $Prompt$" />
+      <option name="WORKING_DIRECTORY" value="$ProjectFileDir$" />
+    </exec>
+  </tool>
+</toolSet>
