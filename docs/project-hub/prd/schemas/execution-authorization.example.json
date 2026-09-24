@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "1.1.0",
+  "id": "00000000-0000-4000-8000-000000000007",
+  "workspaceId": "00000000-0000-4000-8000-000000000004",
+  "workItemId": "00000000-0000-4000-8000-000000000002",
+  "revisionId": "00000000-0000-4000-8000-000000000001",
+  "revisionHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "action": "execute",
+  "approvedBy": {
+    "principalId": "00000000-0000-4000-8000-000000000006",
+    "kind": "human"
+  },
+  "approvedAt": "2026-09-24T12:10:00Z",
+  "expiresAt": "2026-09-24T13:10:00Z",
+  "policyVersion": "pilot-policy-v1",
+  "repositoryScope": [
+    {
+      "bindingId": "00000000-0000-4000-8000-000000000005",
+      "baseCommit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "targetBranch": "main",
+      "allowedPaths": ["src/export/**", "tests/export/**", "openspec/**"]
+    }
+  ],
+  "allowedActions": [
+    "prepare_worktree",
+    "edit_allowed_files",
+    "run_allowed_checks",
+    "create_commit",
+    "push_work_branch",
+    "open_merge_request"
+  ],
+  "runnerProfileId": "00000000-0000-4000-8000-000000000008",
+  "limits": {
+    "maxSeconds": 3600,
+    "maxSpendMinor": 1000,
+    "currency": "EUR"
+  },
+  "revokedAt": null
+}

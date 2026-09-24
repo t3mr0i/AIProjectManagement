@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:project-hub:domain-event:v1.1",
+  "title": "DomainEvent v1.1",
+  "description": "Normalized internal envelope after source verification. Provider-specific payloads need their own versioned validators. Receipt and occurrence time are deliberately distinct. Plane extension contract: workspaceId/projectId/workItemId refer to native Plane Workspace/Project/Issue UUIDs. Server-side foreign-key, membership and approval checks are required.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.1.0"
+    },
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "workspaceId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Native db.Workspace.id; no separate tenant identity."
+    },
+    "eventType": {
+      "enum": [
+        "package.revision.created",
+        "package.execution.approved",
+        "run.claimed",
+        "run.started",
+        "run.finished",
+        "run.cancelled",
+        "review.approved",
+        "git.merge.observed",
+        "deployment.observed",
+        "release.observed",
+        "decision.published",
+        "integration.stale",
+        "access.revoked"
+      ]
+    },
+    "aggregateType": {
+      "enum": ["project", "package", "run", "review", "delivery", "decision", "integration", "access"]
+    },
+    "aggregateId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "For aggregateType package: native Plane Issue UUID, not a separate package identity. Other aggregates use their own extension identity."
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "receivedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "correlationId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "causationId": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "deduplicationKey": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": ["platform", "provider", "runner"]
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "instanceId": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["kind", "id", "instanceId"]
+    },
+    "actor": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": ["human", "agent", "system"]
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["kind", "id"]
+    },
+    "payload": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "id",
+    "workspaceId",
+    "eventType",
+    "aggregateType",
+    "aggregateId",
+    "occurredAt",
+    "receivedAt",
+    "correlationId",
+    "causationId",
+    "deduplicationKey",
+    "source",
+    "actor",
+    "payload"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "enum": ["package.execution.approved", "review.approved"]
+          }
+        },
+        "required": ["eventType"]
+      },
+      "then": {
+        "properties": {
+          "actor": {
+            "properties": {
+              "kind": {
+                "const": "human"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

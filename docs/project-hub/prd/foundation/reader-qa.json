@@ -1,0 +1,14 @@
+{
+  "scope": "Document HTML reader only, not Plane UI or product implementation",
+  "method": "Local Chromium, HTML supplied via set_content; no external runtime assets",
+  "viewports": [
+    [1440, 1050],
+    [390, 844]
+  ],
+  "pageErrors": [],
+  "desktopNoPageOverflow": true,
+  "mobileNoPageOverflow": true,
+  "navigation": "passed",
+  "uniqueHtmlIds": 200,
+  "validInternalAnchors": 57
+}

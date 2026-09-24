@@ -1,0 +1,477 @@
+--- v0.1/PRD.md
++++ v0.2/PRD.md
+@@ -1,9 +1,19 @@
+-# PRD — KI-native Projektzentrale für Softwareteams
++# PRD — KI-native Projektzentrale auf Plane
+ 
+ **Arbeitsbezeichnung:** Project Hub. Kein beschlossener Produktname.  
+-**Version:** 0.1 · **Stand:** 24. September 2026  
+-**Status:** Ausgearbeiteter Umsetzungsentwurf; Produkt- und Architekturannahmen sind noch nicht freigegeben.  
++**Version:** 0.2 · **Foundation:** Plane Community-Repository · **Stand:** 24. September 2026  
++**Status:** Plane als Foundation ist bestätigt. Erweiterungsarchitektur und Releaseumfang sind Umsetzungsentwürfe. Lizenz-/Vertriebsfreigabe ist offen.  
+ **Zweck:** Gemeinsame Grundlage für Produktentwicklung, Design, technische Planung und schrittweise KI-gestützte Implementierung.
++
++## Änderungsstand 0.2
++
++Diese Fassung ersetzt den Greenfield-Ansatz von 0.1. Wir entwickeln die Anwendung **auf der Codebasis von `makeplane/plane`**. Plane ist kein optionaler Trackeradapter und keine reine Designreferenz. Vorhandene Projektverwaltung, Identitäten, Work Items, Pages und UI-Bausteine werden übernommen und gezielt erweitert.
++
++**Geprüfte Analysebasis:** Branch `preview`, Commit `d616636119d20a531a815c78d364bdb47d552a2d` vom 24. September 2026. Das ist ein fixierter Quellenstand, keine Behauptung eines stabilen oder produktionsfreigegebenen Releases. Vor dem ersten Code-Inkrement wird der tatsächliche Fork-Startstand freigegeben und in `foundation/upstream-lock.json` festgehalten. [P01–P10](SOURCES.md#p01)
++
++Die Änderungen gegenüber 0.1 stehen in `PLANE_DELTA.md`; der konkrete Textvergleich steht in `diff/PRD-v0.1-v0.2.diff`. `PLANE_FOUNDATION.md` grenzt statisch geprüfte Basisfunktionen, Erweiterungen und ungeprüfte Enterprise-Funktionen ab. Die 59 ursprünglichen funktionalen Anforderungen behalten ihre IDs; neue Foundation-Anforderungen ergänzen sie.
++
++**Keine stillschweigende Lizenzentscheidung:** Plane ist verbindlich gewählt; der Wunsch nach proprietärer Vermarktung gilt weiterhin als Ziel. Daraus folgt keine bereits erteilte Erlaubnis für einen geschlossenen Fork. Der zulässige Vertriebsweg muss vor externer Bereitstellung separat geklärt sein. Siehe L01 in §4.
+ 
+ ## 0. Wie dieses Dokument zu verwenden ist
+ 
+@@ -16,7 +26,7 @@
+ - **O — offen:** Vor dem jeweils genannten Entscheidungspunkt zu klären. Nicht stillschweigend durch einen Coding-Agenten entscheiden lassen.
+ - **MUSS / SOLL / KANN:** Anforderungsstärke innerhalb eines freigegebenen Release-Scopes. Ein MUSS für V1 wird dadurch nicht automatisch zum Pilotumfang.
+ 
+-Die Dateien `DESIGN_BRIEF.md`, `IMPLEMENTATION_PLAN.md`, `acceptance/core.feature`, die JSON-Schemas und die drei Skills ergänzen dieses PRD. Bei einem Widerspruch gelten bestätigte Vorgaben und die Sicherheitsinvarianten dieses Dokuments; der Konflikt ist vor Umsetzung aufzulösen. Quellen zu geprüften externen Funktionen und den über Mobbin betrachteten Referenzen stehen in `SOURCES.md`. Eigene Produktvorschläge werden nicht als belegte Eigenschaften bestehender Produkte dargestellt.
++Die Dateien `PLANE_FOUNDATION.md`, `PLANE_DELTA.md`, `MIGRATION_AND_UPSTREAM.md`, `DESIGN_BRIEF.md`, `IMPLEMENTATION_PLAN.md`, `acceptance/core.feature`, die JSON-Schemas und die drei Skills ergänzen dieses PRD. Bei einem Widerspruch gelten bestätigte Vorgaben und die Sicherheitsinvarianten dieses Dokuments; der Konflikt ist vor Umsetzung aufzulösen. Quellen zu geprüften externen Funktionen und den über Mobbin betrachteten Referenzen stehen in `SOURCES.md`. Eigene Produktvorschläge werden nicht als belegte Eigenschaften bestehender Produkte dargestellt.
+ 
+ ## 1. Produktdefinition
+ 
+@@ -32,9 +42,9 @@
+ 
+ ### 1.3 Abgrenzung
+ 
+-Das Produkt ist weder eine neue IDE noch nur ein Agenten-Dashboard, ein Jira-Skin oder ein reiner Chatbot. Es ist kein Bestandteil von Lufthansa, DevPilot oder ReqPilot und übernimmt keine deren Architekturentscheidungen. Es hat einen eigenen Projektmanagement-Kern und austauschbare Anbindungen.
+-
+-Die Oberfläche darf sich in Klarheit und Informationsdichte an Linear orientieren. Die Editing-Referenz Nimbalyst ist ein vom Nutzer genanntes Vorbild für bearbeitbare Inhalte neben KI-Unterstützung, keine festgelegte Codebasis. Für den Neubau wird weder ein Plane-Fork noch eine bestehende Kanban-Anwendung vorausgesetzt.
++Das Produkt ist weder eine neue IDE noch nur ein Agenten-Dashboard, ein Jira-Skin oder ein reiner Chatbot. Es ist kein Bestandteil von Lufthansa, DevPilot oder ReqPilot und übernimmt keine deren Architekturentscheidungen. Sein Projektmanagement-Kern basiert auf Plane; externe Tracker, Git-Anbieter und Ausführungswerkzeuge bleiben über austauschbare Anbindungen integrierbar. Die Plane-Foundation ist eine bewusste interne Abhängigkeit, keine Bindung der Kunden an einen bestimmten externen Tracker.
++
++Die Oberfläche darf sich in Klarheit und Informationsdichte an Linear orientieren. Die Editing-Referenz Nimbalyst ist ein vom Nutzer genanntes Vorbild für bearbeitbare Inhalte neben KI-Unterstützung, keine festgelegte Codebasis. Plane ist nun die verbindliche Code- und UI-Foundation. Bestehende Shell, Projektansichten und Editorbausteine werden weiterverwendet. Neue Produktflächen werden in diese Anwendung integriert; kein paralleler Greenfield-PM-Kern und keine zweite unabhängige Navigation.
+ 
+ ### 1.4 Zielkunden und vorläufiger Markt
+ 
+@@ -74,7 +84,7 @@
+ 
+ | ID | Bestätigte Vorgabe |
+ |---|---|
+-| K01 | Eigenständiges, grundsätzlich proprietär entwickelbares Enterprise-Produkt ohne Bindung an Lufthansa, DevPilot oder ReqPilot. |
++| K01 | Eigenständiges Enterprise-Produkt ohne Bindung an Lufthansa, DevPilot oder ReqPilot. Proprietäre Vermarktung bleibt Ziel; Rechte für den Plane-basierten Vertrieb sind noch nicht geklärt (L01). |
+ | K02 | Gemeinsame Grundlage für Entwickler, Manager und fachliche beziehungsweise Business-Verantwortliche. |
+ | K03 | Lebendige, Linear-nahe Übersicht mit Status und chronologischem Verlauf der tatsächlichen Arbeit. |
+ | K04 | Build, Review und Ship bilden den sichtbaren Lieferablauf; Detailzustände müssen unterscheidbar bleiben. |
+@@ -88,9 +98,9 @@
+ | K12 | Teamchat, Direktnachrichten und @AI im Arbeitskontext; ausgewählte Inhalte können als Entscheidung übernommen werden. |
+ | K13 | Roadmaps, mehrere Projekte und team- beziehungsweise projektübergreifende Abhängigkeiten gehören zum Produktkern. |
+ | K14 | Gemeinsamer Speicher, Dokumente, Termine und leicht auffindbare Informationen gehören zur Projektzentrale. |
+-| K15 | Adapter für Jira, Azure DevOps, GitLab, Linear und weitere Systeme; keine Abhängigkeit des Kerndatenmodells von einem Anbieter. |
++| K15 | Adapter für Jira, Azure DevOps, GitLab, Linear und weitere Systeme. Plane verwaltet die native Identität; externe Provider-IDs ersetzen diese nicht. |
+ | K16 | Sichtbarkeit von Codezustand und tatsächlichem Fortschritt; geringe manuelle Pflege statt Mikromanagement. |
+-| K17 | Bestehende Produkte sind UI-/Interaktionsreferenzen. Ein Neubau ist ausdrücklich möglich. |
++| K17 | Plane (`makeplane/plane`) ist verbindliche Foundation. Der bisher erlaubte Greenfield-Neubau ist durch diese Entscheidung ersetzt; andere Produkte bleiben Interaktionsreferenzen. |
+ | K18 | Review in der Zentrale erklärt Ergebnis, Änderungen und offene Punkte; technische Arbeit und Tests bleiben primär in IDE und CI. |
+ 
+ ## 4. Arbeitsannahmen und Entscheidungstore
+@@ -98,8 +108,8 @@
+ | ID | Vorgeschlagene Annahme | Begründung | Spätestens bestätigen |
+ |---|---|---|---|
+ | A01 | Browserbasierte Desktop-Anwendung; responsive Lesen, Chat und Freigaben auf Mobilgeräten. | Gemeinsamer Zugang ohne zusätzliche Entwicklungsumgebung. | Vor der UI-Implementierung. |
+-| A02 | Modularer Anwendungskern, relationale Datenbank, getrennte Hintergrund- und Ausführungsprozesse. | Weniger anfängliche Betriebsflächen; klare Sicherheitsgrenzen zur Codeausführung. | Vor dem technischen Grundgerüst. |
+-| A03 | SaaS als erste Betriebsform, EU-Region als Pilotannahme; Ausführungsrunner kann im Kundennetz liegen. | Konkreter erster Betriebsweg ohne Cloudbindung im Domänenmodell. | Vor Verarbeitung echter Kundendaten. |
++| A02 | Plane-Fork mit additiven Erweiterungen im vorhandenen Monorepo: React-Router-Webanwendung, Django-Backend, bestehende Persistenz und Jobs; separater Runner. | Bestehende Basis nutzen, Fork-Divergenz begrenzen und Codeausführung isolieren. Detaillierte Erweiterungsgrenzen sind Entwurf. | Vor Inkrement I00/I01. |
++| A03 | SaaS als erste Betriebsform und EU-Region bleiben Pilotannahmen. Plane-Self-hosting-Artefakte dienen als technischer Startpunkt; Runner kann im Kundennetz liegen. | Das kundenseitige Hosting des Produkt-Forks ist nicht mit dem bloßen Vorhandensein von Plane-Compose-Dateien abgenommen. | Vor echten Kundendaten; L01 vor externem Angebot. |
+ | A04 | GitLab als erster Codeadapter; Jira Cloud als erster externer Tracker. | Liefert den vollständigen Git-/CI-/MR-Fluss und prüft die Trennung zum Tracker. Keine vom Nutzer festgelegte Reihenfolge. | Vor Adapterentwicklung. |
+ | A05 | Ein lokaler CLI-/Runner-Vertrag zuerst, keine eigenständige IDE. | Unterschiedliche Entwicklungswerkzeuge sollen weiter nutzbar bleiben. | Vor dem ersten Ende-zu-Ende-Lauf. |
+ | A06 | Bei kurzen Änderungen gilt ein leichtes Paketprofil; Details innerhalb eines freigegebenen Pakets benötigen kein neues Hauptpaket. | Der Prozess darf die ursprüngliche Bürokratie nicht neu erzeugen. | Vor Paketeditor und Policy-Modell. |
+@@ -115,6 +125,12 @@
+ **O04 — Rechte im Team:** Wer darf ein Paket zur Umsetzung freigeben, wer Code-Reviews bestätigen, wer Merge auslösen? Vor Pilotbetrieb als konkrete Rollenbesetzung festlegen.
+ 
+ **O05 — Releaseumfang und Ressourcen:** Es liegen keine belastbare Teamkapazität, Budgetgrenze oder verbindlicher Liefertermin vor. Das PRD enthält daher Reihenfolge und Abnahmebedingungen, keine erfundenen Termin- oder Kostenversprechen.
++
++**O06 — Fork-Startstand:** `d616636119d20a531a815c78d364bdb47d552a2d` ist der untersuchte `preview`-Stand. Release-Tag/Commit, Branchstrategie und Security-Baseline sind vor I00 festzulegen. Kein automatischer Wechsel auf `preview` oder ein späteres Release ohne neue Prüfung.
++
++**O07 — Erweiterungsrechte und Editionsumfang:** Welche kommerziell lizenzierten Komponenten dürfen tatsächlich genutzt werden? Ohne entsprechende Rechte wird ausschließlich gegen den öffentlichen Community-Quellcode geplant. Das Vorhandensein einer Funktion im Plane-Cloud-Produkt belegt keinen nutzbaren Code im Fork.
++
++**L01 — Vertriebsfreigabe:** Vor externer Bereitstellung muss entweder ein zum konkreten Fork, Branding und Betriebsmodell passender zusätzlicher Lizenzvertrag vorliegen oder ein ausdrücklich beschlossener AGPL-konformer Vertriebsweg. Diese Fassung trifft die Entscheidung nicht. Ein normales Commercial-/Enterprise-Abonnement wird nicht als Fork-/OEM-Erlaubnis interpretiert. Eine technische Modultrennung ist kein Nachweis für lizenzrechtliche Unabhängigkeit. [P11–P12](SOURCES.md#p11)
+ 
+ ## 5. Nutzer, Aufgaben und Rechte
+ 
+@@ -133,62 +149,70 @@
+ 
+ ### 5.2 Mindestfähigkeiten
+ 
++Plane `User`, `WorkspaceMember` und `ProjectMember` bleiben die führenden Identitäten und Mitgliedschaften. Die folgenden Fähigkeiten sind zusätzliche fachliche Prüfungen auf dieser Grundlage, keine zweite Benutzerverwaltung. Ihre Durchsetzung muss auch für Plane-interne API-, Bulk-, Import-, Realtime- und Hintergrundpfade geprüft werden. Vorhandene Plane-Rollen werden nicht pauschal mit Merge- oder Run-Rechten gleichgesetzt. [P04](SOURCES.md#p04)
++
++
+ `project.read`, `package.edit`, `package.approve_execution`, `run.start`, `run.cancel`, `review.approve_code`, `review.accept_outcome`, `merge.request`, `decision.publish`, `project.plan`, `integration.manage`, `workspace.admin` werden getrennt vergeben.
+ 
+ Admins erhalten nicht implizit die Leserechte privater Direktnachrichten. Ein definierter administrativer Zugriff für rechtlich erforderliche oder ausdrücklich vereinbarte Betriebsfälle wäre eine separate, auditierte Funktion. Die Anwendung darf eine solche Funktion nicht als bereits vorhandene Enterprise-Eigenschaft behaupten.
+ 
+ ## 6. Umfang und Releases
+ 
+-**R0 — Funktionierender Produktkern:** Projekte, Rechte, Pakete, Revisionen, Readiness/Freigabe, chronologische Übersicht und Tests mit simulierten Ereignissen. Noch keine Behauptung einer vollständigen Integration.
++**R0 — Plane-Baseline und erste Erweiterung:** Plane läuft aus dem freigegebenen Quellenstand; seine vorhandenen Kernabläufe werden regressionsgeprüft. Ein bestehendes Work Item erhält ein Paketprofil, Revisionen, Readiness/Freigabe und eine chronologische Erweiterungsansicht mit markierten Testereignissen. Keine Neuentwicklung von Benutzer-, Projekt- oder Issue-Grundfunktionen. Noch keine Behauptung einer vollständigen Integration.
+ 
+ **R1 — Erster Team-Pilot:** Reale Git-Anbindung, IDE-/Runner-Übernahme, OpenSpec-Roundtrip, Review-/Deployment-Evidenz, Teamchat und Direktnachrichten, gemeinsamer Text-/Diagrammeditor, Upload/Suche, grundlegende Multi-Projekt-Roadmap und Abhängigkeiten. Ein Codeanbieter und ein externer Tracker werden wirklich angebunden. Ohne native KI-Ausführung muss mindestens ein konfigurierter externer Agent vom Runner kontrolliert arbeiten können.
+ 
+ **V1 — Enterprise-fähiger Releaseumfang:** Grundlegende und dokumentierte Adapterabdeckung für die vier genannten Systeme, robuste Berechtigungen und Identitätsintegration, Audit/Export/Löschung, Betriebswiederherstellung, Multi-Team-Planung und Integrationsadministration. Produktionsfreigabe nur nach den jeweiligen Betriebs- und Sicherheitsprüfungen.
+ 
+-**Spätere Erweiterungen:** Vertiefte Kapazitätsszenarien, Budgetplanung, Prognosen, weitere Editorformate, weitere Konnektoren, vollständige Self-hosting-Distribution, umfangreiche Marketplace-Funktionen. Diese Punkte nicht als fertige V1-Funktionen vermarkten.
++**Spätere Erweiterungen:** Vertiefte Kapazitätsszenarien, Budgetplanung, Prognosen, weitere Editorformate, weitere Konnektoren, vollständige Self-hosting-Distribution des eigenen Forks einschließlich Update- und Lizenzpfad, umfangreiche Marketplace-Funktionen. Diese Punkte nicht als fertige V1-Funktionen vermarkten.
+ 
+ | Fähigkeit | R0 | R1 | V1 |
+ |---|---|---|---|
+-| Projekte, Pakete, Revisionen, Freigaben | Vollständig für Kernfluss | Realdaten und Usability | Gehärtet |
+-| Board/Liste und Aktivität | Simulierte Ereignisse | Reale Ereignisse | Große Datenmengen, Export |
++| Projekte, Pakete, Revisionen, Freigaben | Native Basis + erste sichere Paketextension | Realdaten und Usability | Gehärtet |
++| Board/Liste und Aktivität | Native Ansichten + markierte Extensionfixtures | Reale Ereignisse | Große Datenmengen, Export |
+ | OpenSpec und IDE-/Runner-Brücke | Vertrag und Fixtures | Echter Roundtrip | Weitere Runner-/Providerkombinationen |
+-| Chat, @AI, Entscheidungen | Basal | Mit Personen und Rechten | Moderation/Retention nach vereinbarter Policy |
+-| Dokumente und Diagramme | Basale Formate | Gemeinsames Editieren | Weitere Formate nur explizit unterstützt |
+-| Roadmap, Meilensteine, Abhängigkeiten | Basal | Mindestens zwei reale Projekte | Mehrere Teams und Portfolios |
++| Chat, @AI, Entscheidungen | Domänen-/Rechtevertrag; noch kein Vollchat | Mit Personen und Rechten | Moderation/Retention nach vereinbarter Policy |
++| Dokumente und Diagramme | Native Text-/Pagebasis prüfen | Gemeinsames Editieren + Diagrammsemantik | Weitere Formate nur explizit unterstützt |
++| Roadmap, Meilensteine, Abhängigkeiten | Native Planung und Erweiterungsmodell | Mindestens zwei reale Projekte | Mehrere Teams und Portfolios |
+ | Jira/GitLab/Linear/Azure DevOps | Adapterverträge | Gewählte Kombination | Dokumentierte Basisabdeckung aller vier |
+-| Identität und Mandantentrennung | Von Beginn an | OIDC und Sicherheitstests | Vereinbarte Enterprise-Identität, z. B. SCIM/SAML |
++| Identität und Mandantentrennung | Native Identitäten + Isolationstests | Vereinbarte SSO-Anbindung prüfen/ergänzen; nicht automatisch vorhanden | Vereinbarte Enterprise-Identität, z. B. SCIM/SAML |
+ 
+ ## 7. Informations- und Datenmodell
+ 
+-### 7.1 Kernobjekte
+-
+-| Objekt | Wesentliche Eigenschaften und Beziehungen |
++### 7.1 Kernobjekte und Plane-Zuordnung
++
++Die folgenden Zuordnungen sind unser Erweiterungsentwurf. Die Existenz nativer Modelle ist am fixierten Plane-Stand statisch geprüft; vollständige Feature- oder Laufzeitabnahme folgt erst in I00. [P04–P06](SOURCES.md#p04)
++
++| Fachliches Objekt | Umsetzung auf Plane / Ergänzung |
+ |---|---|
+-| Tenant / Workspace | Sicherheitsgrenze, Mitglieder, Richtlinien, Integrationsinstanzen. |
+-| Team | Mitglieder und Zuständigkeiten; kann an mehreren Projekten arbeiten. |
+-| Portfolio / Initiative | Gruppierung von Projekten und Zielen; kein Zwang für kleine Workspaces. |
+-| Project | Ziel, Verantwortliche, Status, Termine, Repositories, Dokumente, Chats, Roadmap. |
+-| WorkPackage | Dauerhafte Identität eines gewünschten Ergebnisses; gehört primär einem Projekt, kann andere beeinflussen. |
+-| PackageRevision | Unveränderlicher Snapshot von Absicht, Verhalten, Nichtzielen, Artefakten und Codebasis. |
+-| ChangeRecord | Konkrete Änderung unter einem Paket; kann kurz sein, ohne eigenes Hauptpaket. |
+-| Requirement / Criterion | Verifizierbare Aussage mit stabiler ID; Umsetzung und Nachweise können darauf verweisen. |
+-| Decision | Aussage, Begründung, Quellen, entscheidende Person, Geltungsbereich, Version und Ablösung. |
+-| Document / Artifact | Inhalt, Format, stabile Block-/Element-IDs, ACL, Revision, Paket-/Projektbezug. |
+-| Conversation / Message | Kanal/DM/Thread, Teilnehmer, Zeit, Bearbeitungsverlauf, Selektion und Anhänge. |
+-| RepositoryBinding | Anbieterinstanz, externe Repo-ID, zulässige Branches/Pfade, Verbindung und Fähigkeiten. |
+-| ExecutionRun | Revision, verantwortlicher Mensch, Agent/Runner, Commitbasis, Lease, Budget, Status und Ergebnisse. |
+-| Evidence | Quelle, geprüfter Commit/Artefaktstand, Criterion-Bezug, Ergebnis, Zeit, Vertrauensklasse. |
+-| Approval | Menschlicher Principal, konkrete Aktion, Revision, relevante Hashes, Policy-Version, Gültigkeit. |
+-| Delivery | Repo-/Artefaktmanifest, Umgebung, Deployment/Release/Freischaltung, Zustand, Zeitpunkt. |
+-| Milestone / Dependency | Zieltermin oder Terminfenster; gerichtete Abhängigkeit mit Typ, Quelle und Bestätigung. |
+-| ExternalLink | Abbildung interner ID auf Anbieterinstanz, Objektart und externe ID; Feldverantwortung. |
+-| Event / AuditEntry | Technisches Ereignis bzw. revisionsfähige menschliche/administrative Aktion. |
++| Tenant / Workspace | Plane `Workspace`. `workspaceId` ist dessen UUID; keine neue parallele Tenant-Tabelle. Mandanten-/Projektisolation muss gegen alle Zugriffswege getestet werden. |
++| Benutzer und Mitgliedschaft | Plane `User`, `WorkspaceMember`, `ProjectMember`; zusätzliche Capability-/Policy-Regeln verweisen darauf. |
++| Team / Portfolio | Neue dünne Planungsbeziehungen zu vorhandenen Workspaces, Projekten und Mitgliedern, sofern die gewählte Edition keine geprüfte passende Basis liefert. |
++| Project | Plane `Project`; vorhandene Metadaten, Memberships und Projekt-IDs bleiben erhalten. |
++| WorkPackage | Bestehendes Plane `Issue` plus optionales, eindeutig zugeordnetes `PackageProfile`. Im Produkt heißt es Arbeitspaket. Kein zweites Ticket, kein zweites Projekt, keine unabhängige Paket-ID. |
++| PackageRevision | Neuer unveränderlicher Freigabe-Snapshot an `Issue`: Absicht, Kriterien, Artefaktversionen und Codebasis. Vorhandene `IssueVersion`/`IssueDescriptionVersion` werden nicht ersetzt und gelten nicht automatisch als Ausführungsfreigabe. |
++| ChangeRecord | Neue kleine Änderung unter dem bestehenden Issue; benötigt weder Sub-Issue noch einen Eintrag pro Tool-Aufruf. |
++| Requirement / Criterion | Stabile IDs innerhalb des Paket-/Revisionskontexts; Nachweise referenzieren sie. |
++| Decision | Neue versionierte fachliche Entscheidung mit Quellen, Bestätigung, Geltungsbereich und Ablösung. Native Kommentare dürfen Quelle sein, nicht automatisch Beschluss. |
++| Document / Artifact | Plane `Page`, `ProjectPage`, `PageVersion`, `Description` und `FileAsset` soweit passend; ergänzende Referenzen/Snapshots, strukturierte Diagramme und semantische Diffs. Kein zweiter vollständiger Filespeicher. |
++| Conversation / Message | Neuer Projektchat, DM und Thread mit eigenen Teilnehmerrechten. Vorhandene `IssueComment`-Diskussionen werden angebunden, nicht als bereits fertiger privater Messenger ausgegeben. |
++| RepositoryBinding | Neue Anbieterinstanz-/Repo-Zuordnung zum Plane-Projekt; vorhandene Integrationsobjekte erst nach Capability-Prüfung verwenden. |
++| ExecutionRun / Claim | Neue externe Ausführungskoordination mit konkreter Issue-Revision, verantwortlichem Plane-Benutzer, Runner, Basis, Lease, Budget und Fencing. |
++| Evidence / Approval / Delivery | Neue beweis- und revisionsgebundene Datensätze: Prüfung, menschliche Freigabe, Integration, Deployment und Freischaltung bleiben getrennt. |
++| Cycle / Module | Vorhandene Plane `Cycle` und `Module` für Sprint-/Zyklus- und Gruppierungsfunktionen; keine Umdeutung jedes Moduls in ein Arbeitspaket. |
++| Milestone / Dependency | Native Issue-Beziehungen und Projekttermine dort nutzen, wo ihre Semantik passt. Projekt-/Team-Abhängigkeiten, Bestätigung und Szenarien ergänzen, statt sie pauschal als geliefert anzunehmen. |
++| ExternalLink | Mehrfachabbildung auf externe Tracker/Git-Objekte mit Providerinstanz, Typ und Feldverantwortung. Ein einzelnes natives `external_id`-Feld reicht nicht für beliebig viele Integrationen. |
++| Event / AuditEntry | Native `IssueActivity` und vorhandene Webhooks berücksichtigen. Neue dauerhafte Inbox/Outbox und revisionsbezogenes Audit ergänzen, soweit der erforderliche Vertrag fehlt. |
++
++**Vertrag 1.1:** `workItemId = db.Issue.id`, `projectId = db.Project.id`, `workspaceId = db.Workspace.id`, `createdBy = db.User.id`. `PackageProfile` ist 0..1 zu einem Issue; eine Revision ist 0..n. Die Datenbank und jede API prüfen, dass alle Referenzen zum selben erlaubten Workspace/Projekt gehören. Transport-Schemas allein können diese Relation nicht beweisen.
++
++Ein gewöhnliches Plane-Issue bleibt ohne Paketprofil normal verwendbar. Das aktivierte Paketprofil darf Anforderungen ergänzen, aber nicht Titel, Priorität, Assignees und allgemeinen Planungsstatus in eine zweite führende Datenhaltung kopieren. Unveränderliche Freigabe-Snapshots dürfen diese Angaben historisch festhalten.
+ 
+ ### 7.2 Wichtige Regeln
+ 
+ Ein Paket ist nicht ein Worktree. Ein Paket kann mehrere Läufe und mehrere Repositories betreffen. Ein Worktree ist eine temporäre Arbeitsumgebung. Ein Ticket in Jira kann ein Paket repräsentieren oder nur mit ihm verknüpft sein; dieses Mapping wird konfiguriert.
+ 
+-Ein Paket besitzt `working_revision_id` und optional `approved_revision_id`. Beide können verschieden sein. Eine neue Arbeitsfassung ersetzt niemals stillschweigend die Grundlage eines laufenden Runs.
++Das an ein Plane-Issue gebundene Paketprofil besitzt `working_revision_id` und optional `approved_revision_id`. Beide können verschieden sein. Eine neue Arbeitsfassung ersetzt niemals stillschweigend die Grundlage eines laufenden Runs.
+ 
+ Ein technischer Diff ist keine ursprüngliche Absicht. Ein Report referenziert seine Quellen. Eine KI-generierte Aussage erhält die Kennzeichnung `inferred` oder `proposed`, bis sie durch passende Evidenz oder eine berechtigte Person bestätigt ist.
+ 
+@@ -196,7 +220,8 @@
+ 
+ | Information | Führende Stelle im Standardbetrieb |
+ |---|---|
+-| Paket-ID, Revision, bestätigte Absicht, Freigabe | Plattform |
++| Work-Item-ID, Projekt, Titel, Priorität, Assignees | Native Plane-Objekte; optionale Feldverantwortung für verbundene Tracker beachten. |
++| Paketrevision, bestätigte Absicht, Ausführungsfreigabe | Neue Extension-Objekte am selben Plane-Issue. |
+ | Priorität und fachlicher Tracker-Status im verbundenen Modus | Pro Feld explizit Plattform oder externer Tracker |
+ | Commit, Branch, Merge Request, Mergezustand | Git-Anbieter |
+ | Testergebnis und Pipelinezustand | CI-Anbieter bzw. deklarierte lokale Evidenzquelle |
+@@ -211,6 +236,12 @@
+ ### 8.1 Getrennte Zustandsachsen
+ 
+ Der UI-Verlauf ist verständlich; das interne Modell muss genauer sein.
++
++**Plane-Planungsstatus:** Native State-Gruppen bleiben `backlog`, `unstarted`, `started`, `completed`, `cancelled`, `triage`. Build, Review und Ship werden nicht als neue globale `StateGroup`-Werte in Upstream geschrieben. Projektlokale Zustandsnamen können konfiguriert werden; die Produktphase wird über eine getrennte Zuordnung und tatsächliche Nachweise angezeigt. [P06](SOURCES.md#p06)
++
++`Issue.is_draft` und vorhandene Draft-Pfade sind zu beachten; der Default-Issue-Manager filtert Drafts aus. Das Paketmodul muss autorisierte Drafts gezielt laden, ohne archivierte, gelöschte oder fremde Issues offenzulegen. Native Draft-Promotion wird in I00 geprüft. Ein Flagwechsel zu „kein Draft“ oder ein Drag-and-drop nach „In Progress“ ist niemals eine Ausführungsfreigabe. [P05](SOURCES.md#p05)
++
++Die folgende Paketachse ist ein fachliches Read-Model aus nativem Issue, Freigaben und Ausführung. Sie wird nicht als zweite manuell gepflegte Kopie des Plane-Status betrieben.
+ 
+ **Paketlebenszyklus:** `draft`, `ready`, `active`, `review`, `completed`, `cancelled`, `archived`.
+ 
+@@ -233,6 +264,8 @@
+ | Ship | Prüfschritte abgeschlossen bzw. Lieferung läuft; integrierte, bereitgestellte und freigeschaltete Teile unterscheiden. |
+ | Erledigt | Das für diesen Pakettyp vereinbarte Abschlusskriterium erfüllt. Für Software standardmäßig bestätigte Auslieferung und erforderliche Abnahme. |
+ 
++Wird ein paketfähiges Issue in einer nativen Plane-Ansicht auf „Done“ gesetzt, ist das zunächst ein beobachteter Planungsstatus. Fehlende Liefernachweise werden weiterhin angezeigt. Die Anwendung darf daraus weder automatisch „produktiv“ noch einen gültigen Merge ableiten. Eine solche Abweichung wird im Paket sichtbar und kann geklärt werden; sie darf keine Status-Pingpong-Schleife zum externen Tracker erzeugen.
++
+ Ein nicht-codebezogenes Paket kann ein Dokument oder eine fachliche Entscheidung als Liefergegenstand haben. Seine Nachweise sind dann andere; Git wird nicht künstlich vorausgesetzt.
+ 
+ ### 8.3 Unverhandelbare Invarianten
+@@ -317,7 +350,7 @@
+ 
+ ### 10.1 Projekte und gemeinsame Übersicht
+ 
+-**FR-P01 — Workspace und Projekte [R0].** Das System MUSS mehrere Projekte pro Workspace mit Ziel, Verantwortlichen, Mitgliedern, Status und optionalen Meilensteinen verwalten. Ein neues Projekt braucht weder Repository noch Tracker. **Abnahme:** Zwei Projekte lassen sich unabhängig bearbeiten; ein nur für Projekt A berechtigter Nutzer erhält keine Inhalte aus B.
++**FR-P01 — Workspace und Projekte [R0].** Das System MUSS die native Plane-Verwaltung für mehrere Projekte pro Workspace übernehmen und damit Projekte mit Ziel, Verantwortlichen, Mitgliedern, Status und optionalen Meilensteinen verwalten. Ein neues Projekt braucht weder Repository noch Tracker. **Abnahme:** Zwei Projekte lassen sich unabhängig bearbeiten; ein nur für Projekt A berechtigter Nutzer erhält keine Inhalte aus B.
+ 
+ **FR-P02 — Lebendige Übersicht [R0/R1].** Die Projektstartseite MUSS aktive, bereitstehende, geprüfte und gelieferte Pakete sowie offene Entscheidungen zeigen. Ein chronologischer Bereich MUSS heute, gewählte Zeiträume und den persönlichen Besuchsmarker unterstützen. **Abnahme:** Ein real importierter Merge aktualisiert genau ein betroffenes Paket; die Details bleiben aufklappbar.
+ 
+@@ -331,7 +364,7 @@
+ 
+ ### 10.2 Pakete und Spezifikationen
+ 
+-**FR-W01 — Schneller Draft [R0].** Ein Paket MUSS mit Titel und Projekt speicherbar sein; der Nutzer kann die Absicht anschließend ergänzen. Die Oberfläche darf Vollständigkeit nicht mit Speicherbarkeit verwechseln. **Abnahme:** Ein leerer Draft wird gespeichert, kann aber nicht ausgeführt werden.
++**FR-W01 — Schneller Draft [R0].** Ein Paket MUSS als Plane-Issue mit optionalem Paketprofil mit Titel und Projekt speicherbar sein; der Nutzer kann die Absicht anschließend ergänzen. Die Oberfläche darf Vollständigkeit nicht mit Speicherbarkeit verwechseln. **Abnahme:** Ein leerer Draft wird gespeichert, kann aber nicht ausgeführt werden.
+ 
+ **FR-W02 — Leichtes und vertieftes Profil [R0].** Das Standardprofil MUSS Ziel, Ergebnis, Grenzen und Abnahme priorisieren. Zusätzliche Risikoinformationen werden bei Bedarf sichtbar. **Abnahme:** Eine kleine Textänderung erfordert kein Architekturdiagramm; eine Berechtigungsänderung zeigt die projektspezifischen zusätzlichen Prüfpflichten.
+ 
+@@ -433,7 +466,7 @@
+ 
+ ### 10.8 Integrationen und Betrieb
+ 
+-**FR-I01 — Eigener Betrieb ohne Tracker [R0].** Kernfunktionen MÜSSEN ohne Jira/Linear/Azure-Boards-Verbindung nutzbar sein. **Abnahme:** Ein neues Projekt kann Pakete und Roadmap vollständig nativ verwalten.
++**FR-I01 — Nativer Plane-Betrieb ohne externen Tracker [R0].** Kernfunktionen MÜSSEN im Plane-Fork ohne Jira/Linear/Azure-Boards-Verbindung nutzbar sein. **Abnahme:** Ein neues Projekt kann Pakete und Roadmap vollständig nativ verwalten.
+ 
+ **FR-I02 — Adaptervertrag [R1].** Anbieteradapter MÜSSEN Fähigkeiten, Authentifizierung, Rate Limits, Events, Feldmapping und unterstützte Editionen deklarieren. **Abnahme:** Eine nicht unterstützte Operation ist sichtbar deaktiviert und nicht als stiller Erfolg quittiert.
+ 
+@@ -449,9 +482,42 @@
+ 
+ **FR-I08 — Retention und Löschung [V1].** Inhalte, Indizes, KI-Zwischenergebnisse, Exporte und Quellenausschnitte MÜSSEN einem nachvollziehbaren Aufbewahrungs- und Löschkonzept folgen. **Abnahme:** Ein gelöschtes Dokument erscheint nicht weiter über eine ältere KI-Antwort als frei zugänglicher Quellenausschnitt.
+ 
++### 10.9 Plane-Foundation und Erweiterungssicherheit
++
++**FR-B01 — Nachvollziehbare Quellenbasis [R0].** Der Fork MUSS einen freigegebenen Commit, dessen Herkunft, die tatsächlichen Abhängigkeiten und den geprüften Editionsumfang dokumentieren. **Abnahme:** `foundation/upstream-lock.json` und Build-Commit stimmen überein; spätere Upstream-Änderungen werden nicht unbemerkt übernommen.
++
++**FR-B02 — Eine native Identität [R0].** Pakete MÜSSEN an genau ein Plane-Issue gebunden sein. Workspace, Projekt, Person, Titel, Priorität und Assignees werden nicht parallel neu aufgebaut. **Abnahme:** Ein vorhandenes Issue erhält ein Paketprofil, ohne einen zweiten Issue-Datensatz zu erzeugen; ein fremdes Projekt kann nicht per Referenz eingeschleust werden.
++
++**FR-B03 — Bestehenden Stack erweitern [R0].** Die Umsetzung MUSS die geprüften Plane-Konventionen verwenden, sofern kein gesonderter ADR einen begründeten Austausch freigibt. **Abnahme:** Kein zweites Web-Framework, Auth-System, PM-ORM oder Designsystem wird nur für die neuen Paketflächen eingeführt.
++
++**FR-B04 — Additive Migration [R0/R1].** Neue Tabellen und Beziehungen MÜSSEN bestehende Workspaces, Issues, States, Pages und IDs erhalten. Aktivierung erfolgt kontrolliert pro Workspace/Projekt. **Abnahme:** Ein importierter Altbestand funktioniert mit deaktivierter Extension unverändert; Wiederholung der Backfill-Aktion ist idempotent.
++
++**FR-B05 — Freigabe ist kein Status [R0].** Ein natives State-/Draft-Update DARF weder Ausführung noch Merge autorisieren. **Abnahme:** Drag-and-drop, Bulk-Edit, API, Import und Tracker-Sync können keine gültige menschliche Ausführungsfreigabe erzeugen.
++
++**FR-B06 — Bestehende Schreibwege beachten [R1].** Änderungen an relevanten nativen Feldern und referenzierten Dokumenten MÜSSEN über alle zugelassenen Pfade auf Revisions-/Scope-Konflikte geprüft werden. **Abnahme:** Eine Beschreibung wird über die native Plane-Oberfläche geändert; eine alte Freigabe kann nicht für die neue Absicht verwendet werden. Die Prüfung am Run-/Merge-Gate erfolgt auch bei verzögertem Event.
++
++**FR-B07 — Draft-, Archiv- und Löschverhalten [R0/R1].** Paket-Queries MÜSSEN Plane-Filter und Memberships korrekt ergänzen; sie dürfen sie nicht pauschal umgehen. **Abnahme:** Autorisierte Drafts sind sichtbar, fremde/gelöschte Inhalte nicht; Archivierung stoppt neue Claims und behandelbare aktive Ausführung wird widerrufen.
++
++**FR-B08 — Native Editoren und Assets [R1].** Pages-, Editor-, Description- und Asset-Bausteine SOLLEN wiederverwendet werden; fehlende Semantik wird gezielt ergänzt. **Abnahme:** Editieren, Upload, unbekannte Editorblöcke und Versionshistorie bleiben nach Aktivierung erhalten; ein Layout-Diff erzeugt keinen Codeauftrag.
++
++**FR-B09 — Rechte über alle Oberflächen [R1/V1].** Erweiterungsdaten MÜSSEN in Suche, APIs, Export, öffentlichen Flächen, KI und Live-Verbindungen die jeweiligen Objekt- und Quellrechte einhalten. **Abnahme:** Zugriffsentzug wirkt auch ohne Neuanmeldung; private Nachrichten oder Paketquellen erscheinen nicht versehentlich in einer öffentlichen Plane-Ansicht.
++
++**FR-B10 — Ereignisse ohne Doppelpflege [R1].** Native und neue Ereignisse MÜSSEN korreliert und nach Commit der fachlichen Transaktion verarbeitet werden. **Abnahme:** Ein Commit, eine native Issue-Aktivität und ein wiederholter Webhook erzeugen genau eine fachliche Fortschrittsdarstellung; technische Rohereignisse bleiben nachvollziehbar.
++
++**FR-B11 — Statusprojektion statt Statuskopie [R1].** Build–Review–Ship MUSS aus nachgewiesenen Zuständen abgeleitet werden; native State-Gruppen bleiben erhalten. **Abnahme:** Ein „Done“-Issue ohne Deployment zeigt fehlende Lieferevidenz; mehrere Repositories können verschiedene Lieferstände haben.
++
++**FR-B12 — Upstream- und Regressionstest [R0/V1].** Jeder Upstream-Bump MUSS einen dokumentierten Vergleich, Migrations-/Restore-Prüfung und Regression der nativen sowie erweiterten Kernabläufe durchlaufen. **Abnahme:** Ein Probeupdate verliert weder bestehende Daten noch Freigabe-/Revisionszuordnungen; Baselinefehler werden nicht als eigene erfolgreiche Tests ausgegeben.
++
++**FR-B13 — Editions- und Lizenzgrenzen [R0/V1].** Wiederverwendung MUSS gegen tatsächlich zugänglichen Code und Rechte geprüft werden. **Abnahme:** Plane-Cloud-Marketing wird nicht als Nachweis für mitgelieferte Chat-, Portfolio-, SSO-, KI- oder Drittanbieterfunktionen akzeptiert; L01 ist vor Vertrieb geklärt.
++
++**FR-B14 — Eine gemeinsame Oberfläche [R0/R1].** Neue Ansichten MÜSSEN in die native Plane-Navigation und Komponentenbasis integriert werden. **Abnahme:** Bestehende Links, Projektwechsel, Filter, Tastaturbedienung und gewöhnliche Issues bleiben nutzbar; alle Pakete öffnen dieselbe zugrunde liegende Issue-Identität.
++
+ ## 11. UI- und Interaktionsanforderungen
+ 
+ ### 11.1 Visuelle Richtung
++
++Plane ist die tatsächliche UI-Foundation. Seine Shell, List-/Boardstrukturen, Menüs, Formulare, Theming, i18n, gemeinsame Komponenten und Editorbasis werden zuerst weiterverwendet. Der Design-Brief ergänzt produktbezogene Ansichten und Informationsverdichtung; er ist kein Auftrag für einen separaten Linear-Klon. Vor dem Überschreiben globaler Tokens wird der sichtbare Einfluss auf bestehende Plane-Screens geprüft. [P03, P07, P08](SOURCES.md#p03)
++
+ 
+ Die Anwendung orientiert sich an der übersichtlichen, kompakten Arbeitsdarstellung der über Mobbin betrachteten [Linear-Arbeitsliste](https://mobbin.com/screens/be6c4ee4-aa93-42b4-89b3-dcfc8386f022). Der eigene Schwerpunkt liegt auf Ereignissen, Entscheidungen, Spezifikationsrevisionen und belegtem Lieferstand. Keine dekorative Dashboard-Sammlung aus großen Kennzahlenkarten.
+ 
+@@ -524,70 +590,76 @@
+ 
+ Ein Spec-Export darf ein Paket nicht implizit zur Umsetzung freigeben. Dokumentenpublikation und Ausführung sind getrennte Commands. Repository-Pipelines müssen dokumentenbezogene Änderungen entsprechend sicher behandeln; andernfalls wird Draft-Publikation deaktiviert.
+ 
+-## 13. Technischer Lösungsrahmen — vorgeschlagene Architektur
+-
+-Dieser Abschnitt ist **A**, nicht eine bereits bestätigte Technologiefestlegung.
+-
+-### 13.1 Komponenten
+-
+-**Web-Anwendung:** TypeScript/React als Ausgangspunkt, mit eigenem Designsystem, starken Tabellen-/Listeninteraktionen und gemeinsamen Editorbausteinen. React ist eine mögliche Komponentenbasis [S10](SOURCES.md#s10), kein Grund, ein fertiges generisches Dashboard-Template zu übernehmen.
+-
+-**Anwendungskern:** Module für Identität/ACL, Projekte/Planung, Pakete/Revisionen, Kommunikation/Wissen, Integrationen, Run-Koordination und Evidence/Delivery. Ein modularer Monolith ist der erste Vorschlag; fachliche Grenzen sollen spätere Trennung erlauben.
+-
+-**Persistenz:** Relationale Datenbank für Domänenobjekte, Versionen, ACL und Outbox; Objektspeicher für Uploads und große Artefakte. Volltextsuche zuerst, semantische Suche nur zusätzlich und mit denselben Berechtigungsprüfungen. Keine Graphdatenbank allein wegen einer Abhängigkeitsansicht erzwingen.
+-
+-**Hintergrundverarbeitung:** Dauerhafte Jobs für Import, Indizierung, AI-Aufträge, Reconciliation, Benachrichtigungen und Export. Retries sind begrenzt; Dead-Letter-Fälle sind administrativ sichtbar.
+-
+-**Realtime:** Persistente Daten zuerst, Liveübertragung danach. Editor und Chat verwenden ein konfliktfähiges Kollaborationsprotokoll; die konkrete Bibliothek ist nach einem Spike auszuwählen. Realtime-Verbindungen prüfen Rechte auch nach Token-/Mitgliedschaftsänderungen.
+-
+-**Runner:** Getrennte Sicherheitsdomäne für Repository-/Agentenarbeit. Kundeneigener oder lokaler Runner verbindet sich vorzugsweise ausgehend mit der Koordination, erhält kurzlebige, begrenzte Berechtigungen und besitzt keine globalen Plattformzugangsdaten.
+-
+-### 13.2 Datenfluss
+-
+-1. Nutzer oder Integration erzeugt einen autorisierten Command.
+-2. Anwendungskern prüft Identität, Rechte, erwartete Version und fachliche Invarianten.
+-3. Zustand und Outbox werden atomar gespeichert.
+-4. Worker führt externe Arbeit aus oder dispatcht einen freigegebenen Run.
+-5. Ergebnisse werden als strukturierte Ereignisse und Nachweise aufgenommen.
+-6. Read-Modelle aktualisieren Board, Aktivität, Roadmap und Review.
+-7. KI darf diese belegten Zustände erklären und Vorschläge erzeugen, aber nicht direkt fachliche Wahrheit umschreiben.
+-
+-### 13.3 Tenant- und Repository-Isolation
+-
+-Jeder Datensatz und jede Jobausführung besitzt eine Tenantbindung aus serverseitig vertrauenswürdiger Zuordnung. Clientparameter bestimmen niemals allein den Tenantzugriff. Suchindex, Objektspeicher, Realtime-Räume und Caches benötigen dieselbe Isolation.
+-
+-PostgreSQL Row-Level Security kann als zusätzliche Datenbankgrenze dienen; privilegierte Rollen und Tabellenbesitzer können diese standardmäßig umgehen. Daher sind Runtime-Rollen, Pooling-Kontext und Tests entscheidend [S11](SOURCES.md#s11). RLS ersetzt weder Objekt-ACL noch Kontrolle beim KI-Retrieval.
+-
+-Repo-Caches und Worktrees werden nicht tenantübergreifend gemeinsam beschreibbar verwendet. Ein Worktree trennt Git-Arbeitsverzeichnisse, nicht die Ausführungssicherheit [S03](SOURCES.md#s03). Kundencode gehört in einen begrenzten Runner/Sandbox-Kontext mit restriktivem Netzwerk und Dateizugriff.
+-
+-### 13.4 API-Designvorgaben
+-
+-Die nachfolgenden Routen sind eigene Entwürfe, keine vorhandenen API-Funktionen:
+-
+-| Command / Query | Zweck und Schutz |
++## 13. Technischer Lösungsrahmen — Plane-Erweiterung
++
++Plane als Foundation ist **K**. Die nachfolgende modulare Aufteilung ist **A** und muss auf dem freigegebenen Startstand überprüft werden. Ein Dateipfad mit dem Hinweis „neu vorgesehen“ ist keine Behauptung einer bereits vorhandenen Upstream-Funktion.
++
++### 13.1 Geprüfte Basis und beabsichtigte Erweiterung
++
++| Bereich | Vorhandene Grundlage | Entwurfsentscheidung |
++|---|---|---|
++| Web | `apps/web`: React Router, React, TypeScript; gemeinsame Services/Stores/Typen. [P03](SOURCES.md#p03) | Neue Paket-/Aktivitäts-/Roadmapansichten innerhalb der App. Keine Next.js-Neuimplementierung. |
++| UI | `@makeplane/propel`, `@plane/blocks`; MobX in `packages/shared-state`. [P03, P07](SOURCES.md#p03) | Semantische Paketkomponenten auf bestehenden Primitives; Abhängigkeiten und Lizenzen am Lockfile prüfen. |
++| Backend | `apps/api`, native Django-Modelle unter `plane/db/models`. [P04–P06](SOURCES.md#p04) | Neue fachliche Module im bestehenden Backend; keine zweite Node-/Prisma-PM-API. |
++| Editor / Live | `packages/editor`: TipTap/ProseMirror/Yjs; `apps/live`: Hocuspocus-basierte Kollaboration. [P08–P09](SOURCES.md#p08) | Vorhandene Kollaboration erweitern; strukturiertes Diagramm, semantischer Vergleich, revisionsgebundene Übernahme. Chatprotokoll gesondert prüfen, nicht aus Editor-Realtime ableiten. |
++| Daten / Jobs | Lokaler Compose-Stand enthält PostgreSQL, Valkey, RabbitMQ, MinIO und API-/Worker-/Migratorprozesse. [P10](SOURCES.md#p10) | Bestehende Infrastruktur nach Betriebsprüfung nutzen; Outbox/Inbox hinzufügen. Diese Images sind kein Sicherheits- oder Produktionsfreigabenachweis. |
++| Ausführung | Kein für unsere Anforderungen geprüfter freigegebener IDE-/Runnerpfad. | Separater Runner, der sich ausgehend verbindet; untrusted Repositorycode läuft nicht im Web/API/Live-Prozess. |
++
++Es gibt zwei unterschiedliche Repositorykontexte: **Plattformrepository** (unser Plane-Fork) und **verwaltete Kunden-/Teamrepositories** (beliebige angebundene Softwareprojekte). Ein Paket kann mehrere der letzteren betreffen. Die beiden Kategorien dürfen weder Credentials noch Worktrees versehentlich teilen.
++
++### 13.2 Erweiterungsgrenzen und Datenfluss
++
++Neue Modelle für Paketprofil, Approval, Revision, RepositoryBinding, Run/Claim, Evidence/Delivery, Decision, Conversation und planungsübergreifende Beziehungen verweisen auf Plane-Objekte. Technische Namen und eine additive Django-App, beispielsweise `plane/package_flow`, sind **neu vorgesehen**. Der vorhandene App- und Migrationsaufbau ist vor Anlegen zu prüfen.
++
++1. Ein authentisierter Command löst die native Plane-Identität und Membership auf.
++2. Die Extension prüft zusätzliche Capabilities, Issue-/Projektbezug, erwartete Revision und Policy.
++3. Änderungen und dauerhafter Outbox-Eintrag werden in einer fachlichen Transaktion gespeichert. Vorhandene Native-Write-Pfade benötigen explizite Integration; nur ein UI-Hook genügt nicht.
++4. Worker verarbeiten nach Commit, deduplizieren externe Ereignisse und delegieren nur freigegebene Ausführung.
++5. Extension-Ereignisse verknüpfen sich mit nativer Activity; Read-Modelle liefern kompakte Paketstände statt mehrfacher Statuspflege.
++6. Aktionsgates kontrollieren bei jeder kritischen Aktion den aktuellen nativen Stand erneut. Ein noch nicht eingetroffenes Event darf eine veraltete Freigabe nicht gültig machen.
++
++Direkte Datenbank-Schreibzugriffe von Konnektoren oder Runnern sind ausgeschlossen. Neue Adapter greifen auf geprüfte Service-/API-Pfade zurück. Externe Trackerobjekte sind über Mappings an Plane-Issues gebunden; es wird kein zweiter lokaler Issue-Store geführt.
++
++### 13.3 Isolation, Pflege und Rückfall
++
++Workspace-/Projektgrenzen verwenden die bestehenden Plane-Identitäten, werden aber in jeder Erweiterung neu abgesichert. Eine zusätzliche Datenbank-RLS kann separat geprüft werden; sie wird nicht als bereits vorhandene Plane-Garantie oder stillschweigend eingeführte Voraussetzung behauptet. Menschliche DMs besitzen engeren Empfängerkreis als Projekt-Issues.
++
++Aktivierung erfolgt zunächst pro Workspace/Projekt. Vorhandene State-Gruppen, IDs, öffentliche APIs und Standardansichten werden nicht global umgeschrieben. Neue Tabellen erhalten additive Migrationen. Native Daten und neue Extension-Daten werden gemeinsam gesichert. Ein Abschalten verhindert neue Ausführung, lässt aber Audit und vergangene Nachweise lesbar.
++
++Upstream wird als separater Remote gepflegt; jeder Bump hat reproduzierbaren Commit und Regressionstest. Ein Commit auf `preview` ist nicht allein deshalb releasefähig. Details: `MIGRATION_AND_UPSTREAM.md`.
++
++### 13.4 API-Verträge: native Ressourcen erhalten
++
++Bestehende Project-/Issue-/Page-APIs werden weiterverwendet; der alte Entwurf `POST /v1/projects` plus unabhängiger `POST /v1/packages` ist gestrichen. Die folgenden Pfade sind **neue API-Entwürfe**, keine behaupteten Plane-Endpunkte.
++
++Vorgesehener projektskopierter Präfix:
++`/api/workspaces/{workspace_slug}/projects/{project_id}/package-flow/`
++
++| Relativer Pfad | Zweck und Schutz |
+ |---|---|
+-| `POST /v1/projects` | Projekt erstellen; Workspace-Recht erforderlich. |
+-| `POST /v1/packages` | Draft anlegen; kein Run als Nebenwirkung. |
+-| `POST /v1/packages/{id}/revisions` | Revision mit erwarteter Vorversion speichern. |
+-| `POST /v1/packages/{id}/approve-execution` | Menschliche Freigabe für Revision, Scope und Policy. |
+-| `POST /v1/packages/{id}/claims` | Atomare Übernahme mit lease-/runnergebundener Antwort. |
+-| `POST /v1/runs` | Gültige Freigabe, Claim, Baseline und erlaubten Runner prüfen. |
+-| `POST /v1/runs/{id}/cancel` | Weitere Aktionen sperren und Runnerabbruch auslösen. |
+-| `POST /v1/decisions/preview` | Quellengebundenen Vorschlag erzeugen; noch kein gemeinsamer Beschluss. |
+-| `POST /v1/decisions` | Bestätigten, berechtigten Vorschlag idempotent veröffentlichen. |
+-| `POST /v1/reviews/{id}/approve` | Mensch, Rechte und exakt geprüften Stand validieren. |
+-| `POST /v1/merge-requests/{id}/merge` | Letzte providerseitige Prüfung; Compare-and-set auf erwarteten Head soweit unterstützt. |
+-| `GET /v1/projects/{id}/activity` | Berechtigten Verlauf nach Cursor und Zeitraum lesen. |
+-| `GET /v1/packages/{id}/delivery` | Aggregierten sowie repo-/umgebungsspezifischen Lieferstand lesen. |
+-| `POST /v1/integrations/{id}/events` | Nur nach korrekter Anbieter-Authentisierung und dauerhafter Annahme. |
+-
+-Statuscodes sind konsistent: 401 nicht authentisiert, 403 nicht berechtigt, 409 Versions-/Claimkonflikt, 422 fachlich nicht ausführbar, 429 Limit. 202 bedeutet angenommen, nicht erfolgreich abgeschlossen. Fehler liefern einen stabilen Code und eine verständliche Erklärung, keine Geheimnisse.
+-
+-### 13.5 Beispiel für Run-Freigabe
+-
+-Die Freigabe bindet Paketrevision, deren Inhalts-Hash, Policy-Version, verantwortlichen Menschen, genehmigte Repository-Basen und zulässige Aktionen. Ein Run-Token referenziert diese serverseitige Freigabe. Das Manifest im Repository ist eine Arbeitsgrundlage, kein selbstsignierter Berechtigungsnachweis.
+-
+-Für Merge wird zusätzlich der überprüfte Quell-Head und der relevante Zielstand gebunden. Bei mehreren Repositories gibt es ein Manifest der erforderlichen Teile. Eine allgemeine atomare Transaktion über mehrere Git-Anbieter wird nicht behauptet; Teillieferungen und Rollbackpläne sind explizit.
++| `POST work-items/{issue_id}/profile` | Vorhandenes Issue explizit und idempotent als Paket aktivieren. Kein neues Ticket und kein Run. |
++| `POST work-items/{issue_id}/revisions` | Unveränderliche Revision aus aktuellem, berechtigtem Stand; erwartete Version prüfen. |
++| `POST work-items/{issue_id}/execution-approvals` | Menschliche Freigabe für Revision, Scope und Policy, nicht bloß nativer State. |
++| `POST work-items/{issue_id}/claims` | Atomare Übernahme mit Lease und Fencing; genehmigte Grundlage prüfen. |
++| `POST work-items/{issue_id}/runs` | Nur mit gültiger Freigabe, Claim und erlaubtem Runner; Draft bleibt gesperrt. |
++| `POST runs/{run_id}/cancel` | Neue Aktionen sperren und Runnerabbruch anfordern. |
++| `POST decisions/preview` / `POST decisions` | Vorschlag und bestätigter Beschluss getrennt; Quellen-/Empfängerrechte prüfen. |
++| `POST reviews/{review_id}/approvals` | Menschliche Prüfung des exakten Code-/Spec-/Policy-Stands. |
++| `POST merge-requests/{link_id}/merge` | Providerrechte und erwarteten Head vor tatsächlichem Merge erneut prüfen. |
++| `GET activity` | Native und neue Ereignisse zusammengefasst, autorisiert und cursorbasiert. |
++| `GET work-items/{issue_id}/delivery` | Reale repo-/umgebungsbezogene Lieferinformationen. |
++
++Provider-Webhooks bekommen einen separaten authentisierten Ingress; fremde Payloads bestimmen nicht ungeprüft den Workspace. Rückgabecodes: 401, 403, 409, 422, 429 gemäß Ursache; 202 bedeutet angenommen, nicht fertig. IDs, Scope und relevante Revisionen werden serverseitig geprüft, nicht nur durch JSON-Schemas.
++
++Die Transportverträge sind Version **1.1.0**. 0.1s `tenantId`/`packageId` sind bewusst durch `workspaceId`/`workItemId` ersetzt. Alte Beispielpayloads dürfen nicht kommentarlos weiterverwendet werden. Da keine bestehende Produktinstallation nachgewiesen ist, wird keine tatsächlich ausgeführte Datenmigration behauptet. Ein etwaiger Altclient benötigt einen ausdrücklichen Kompatibilitätsadapter.
++
++### 13.5 Freigabe und Spezifikationssynchronisierung
++
++Die Freigabe bindet das native Issue, eine unveränderliche Paketrevision, Policy, verantwortlichen Plane-Benutzer, Repository-Basen und erlaubte Aktionen. Native Beschreibungsversionen und Pages liefern Quellversionen; ihre Existenz ersetzt keinen Approval-Datensatz. Der Server erzeugt den freigegebenen Inhalts-Hash aus einem dokumentierten kanonischen Inhalt. Kein unbestätigtes Client-Flag `approved` genügt.
++
++Das OpenSpec-Manifest referenziert Workspace, Projekt und Issue-ID sowie Revision. Lesbare Schlüssel dienen der Orientierung, nicht der Integrationsidentität. Fork-Migration, Projektverschiebung oder Issue-Draft-Promotion dürfen Referenzen nicht still entkoppeln.
++
++Vor Merge werden außerdem Quell-Head und relevanter Zielstand geprüft. Mehrere Repository-Lieferungen sind keine globale atomare Git-Transaktion. Teilstände und Rollback bleiben sichtbar.
+ 
+ ## 14. KI-Verhalten und Skills
+ 
+@@ -715,25 +787,36 @@
+ | Verlorene Absicht | KI aktualisiert Specs passend zum Code, ohne Änderung zu markieren. | Immutable Revisionen und explizite Neu-Freigabe. |
+ | Falscher Fortschritt | Agentenmeldungen ersetzen CI-/Deployment-Evidenz. | Getrennte Zustandsachsen, Quellenklassen und Stale-Anzeigen. |
+ | Vertrauliche Information im Teamchat | KI verwendet private Quelle für gemeinsame Antwort. | Empfängerkreisprüfung vor Retrieval/Publikation; private Antwort oder ausdrückliche Freigabe. |
+-| Tool-/Anbieterbindung | Domänenmodell besteht aus GitLab-/Jira-Feldern. | Eigene IDs, Adapterfähigkeiten, Roundtrip mit zweitem Anbieter früh testen. |
++| Externe Tool-/Anbieterbindung | Domänenmodell besteht aus GitLab-/Jira-Feldern. | Native Plane-UUIDs erhalten, externe IDs nur zuordnen, Fähigkeiten und zweiten Anbieter früh testen. |
+ | KI-Code greift Plattform an | Repo-Setup läuft im Backendcontainer. | Separate Runnergrenze; keine Ausführung im PM-Kern. |
+ | Nicht durchsetzbare Freigaben | Zielbranch erlaubt beliebige direkte Pushes. | Providerprüfung, read-only/blockierter Automatikmodus, nachvollziehbarer Hinweis. |
+ | Hohe laufende KI-Kosten | Vollrepoanalyse bei jeder Nachricht. | Inkrementelle Kontexte, Caching nach Revision und ACL, explizite Budgets. |
+ | Verwechslung von Verständnis und Dokumentation | Viele Berichte, niemand kann Änderungen erklären. | Orientierungstests und gezielte Übergabe bei relevanten Änderungen. |
+-| Überladene Linear-Kopie | Jede Funktion erhält Sidebarpunkt oder Kennzahlenkarte. | Aufgabenbezogene Navigation, progressive Details, Szenariotests statt Screenshots allein. |
++| Überladene Plane-Erweiterung | Jede neue Funktion erhält einen zusätzlichen Sidebarpunkt oder ein paralleles Modell. | Native Navigation/Objekte erhalten, progressive Details und Szenariotests. |
++| Fork-Divergenz | Große globale Änderungen verhindern sichere Upstream-Updates. | Kleine Integrationsstellen, additive Modelle, Source-Lock und Regression. |
++| Ungeklärter Vertriebsweg | Community-Code wird ohne passende Rechte als geschlossenes Produkt ausgeliefert. | L01 vor externer Bereitstellung; Foundation bleibt Plane. |
+ 
+ ## 20. Noch offene Entscheidungen — keine verborgenen Lücken
+ 
+ Für einen lokalen Produktprototyp fehlen keine grundlegenden Produktinformationen. Die hier festgelegten Arbeitsannahmen erlauben Vorbereitung von Design, Datenmodell und Testfällen.
+ 
+-Vor einem echten Implementierungsstart müssen A01/A02 und die erste Ausführungskombination bestätigt sein. Vor Kundendaten müssen Betriebsmodell, Identität, Datenflüsse und Rechtebesetzung entschieden sein. Vor breitem Verkauf müssen Käufer, Editionen, Support, Preismodell und vollständige Integrationszusagen geklärt sein.
++Vor dem jeweiligen Inkrement müssen nur dessen blockierende Annahmen bestätigt sein. I00 benötigt einen freigegebenen Quellenstand, aber noch keinen endgültigen Runner oder Tracker. A02 legt die Plane-Basis fest; offen ist deren konkrete Erweiterungsaufteilung, nicht ein freier Greenfield-Stack. Vor Kundendaten müssen Betriebsmodell, Identität, Datenflüsse und Rechtebesetzung entschieden sein. Vor breitem Verkauf müssen Käufer, Editionen, Support, Preismodell und vollständige Integrationszusagen geklärt sein.
+ 
+ Die wichtigste technische Vorprüfung betrifft nicht die Farbe des Boards, sondern den sicheren Roundtrip **gemeinsamer Editor → Git-Specs → IDE → neue Revision → Review → Liefernachweis**. Der wichtigste Produkttest betrifft die Frage, ob das Team dadurch tatsächlich weniger nachpflegt und schneller versteht, was passiert ist.
+ 
++Die Foundation-Wahl ist nicht mehr offen. Offen bleiben O06 (freigegebener Quellenstand), O07/L01 (konkrete Edition und Rechte), O01 (Runner), O02 (erste externe Integrationen), O03 (Betrieb) und O04 (Rollenbesetzung). Die Nennung eines bestehenden Plane-Modells ersetzt keine praktische Abnahme seiner Eignung.
++
+ ## 21. Übergabe an ein KI-Entwicklungsteam
+ 
+-Ein Coding-Agent beginnt mit `IMPLEMENTATION_PLAN.md`, übernimmt genau ein freigegebenes Inkrement und liest nur die dafür relevanten Anforderungen, Schemas und Abnahmefälle. Er darf bestätigte Vorgaben nicht aus Bequemlichkeit verändern und fehlende Produktentscheidungen nicht als technische Selbstverständlichkeit behandeln.
++Ein Coding-Agent beginnt mit `BOOTSTRAP.md`, `PLANE_DELTA.md` und dem fixierten Quellenstand, liest die im Checkout geltenden Plane-Regeln und übernimmt genau ein freigegebenes Inkrement aus `IMPLEMENTATION_PLAN.md`. Danach liest er die dafür relevanten Anforderungen, Schemas und Abnahmefälle. Er darf bestätigte Vorgaben nicht aus Bequemlichkeit verändern und fehlende Produktentscheidungen nicht als technische Selbstverständlichkeit behandeln.
+ 
+ Jedes Inkrement liefert implementiertes Verhalten, passende Tests, eine dokumentierte Migration bei Datenänderungen und einen kurzen Bericht über verifizierte beziehungsweise noch offene Punkte. Schemas und Gherkin-Dateien dieses Pakets sind Startverträge und Testspezifikationen, keine bereits ausführbare Anwendung und keine abgeschlossene Sicherheitsprüfung.
+ 
+ Ein möglicher Startauftrag steht in `BOOTSTRAP.md`. Er muss von einem Menschen ausdrücklich freigegeben werden, bevor daraus Umsetzung oder externe Änderungen erfolgen.
++
++
++## 22. Abnahme der Plane-Umstellung
++
++Diese Dokumentversion ist korrekt umgesetzt, wenn ein Coding-Agent nicht mehr mit einem neuen Auth-/Projekt-/Ticketgerüst beginnt, sondern den fixierten Plane-Stand reproduziert, seine nativen Flows prüft und ein bestehendes Issue additiv erweitert. Gewöhnliche Plane-Nutzung muss erhalten bleiben. Der neue Paketfluss muss mit denselben IDs aus Plane-UI, API, IDE und externem Tracker nachvollziehbar sein.
++
++Die Abnahme wird durch `acceptance/plane-foundation.feature` ergänzt. Das mitgelieferte Dokumentenpaket selbst führt diese Anwendungsszenarien nicht aus. Das geprüfte Quellmaterial und noch nicht verifizierte Laufzeiteigenschaften sind in `PLANE_FOUNDATION.md` und `VALIDATION.md` abgegrenzt.

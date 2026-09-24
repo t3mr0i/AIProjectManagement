@@ -1,0 +1,668 @@
+{
+  "documentVersion": "0.2",
+  "analysisCommit": "d616636119d20a531a815c78d364bdb47d552a2d",
+  "notes": [
+    "Classification is implementation planning, not feature completeness evidence.",
+    "Every inherited requirement keeps its ID; exact acceptance remains in PRD.md.",
+    "Native field reuse does not imply availability of Enterprise/Cloud features."
+  ],
+  "requirements": [
+    {
+      "requirementId": "FR-P01",
+      "title": "Workspace und Projekte [R0].",
+      "implementationTreatment": "reuse-and-regression",
+      "basis": "Native Workspace-/Project-/Membershipmodelle",
+      "rationale": "Keine zweite PM-Identität aufbauen; Eignung und Isolation regressionsprüfen.",
+      "sourceIds": ["P04"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-P02",
+      "title": "Lebendige Übersicht [R0/R1].",
+      "implementationTreatment": "extend-native",
+      "basis": "Plane-Issues/Pages/Views/Planung/Integrationsbasis",
+      "rationale": "Bestehende Daten oder Oberfläche übernehmen und fehlende Produktspezifik ergänzen.",
+      "sourceIds": ["P03", "P04", "P05", "P08"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-P03",
+      "title": "Verdichtung ohne Informationsverlust [R1].",
+      "implementationTreatment": "extend-native",
+      "basis": "Plane-Issues/Pages/Views/Planung/Integrationsbasis",
+      "rationale": "Bestehende Daten oder Oberfläche übernehmen und fehlende Produktspezifik ergänzen.",
+      "sourceIds": ["P03", "P04", "P05", "P08"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-P04",
+      "title": "Nächste Arbeit [R1].",
+      "implementationTreatment": "extend-native",
+      "basis": "Plane-Issues/Pages/Views/Planung/Integrationsbasis",
+      "rationale": "Bestehende Daten oder Oberfläche übernehmen und fehlende Produktspezifik ergänzen.",
+      "sourceIds": ["P03", "P04", "P05", "P08"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-P05",
+      "title": "Persönliche Ansichten [R1].",
+      "implementationTreatment": "extend-native",
+      "basis": "Plane-Issues/Pages/Views/Planung/Integrationsbasis",
+      "rationale": "Bestehende Daten oder Oberfläche übernehmen und fehlende Produktspezifik ergänzen.",
+      "sourceIds": ["P03", "P04", "P05", "P08"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-P06",
+      "title": "Suche und Wiederfinden [R1].",
+      "implementationTreatment": "extend-native",
+      "basis": "Plane-Issues/Pages/Views/Planung/Integrationsbasis",
+      "rationale": "Bestehende Daten oder Oberfläche übernehmen und fehlende Produktspezifik ergänzen.",
+      "sourceIds": ["P03", "P04", "P05", "P08"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-W01",
+      "title": "Schneller Draft [R0].",
+      "implementationTreatment": "extend-native",
+      "basis": "Plane-Issues/Pages/Views/Planung/Integrationsbasis",
+      "rationale": "Bestehende Daten oder Oberfläche übernehmen und fehlende Produktspezifik ergänzen.",
+      "sourceIds": ["P03", "P04", "P05", "P08"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-W02",
+      "title": "Leichtes und vertieftes Profil [R0].",
+      "implementationTreatment": "extend-native",
+      "basis": "Plane-Issues/Pages/Views/Planung/Integrationsbasis",
+      "rationale": "Bestehende Daten oder Oberfläche übernehmen und fehlende Produktspezifik ergänzen.",
+      "sourceIds": ["P03", "P04", "P05", "P08"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-W03",
+      "title": "Moderate Klärung [R1].",
+      "implementationTreatment": "new-extension",
+      "basis": "Verweist auf native Plane-Identitäten",
+      "rationale": "Gewünschte vollständige Produktspezifik durch gelesene Baseline nicht als geliefert belegt.",
+      "sourceIds": ["P04"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-W04",
+      "title": "Versionierte Absicht [R0].",
+      "implementationTreatment": "extend-native",
+      "basis": "Plane-Issues/Pages/Views/Planung/Integrationsbasis",
+      "rationale": "Bestehende Daten oder Oberfläche übernehmen und fehlende Produktspezifik ergänzen.",
+      "sourceIds": ["P03", "P04", "P05", "P08"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-W05",
+      "title": "Ausführungsfreigabe [R0].",
+      "implementationTreatment": "new-extension",
+      "basis": "Verweist auf native Plane-Identitäten",
+      "rationale": "Gewünschte vollständige Produktspezifik durch gelesene Baseline nicht als geliefert belegt.",
+      "sourceIds": ["P04"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-W06",
+      "title": "Teiländerungen [R1].",
+      "implementationTreatment": "extend-native",
+      "basis": "Plane-Issues/Pages/Views/Planung/Integrationsbasis",
+      "rationale": "Bestehende Daten oder Oberfläche übernehmen und fehlende Produktspezifik ergänzen.",
+      "sourceIds": ["P03", "P04", "P05", "P08"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-W07",
+      "title": "Brownfield-Kontext [R1].",
+      "implementationTreatment": "new-extension",
+      "basis": "Verweist auf native Plane-Identitäten",
+      "rationale": "Gewünschte vollständige Produktspezifik durch gelesene Baseline nicht als geliefert belegt.",
+      "sourceIds": ["P04"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-W08",
+      "title": "OpenSpec-Roundtrip [R1].",
+      "implementationTreatment": "extend-native",
+      "basis": "Plane-Issues/Pages/Views/Planung/Integrationsbasis",
+      "rationale": "Bestehende Daten oder Oberfläche übernehmen und fehlende Produktspezifik ergänzen.",
+      "sourceIds": ["P03", "P04", "P05", "P08"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-W09",
+      "title": "Änderung während Ausführung [R1].",
+      "implementationTreatment": "extend-native",
+      "basis": "Plane-Issues/Pages/Views/Planung/Integrationsbasis",
+      "rationale": "Bestehende Daten oder Oberfläche übernehmen und fehlende Produktspezifik ergänzen.",
+      "sourceIds": ["P03", "P04", "P05", "P08"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-W10",
+      "title": "Nicht-Code-Pakete [R1].",
+      "implementationTreatment": "new-extension",
+      "basis": "Verweist auf native Plane-Identitäten",
+      "rationale": "Gewünschte vollständige Produktspezifik durch gelesene Baseline nicht als geliefert belegt.",
+      "sourceIds": ["P04"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-E01",
+      "title": "Gemeinsamer Texteditor [R1].",
+      "implementationTreatment": "extend-native",
+      "basis": "Plane-Issues/Pages/Views/Planung/Integrationsbasis",
+      "rationale": "Bestehende Daten oder Oberfläche übernehmen und fehlende Produktspezifik ergänzen.",
+      "sourceIds": ["P03", "P04", "P05", "P08"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-E02",
+      "title": "Strukturierte Diagramme [R1].",
+      "implementationTreatment": "new-extension",
+      "basis": "Verweist auf native Plane-Identitäten",
+      "rationale": "Gewünschte vollständige Produktspezifik durch gelesene Baseline nicht als geliefert belegt.",
+      "sourceIds": ["P04"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-E03",
+      "title": "Semantischer Änderungsvergleich [R1].",
+      "implementationTreatment": "new-extension",
+      "basis": "Verweist auf native Plane-Identitäten",
+      "rationale": "Gewünschte vollständige Produktspezifik durch gelesene Baseline nicht als geliefert belegt.",
+      "sourceIds": ["P04"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-E04",
+      "title": "Formatgrenzen [R1].",
+      "implementationTreatment": "extend-native",
+      "basis": "Plane-Issues/Pages/Views/Planung/Integrationsbasis",
+      "rationale": "Bestehende Daten oder Oberfläche übernehmen und fehlende Produktspezifik ergänzen.",
+      "sourceIds": ["P03", "P04", "P05", "P08"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-E05",
+      "title": "Auswahl als Kontext [R1].",
+      "implementationTreatment": "extend-native",
+      "basis": "Plane-Issues/Pages/Views/Planung/Integrationsbasis",
+      "rationale": "Bestehende Daten oder Oberfläche übernehmen und fehlende Produktspezifik ergänzen.",
+      "sourceIds": ["P03", "P04", "P05", "P08"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-E06",
+      "title": "KI-Änderungen prüfen [R1].",
+      "implementationTreatment": "extend-native",
+      "basis": "Plane-Issues/Pages/Views/Planung/Integrationsbasis",
+      "rationale": "Bestehende Daten oder Oberfläche übernehmen und fehlende Produktspezifik ergänzen.",
+      "sourceIds": ["P03", "P04", "P05", "P08"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-C01",
+      "title": "Projektchat, Paketthreads und Direktnachrichten [R1].",
+      "implementationTreatment": "new-extension",
+      "basis": "Verweist auf native Plane-Identitäten",
+      "rationale": "Gewünschte vollständige Produktspezifik durch gelesene Baseline nicht als geliefert belegt.",
+      "sourceIds": ["P04"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-C02",
+      "title": "@AI mit sichtbarem Kontext [R1].",
+      "implementationTreatment": "new-extension",
+      "basis": "Verweist auf native Plane-Identitäten",
+      "rationale": "Gewünschte vollständige Produktspezifik durch gelesene Baseline nicht als geliefert belegt.",
+      "sourceIds": ["P04"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-C03",
+      "title": "Entscheidung übernehmen [R1].",
+      "implementationTreatment": "new-extension",
+      "basis": "Verweist auf native Plane-Identitäten",
+      "rationale": "Gewünschte vollständige Produktspezifik durch gelesene Baseline nicht als geliefert belegt.",
+      "sourceIds": ["P04"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-C04",
+      "title": "Quellen nach Bearbeitung [R1].",
+      "implementationTreatment": "new-extension",
+      "basis": "Verweist auf native Plane-Identitäten",
+      "rationale": "Gewünschte vollständige Produktspezifik durch gelesene Baseline nicht als geliefert belegt.",
+      "sourceIds": ["P04"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-C05",
+      "title": "Uploads und gemeinsamer Speicher [R1].",
+      "implementationTreatment": "extend-native",
+      "basis": "Plane-Issues/Pages/Views/Planung/Integrationsbasis",
+      "rationale": "Bestehende Daten oder Oberfläche übernehmen und fehlende Produktspezifik ergänzen.",
+      "sourceIds": ["P03", "P04", "P05", "P08"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-C06",
+      "title": "Termine und Meilensteine [R1].",
+      "implementationTreatment": "extend-native",
+      "basis": "Plane-Issues/Pages/Views/Planung/Integrationsbasis",
+      "rationale": "Bestehende Daten oder Oberfläche übernehmen und fehlende Produktspezifik ergänzen.",
+      "sourceIds": ["P03", "P04", "P05", "P08"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-C07",
+      "title": "Benachrichtigungen [R1].",
+      "implementationTreatment": "new-extension",
+      "basis": "Verweist auf native Plane-Identitäten",
+      "rationale": "Gewünschte vollständige Produktspezifik durch gelesene Baseline nicht als geliefert belegt.",
+      "sourceIds": ["P04"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-G01",
+      "title": "Repoanbindung [R1].",
+      "implementationTreatment": "extend-native",
+      "basis": "Plane-Issues/Pages/Views/Planung/Integrationsbasis",
+      "rationale": "Bestehende Daten oder Oberfläche übernehmen und fehlende Produktspezifik ergänzen.",
+      "sourceIds": ["P03", "P04", "P05", "P08"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-G02",
+      "title": "Gemeinsamer Ursprung, getrennte Arbeitskopien [R1].",
+      "implementationTreatment": "extend-native",
+      "basis": "Plane-Issues/Pages/Views/Planung/Integrationsbasis",
+      "rationale": "Bestehende Daten oder Oberfläche übernehmen und fehlende Produktspezifik ergänzen.",
+      "sourceIds": ["P03", "P04", "P05", "P08"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-G03",
+      "title": "IDE-/CLI-Übernahme [R1].",
+      "implementationTreatment": "new-extension",
+      "basis": "Verweist auf native Plane-Identitäten",
+      "rationale": "Gewünschte vollständige Produktspezifik durch gelesene Baseline nicht als geliefert belegt.",
+      "sourceIds": ["P04"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-G04",
+      "title": "Atomare Übernahme und Lease [R1].",
+      "implementationTreatment": "new-extension",
+      "basis": "Verweist auf native Plane-Identitäten",
+      "rationale": "Gewünschte vollständige Produktspezifik durch gelesene Baseline nicht als geliefert belegt.",
+      "sourceIds": ["P04"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-G05",
+      "title": "Ausführung außerhalb der PM-Anwendung [R1].",
+      "implementationTreatment": "new-extension",
+      "basis": "Verweist auf native Plane-Identitäten",
+      "rationale": "Gewünschte vollständige Produktspezifik durch gelesene Baseline nicht als geliefert belegt.",
+      "sourceIds": ["P04"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-G06",
+      "title": "Umfang und Budgets [R1].",
+      "implementationTreatment": "new-extension",
+      "basis": "Verweist auf native Plane-Identitäten",
+      "rationale": "Gewünschte vollständige Produktspezifik durch gelesene Baseline nicht als geliefert belegt.",
+      "sourceIds": ["P04"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-G07",
+      "title": "Sichtbarkeit vor Commit [R1].",
+      "implementationTreatment": "new-extension",
+      "basis": "Verweist auf native Plane-Identitäten",
+      "rationale": "Gewünschte vollständige Produktspezifik durch gelesene Baseline nicht als geliefert belegt.",
+      "sourceIds": ["P04"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-G08",
+      "title": "Codezuordnung [R1].",
+      "implementationTreatment": "extend-native",
+      "basis": "Plane-Issues/Pages/Views/Planung/Integrationsbasis",
+      "rationale": "Bestehende Daten oder Oberfläche übernehmen und fehlende Produktspezifik ergänzen.",
+      "sourceIds": ["P03", "P04", "P05", "P08"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-G09",
+      "title": "Mehrere Repositories [R1].",
+      "implementationTreatment": "extend-native",
+      "basis": "Plane-Issues/Pages/Views/Planung/Integrationsbasis",
+      "rationale": "Bestehende Daten oder Oberfläche übernehmen und fehlende Produktspezifik ergänzen.",
+      "sourceIds": ["P03", "P04", "P05", "P08"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-G10",
+      "title": "Fähigkeitsprüfung [R1].",
+      "implementationTreatment": "new-extension",
+      "basis": "Verweist auf native Plane-Identitäten",
+      "rationale": "Gewünschte vollständige Produktspezifik durch gelesene Baseline nicht als geliefert belegt.",
+      "sourceIds": ["P04"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-R01",
+      "title": "Verständliche Änderungsansicht [R1].",
+      "implementationTreatment": "extend-native",
+      "basis": "Plane-Issues/Pages/Views/Planung/Integrationsbasis",
+      "rationale": "Bestehende Daten oder Oberfläche übernehmen und fehlende Produktspezifik ergänzen.",
+      "sourceIds": ["P03", "P04", "P05", "P08"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-R02",
+      "title": "Evidenzklassen [R1].",
+      "implementationTreatment": "new-extension",
+      "basis": "Verweist auf native Plane-Identitäten",
+      "rationale": "Gewünschte vollständige Produktspezifik durch gelesene Baseline nicht als geliefert belegt.",
+      "sourceIds": ["P04"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-R03",
+      "title": "Menschliche Mergefreigabe [R1].",
+      "implementationTreatment": "new-extension",
+      "basis": "Verweist auf native Plane-Identitäten",
+      "rationale": "Gewünschte vollständige Produktspezifik durch gelesene Baseline nicht als geliefert belegt.",
+      "sourceIds": ["P04"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-R04",
+      "title": "Fachliche und technische Abnahme [R1].",
+      "implementationTreatment": "new-extension",
+      "basis": "Verweist auf native Plane-Identitäten",
+      "rationale": "Gewünschte vollständige Produktspezifik durch gelesene Baseline nicht als geliefert belegt.",
+      "sourceIds": ["P04"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-R05",
+      "title": "Auslieferungskette [R1].",
+      "implementationTreatment": "new-extension",
+      "basis": "Verweist auf native Plane-Identitäten",
+      "rationale": "Gewünschte vollständige Produktspezifik durch gelesene Baseline nicht als geliefert belegt.",
+      "sourceIds": ["P04"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-R06",
+      "title": "Rücknahme und Rollback [R1].",
+      "implementationTreatment": "new-extension",
+      "basis": "Verweist auf native Plane-Identitäten",
+      "rationale": "Gewünschte vollständige Produktspezifik durch gelesene Baseline nicht als geliefert belegt.",
+      "sourceIds": ["P04"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-M01",
+      "title": "Multi-Projekt-Roadmap [R1].",
+      "implementationTreatment": "extend-native",
+      "basis": "Plane-Issues/Pages/Views/Planung/Integrationsbasis",
+      "rationale": "Bestehende Daten oder Oberfläche übernehmen und fehlende Produktspezifik ergänzen.",
+      "sourceIds": ["P03", "P04", "P05", "P08"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-M02",
+      "title": "Bestätigte Abhängigkeiten [R1].",
+      "implementationTreatment": "extend-native",
+      "basis": "Plane-Issues/Pages/Views/Planung/Integrationsbasis",
+      "rationale": "Bestehende Daten oder Oberfläche übernehmen und fehlende Produktspezifik ergänzen.",
+      "sourceIds": ["P03", "P04", "P05", "P08"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-M03",
+      "title": "Terminfolgen und Varianten [V1].",
+      "implementationTreatment": "new-extension",
+      "basis": "Verweist auf native Plane-Identitäten",
+      "rationale": "Gewünschte vollständige Produktspezifik durch gelesene Baseline nicht als geliefert belegt.",
+      "sourceIds": ["P04"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-M04",
+      "title": "Zyklen und fehlende Daten [R1].",
+      "implementationTreatment": "extend-native",
+      "basis": "Plane-Issues/Pages/Views/Planung/Integrationsbasis",
+      "rationale": "Bestehende Daten oder Oberfläche übernehmen und fehlende Produktspezifik ergänzen.",
+      "sourceIds": ["P03", "P04", "P05", "P08"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-M05",
+      "title": "Scrum und kontinuierlicher Fluss [R1].",
+      "implementationTreatment": "extend-native",
+      "basis": "Plane-Issues/Pages/Views/Planung/Integrationsbasis",
+      "rationale": "Bestehende Daten oder Oberfläche übernehmen und fehlende Produktspezifik ergänzen.",
+      "sourceIds": ["P03", "P04", "P05", "P08"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-M06",
+      "title": "Risiken und Entscheidungen [R1].",
+      "implementationTreatment": "extend-native",
+      "basis": "Plane-Issues/Pages/Views/Planung/Integrationsbasis",
+      "rationale": "Bestehende Daten oder Oberfläche übernehmen und fehlende Produktspezifik ergänzen.",
+      "sourceIds": ["P03", "P04", "P05", "P08"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-I01",
+      "title": "Nativer Plane-Betrieb ohne externen Tracker [R0].",
+      "implementationTreatment": "extend-native",
+      "basis": "Plane-Issues/Pages/Views/Planung/Integrationsbasis",
+      "rationale": "Bestehende Daten oder Oberfläche übernehmen und fehlende Produktspezifik ergänzen.",
+      "sourceIds": ["P03", "P04", "P05", "P08"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-I02",
+      "title": "Adaptervertrag [R1].",
+      "implementationTreatment": "extend-native",
+      "basis": "Plane-Issues/Pages/Views/Planung/Integrationsbasis",
+      "rationale": "Bestehende Daten oder Oberfläche übernehmen und fehlende Produktspezifik ergänzen.",
+      "sourceIds": ["P03", "P04", "P05", "P08"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-I03",
+      "title": "Feldverantwortung [R1].",
+      "implementationTreatment": "extend-native",
+      "basis": "Plane-Issues/Pages/Views/Planung/Integrationsbasis",
+      "rationale": "Bestehende Daten oder Oberfläche übernehmen und fehlende Produktspezifik ergänzen.",
+      "sourceIds": ["P03", "P04", "P05", "P08"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-I04",
+      "title": "Zuverlässige Ereignisverarbeitung [R1].",
+      "implementationTreatment": "extend-native",
+      "basis": "Plane-Issues/Pages/Views/Planung/Integrationsbasis",
+      "rationale": "Bestehende Daten oder Oberfläche übernehmen und fehlende Produktspezifik ergänzen.",
+      "sourceIds": ["P03", "P04", "P05", "P08"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-I05",
+      "title": "Disconnect und Wiederverbindung [R1].",
+      "implementationTreatment": "extend-native",
+      "basis": "Plane-Issues/Pages/Views/Planung/Integrationsbasis",
+      "rationale": "Bestehende Daten oder Oberfläche übernehmen und fehlende Produktspezifik ergänzen.",
+      "sourceIds": ["P03", "P04", "P05", "P08"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-I06",
+      "title": "Import, Export, Anbieterwechsel [V1].",
+      "implementationTreatment": "extend-native",
+      "basis": "Plane-Issues/Pages/Views/Planung/Integrationsbasis",
+      "rationale": "Bestehende Daten oder Oberfläche übernehmen und fehlende Produktspezifik ergänzen.",
+      "sourceIds": ["P03", "P04", "P05", "P08"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-I07",
+      "title": "Identity und Audit [R0/V1].",
+      "implementationTreatment": "verify-edition-and-extend",
+      "basis": "Native Identitäten; Enterpriseumfang nicht ausreichend geprüft",
+      "rationale": "Konkrete Rechte-, Identity-, Audit- und Editionsfähigkeit zuerst nachweisen.",
+      "sourceIds": ["P04", "P11"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-I08",
+      "title": "Retention und Löschung [V1].",
+      "implementationTreatment": "extend-native",
+      "basis": "Plane-Issues/Pages/Views/Planung/Integrationsbasis",
+      "rationale": "Bestehende Daten oder Oberfläche übernehmen und fehlende Produktspezifik ergänzen.",
+      "sourceIds": ["P03", "P04", "P05", "P08"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-B01",
+      "title": "Nachvollziehbare Quellenbasis [R0].",
+      "implementationTreatment": "foundation-control",
+      "basis": "Fixierter Plane-Stand und neue Invarianten",
+      "rationale": "Zusätzliche Foundation-/Regressionsanforderung; nicht als vorhandene Funktion ausgegeben.",
+      "sourceIds": ["P01", "P04", "P05", "P06"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-B02",
+      "title": "Eine native Identität [R0].",
+      "implementationTreatment": "foundation-control",
+      "basis": "Fixierter Plane-Stand und neue Invarianten",
+      "rationale": "Zusätzliche Foundation-/Regressionsanforderung; nicht als vorhandene Funktion ausgegeben.",
+      "sourceIds": ["P01", "P04", "P05", "P06"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-B03",
+      "title": "Bestehenden Stack erweitern [R0].",
+      "implementationTreatment": "foundation-control",
+      "basis": "Fixierter Plane-Stand und neue Invarianten",
+      "rationale": "Zusätzliche Foundation-/Regressionsanforderung; nicht als vorhandene Funktion ausgegeben.",
+      "sourceIds": ["P01", "P04", "P05", "P06"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-B04",
+      "title": "Additive Migration [R0/R1].",
+      "implementationTreatment": "foundation-control",
+      "basis": "Fixierter Plane-Stand und neue Invarianten",
+      "rationale": "Zusätzliche Foundation-/Regressionsanforderung; nicht als vorhandene Funktion ausgegeben.",
+      "sourceIds": ["P01", "P04", "P05", "P06"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-B05",
+      "title": "Freigabe ist kein Status [R0].",
+      "implementationTreatment": "foundation-control",
+      "basis": "Fixierter Plane-Stand und neue Invarianten",
+      "rationale": "Zusätzliche Foundation-/Regressionsanforderung; nicht als vorhandene Funktion ausgegeben.",
+      "sourceIds": ["P01", "P04", "P05", "P06"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-B06",
+      "title": "Bestehende Schreibwege beachten [R1].",
+      "implementationTreatment": "foundation-control",
+      "basis": "Fixierter Plane-Stand und neue Invarianten",
+      "rationale": "Zusätzliche Foundation-/Regressionsanforderung; nicht als vorhandene Funktion ausgegeben.",
+      "sourceIds": ["P01", "P04", "P05", "P06"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-B07",
+      "title": "Draft-, Archiv- und Löschverhalten [R0/R1].",
+      "implementationTreatment": "foundation-control",
+      "basis": "Fixierter Plane-Stand und neue Invarianten",
+      "rationale": "Zusätzliche Foundation-/Regressionsanforderung; nicht als vorhandene Funktion ausgegeben.",
+      "sourceIds": ["P01", "P04", "P05", "P06"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-B08",
+      "title": "Native Editoren und Assets [R1].",
+      "implementationTreatment": "foundation-control",
+      "basis": "Fixierter Plane-Stand und neue Invarianten",
+      "rationale": "Zusätzliche Foundation-/Regressionsanforderung; nicht als vorhandene Funktion ausgegeben.",
+      "sourceIds": ["P01", "P04", "P05", "P06"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-B09",
+      "title": "Rechte über alle Oberflächen [R1/V1].",
+      "implementationTreatment": "foundation-control",
+      "basis": "Fixierter Plane-Stand und neue Invarianten",
+      "rationale": "Zusätzliche Foundation-/Regressionsanforderung; nicht als vorhandene Funktion ausgegeben.",
+      "sourceIds": ["P01", "P04", "P05", "P06"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-B10",
+      "title": "Ereignisse ohne Doppelpflege [R1].",
+      "implementationTreatment": "foundation-control",
+      "basis": "Fixierter Plane-Stand und neue Invarianten",
+      "rationale": "Zusätzliche Foundation-/Regressionsanforderung; nicht als vorhandene Funktion ausgegeben.",
+      "sourceIds": ["P01", "P04", "P05", "P06"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-B11",
+      "title": "Statusprojektion statt Statuskopie [R1].",
+      "implementationTreatment": "foundation-control",
+      "basis": "Fixierter Plane-Stand und neue Invarianten",
+      "rationale": "Zusätzliche Foundation-/Regressionsanforderung; nicht als vorhandene Funktion ausgegeben.",
+      "sourceIds": ["P01", "P04", "P05", "P06"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-B12",
+      "title": "Upstream- und Regressionstest [R0/V1].",
+      "implementationTreatment": "foundation-control",
+      "basis": "Fixierter Plane-Stand und neue Invarianten",
+      "rationale": "Zusätzliche Foundation-/Regressionsanforderung; nicht als vorhandene Funktion ausgegeben.",
+      "sourceIds": ["P01", "P04", "P05", "P06"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-B13",
+      "title": "Editions- und Lizenzgrenzen [R0/V1].",
+      "implementationTreatment": "foundation-control",
+      "basis": "Fixierter Plane-Stand und neue Invarianten",
+      "rationale": "Zusätzliche Foundation-/Regressionsanforderung; nicht als vorhandene Funktion ausgegeben.",
+      "sourceIds": ["P01", "P04", "P05", "P06"],
+      "applicationVerified": false
+    },
+    {
+      "requirementId": "FR-B14",
+      "title": "Eine gemeinsame Oberfläche [R0/R1].",
+      "implementationTreatment": "foundation-control",
+      "basis": "Fixierter Plane-Stand und neue Invarianten",
+      "rationale": "Zusätzliche Foundation-/Regressionsanforderung; nicht als vorhandene Funktion ausgegeben.",
+      "sourceIds": ["P01", "P04", "P05", "P06"],
+      "applicationVerified": false
+    }
+  ]
+}

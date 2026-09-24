@@ -1,0 +1,92 @@
+{
+  "retrievedOn": "2026-09-24",
+  "repository": "makeplane/plane",
+  "analysisCommit": "d616636119d20a531a815c78d364bdb47d552a2d",
+  "method": "Targeted GitHub connector reads and official edition documentation; no full repository checkout/build",
+  "sources": [
+    {
+      "id": "P01",
+      "title": "Repository- und Commitbasis",
+      "url": "https://api.github.com/repos/makeplane/plane/branches/preview",
+      "gitBlobSha": null,
+      "readScope": "Branch und Commit am 24.09.2026 über GitHub-Connector gelesen; Daten im Lock fixiert."
+    },
+    {
+      "id": "P02",
+      "title": "Root-Manifest",
+      "url": "https://github.com/makeplane/plane/blob/d616636119d20a531a815c78d364bdb47d552a2d/package.json",
+      "gitBlobSha": "66760eb0016a76b0d6f7822c8b1dff3503d4a3f4",
+      "readScope": "Version, Node-/pnpm-Vorgabe, Monorepo-Scripts und Lizenzbezeichnung."
+    },
+    {
+      "id": "P03",
+      "title": "Web-Manifest",
+      "url": "https://github.com/makeplane/plane/blob/d616636119d20a531a815c78d364bdb47d552a2d/apps/web/package.json",
+      "gitBlobSha": "80ce9c9373a6509107c5c68ca62d293a0f8957dd",
+      "readScope": "React Router, React, gemeinsame Pakete und UI-/Store-Abhängigkeiten."
+    },
+    {
+      "id": "P04",
+      "title": "Native Modell-Exporte",
+      "url": "https://github.com/makeplane/plane/blob/d616636119d20a531a815c78d364bdb47d552a2d/apps/api/plane/db/models/__init__.py",
+      "gitBlobSha": "5cf9dec2a3e555722382396db788e16f3cc46d9e",
+      "readScope": "Existierende Modellexporte, keine vollständige Funktions-/Rechteabnahme."
+    },
+    {
+      "id": "P05",
+      "title": "Issue-Modell",
+      "url": "https://github.com/makeplane/plane/blob/d616636119d20a531a815c78d364bdb47d552a2d/apps/api/plane/db/models/issue.py",
+      "gitBlobSha": "fe23ee681dc644f0498fa12f6265d81e946443d1",
+      "readScope": "Zeilen 1–240 gelesen: Identität, Eigenschaften, Draftfilter und Speichern."
+    },
+    {
+      "id": "P06",
+      "title": "State-Modell",
+      "url": "https://github.com/makeplane/plane/blob/d616636119d20a531a815c78d364bdb47d552a2d/apps/api/plane/db/models/state.py",
+      "gitBlobSha": "fa56900c3fe42180a2cd92c1ab1f4d168def79bd",
+      "readScope": "Native State-Gruppen und projektlokale States; vollständig zurückgegebene Datei gelesen."
+    },
+    {
+      "id": "P07",
+      "title": "Agenten-/Entwicklungsregeln",
+      "url": "https://github.com/makeplane/plane/blob/d616636119d20a531a815c78d364bdb47d552a2d/AGENTS.md",
+      "gitBlobSha": "5dabb62afab47ba160fe49fdd32a6ba0e3b8c3bc",
+      "readScope": "Dokumentierte Befehle, Tests, shared-state, propel und blocks; keine Ausführung der Befehle."
+    },
+    {
+      "id": "P08",
+      "title": "Editor-Manifest",
+      "url": "https://github.com/makeplane/plane/blob/d616636119d20a531a815c78d364bdb47d552a2d/packages/editor/package.json",
+      "gitBlobSha": "71880448c18e5c8b351af6b0479b43035cc6047e",
+      "readScope": "TipTap-/ProseMirror-/Yjs-/Providerabhängigkeiten, nicht sämtliche Node-Implementierungen."
+    },
+    {
+      "id": "P09",
+      "title": "Live-Manifest",
+      "url": "https://github.com/makeplane/plane/blob/d616636119d20a531a815c78d364bdb47d552a2d/apps/live/package.json",
+      "gitBlobSha": "e2e13c2154c92d5bbe93a8f15ad5fee70fd1880d",
+      "readScope": "Hocuspocus, Kollaboration und Vitest-Scripts; keine Sicherheits-/Chatgarantie."
+    },
+    {
+      "id": "P10",
+      "title": "Lokaler Compose-Stack",
+      "url": "https://github.com/makeplane/plane/blob/d616636119d20a531a815c78d364bdb47d552a2d/docker-compose-local.yml",
+      "gitBlobSha": "23316d1e0cf59fce50d6bbb2a44c0ca761528c50",
+      "readScope": "Lokale DB-/Queue-/Cache-/Asset-/Worker-/Migratorservices; kein Produktionsaudit."
+    },
+    {
+      "id": "P11",
+      "title": "Plane-Editionen",
+      "url": "https://developers.plane.so/self-hosting/editions-and-versions",
+      "gitBlobSha": null,
+      "readScope": "Community und Commercial/Airgapped unterscheiden sich in Codebasis/Funktionsumfang. Am 24.09.2026 geöffnet."
+    },
+    {
+      "id": "P12",
+      "title": "Lizenzbezug",
+      "url": "https://github.com/makeplane/plane/blob/d616636119d20a531a815c78d364bdb47d552a2d/LICENSE.txt",
+      "gitBlobSha": null,
+      "readScope": "AGPL-Zuordnung durch Root-Manifest, SPDX-Kopfzeilen der gelesenen Modelle sowie offizielle Editionsdokumentation belegt. Vollständiger Lizenztext bereits im vorausgehenden Lizenzgespräch gelesen; kein neuer Rechtsgutachten-/Vertragsnachweis."
+    }
+  ]
+}

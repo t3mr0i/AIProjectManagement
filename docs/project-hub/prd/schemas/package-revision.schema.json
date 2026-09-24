@@ -1,0 +1,200 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:project-hub:package-revision:v1.1",
+  "title": "PackageRevision v1.1",
+  "description": "Immutable content snapshot. Empty intent/outcome/criteria are allowed for drafts; readiness is a server-side rule. This document grants no execution rights. Plane extension contract: workspaceId/projectId/workItemId refer to native Plane Workspace/Project/Issue UUIDs. Server-side foreign-key, membership and approval checks are required.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.1.0"
+    },
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "workItemId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Native db.Issue.id; must belong to projectId and workspaceId. There is no independent package ID."
+    },
+    "projectId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Native db.Project.id; must belong to workspaceId."
+    },
+    "workspaceId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Native db.Workspace.id; no separate tenant identity."
+    },
+    "number": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "intent": {
+      "type": "string"
+    },
+    "outcome": {
+      "type": "string"
+    },
+    "nonGoals": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 0
+    },
+    "criteria": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "statement": {
+            "type": "string",
+            "minLength": 1
+          },
+          "verification": {
+            "type": "string",
+            "minLength": 1
+          },
+          "required": {
+            "type": "boolean"
+          }
+        },
+        "required": ["id", "statement", "verification", "required"]
+      },
+      "minItems": 0
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "enum": ["code", "document", "message", "decision", "manual"]
+          },
+          "objectId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "enum": ["observed", "confirmed", "inferred", "proposed"]
+          },
+          "locator": {
+            "type": "string"
+          }
+        },
+        "required": ["id", "kind", "objectId", "revision", "status", "locator"]
+      },
+      "minItems": 0
+    },
+    "repositories": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "bindingId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "baseCommit": {
+            "type": "string",
+            "pattern": "^([0-9a-f]{40}|[0-9a-f]{64})$"
+          },
+          "targetBranch": {
+            "type": "string",
+            "minLength": 1
+          },
+          "allowedPaths": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1
+          }
+        },
+        "required": ["bindingId", "baseCommit", "targetBranch", "allowedPaths"]
+      },
+      "minItems": 0
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "format": {
+            "enum": ["markdown", "diagram-json", "attachment-reference"]
+          },
+          "contentHash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "required": ["id", "path", "format", "contentHash"]
+      },
+      "minItems": 0
+    },
+    "contentHash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "createdBy": {
+      "type": "string",
+      "format": "uuid"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "id",
+    "workItemId",
+    "projectId",
+    "workspaceId",
+    "number",
+    "title",
+    "intent",
+    "outcome",
+    "nonGoals",
+    "criteria",
+    "sources",
+    "repositories",
+    "artifacts",
+    "contentHash",
+    "createdAt",
+    "createdBy"
+  ]
+}

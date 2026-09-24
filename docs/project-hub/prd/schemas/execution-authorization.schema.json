@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:project-hub:execution-authorization:v1.1",
+  "title": "ExecutionAuthorization v1.1",
+  "description": "Server-issued approval record. Never trust client fields as authentication. Verify principal, policy, revision hash, expiry and revocation on every controlled action. Plane extension contract: workspaceId/projectId/workItemId refer to native Plane Workspace/Project/Issue UUIDs. Server-side foreign-key, membership and approval checks are required.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.1.0"
+    },
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "workspaceId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Native db.Workspace.id; no separate tenant identity."
+    },
+    "workItemId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Native db.Issue.id; must belong to projectId and workspaceId. There is no independent package ID."
+    },
+    "revisionId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "revisionHash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "action": {
+      "const": "execute"
+    },
+    "approvedBy": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "principalId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "kind": {
+          "const": "human"
+        }
+      },
+      "required": ["principalId", "kind"]
+    },
+    "approvedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expiresAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "policyVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "repositoryScope": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "bindingId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "baseCommit": {
+            "type": "string",
+            "pattern": "^([0-9a-f]{40}|[0-9a-f]{64})$"
+          },
+          "targetBranch": {
+            "type": "string",
+            "minLength": 1
+          },
+          "allowedPaths": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1
+          }
+        },
+        "required": ["bindingId", "baseCommit", "targetBranch", "allowedPaths"]
+      },
+      "minItems": 1
+    },
+    "allowedActions": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "prepare_worktree",
+          "edit_allowed_files",
+          "run_allowed_checks",
+          "create_commit",
+          "push_work_branch",
+          "open_merge_request"
+        ]
+      },
+      "minItems": 1
+    },
+    "runnerProfileId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "maxSeconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxSpendMinor": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        }
+      },
+      "required": ["maxSeconds", "maxSpendMinor", "currency"]
+    },
+    "revokedAt": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "id",
+    "workspaceId",
+    "workItemId",
+    "revisionId",
+    "revisionHash",
+    "action",
+    "approvedBy",
+    "approvedAt",
+    "expiresAt",
+    "policyVersion",
+    "repositoryScope",
+    "allowedActions",
+    "runnerProfileId",
+    "limits",
+    "revokedAt"
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "1.1.0",
+  "id": "00000000-0000-4000-8000-000000000001",
+  "workItemId": "00000000-0000-4000-8000-000000000002",
+  "projectId": "00000000-0000-4000-8000-000000000003",
+  "workspaceId": "00000000-0000-4000-8000-000000000004",
+  "number": 1,
+  "title": "Gefilterte Daten exportieren",
+  "intent": "Doppelte manuelle Zusammenstellung der Auswahl vermeiden.",
+  "outcome": "Die aktuell gefilterten und erlaubten Datensätze können als CSV exportiert werden.",
+  "nonGoals": ["Keine Änderung bestehender Berechtigungen."],
+  "criteria": [
+    {
+      "id": "AC-1",
+      "statement": "Der Export enthält nur Datensätze der aktuellen Filterung und der bestehenden Berechtigung.",
+      "verification": "Integrationstest mit zwei Nutzern unterschiedlicher Berechtigungen.",
+      "required": true
+    }
+  ],
+  "sources": [],
+  "repositories": [
+    {
+      "bindingId": "00000000-0000-4000-8000-000000000005",
+      "baseCommit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "targetBranch": "main",
+      "allowedPaths": ["src/export/**", "tests/export/**", "openspec/**"]
+    }
+  ],
+  "artifacts": [],
+  "contentHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "createdAt": "2026-09-24T12:00:00Z",
+  "createdBy": "00000000-0000-4000-8000-000000000006"
+}

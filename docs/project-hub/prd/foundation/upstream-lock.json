@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "1.0.0",
+  "repository": "https://github.com/makeplane/plane",
+  "edition": "public-community-source",
+  "analysisRef": "preview",
+  "analysisCommit": "d616636119d20a531a815c78d364bdb47d552a2d",
+  "analysisCommitTime": "2026-09-24T09:45:14Z",
+  "observedPackageVersion": "1.4.2",
+  "observedNodeEngine": ">=22.22.0",
+  "observedPackageManager": "pnpm@11.10.0",
+  "status": "analysis-only-not-production-approved",
+  "implementationBaselineApproved": false,
+  "implementationCommit": null,
+  "licensePathApproved": false,
+  "notes": [
+    "A user decision selected Plane as foundation, not a specific production release or license agreement.",
+    "Root package version is not a verified release tag.",
+    "Do not fetch a new preview head silently.",
+    "No application build, migration or fork was performed in this document update."
+  ]
+}

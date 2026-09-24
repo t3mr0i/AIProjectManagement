@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:project-hub:plane-package-profile:v1.1",
+  "title": "PlanePackageProfile v1.1",
+  "description": "Optional 0..1 extension for a native Plane Issue. No independent package primary identity or duplicate native planning fields. Referential integrity is checked server-side.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.1.0"
+    },
+    "workspaceId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "projectId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "workItemId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "profile": {
+      "enum": ["light", "standard", "controlled"]
+    },
+    "enabled": {
+      "type": "boolean"
+    },
+    "workingRevisionId": {
+      "type": ["string", "null"],
+      "format": "uuid"
+    },
+    "approvedRevisionId": {
+      "type": ["string", "null"],
+      "format": "uuid"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "workspaceId",
+    "projectId",
+    "workItemId",
+    "profile",
+    "enabled",
+    "workingRevisionId",
+    "approvedRevisionId",
+    "updatedAt"
+  ]
+}
