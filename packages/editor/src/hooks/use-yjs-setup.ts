@@ -17,8 +17,9 @@ import type { CollaborationState, CollabStage, CollaborationError } from "@/type
 // Helper to check if a close code indicates a forced close
 const isForcedCloseCode = (code: number | undefined): boolean => {
   if (!code) return false;
-  // All custom close codes (4000-4003) are treated as forced closes
-  return code >= 4000 && code <= 4003;
+  // All custom close codes (4000-4003) are treated as forced closes;
+  // 4403 = access revoked by the live server's periodic access re-check.
+  return (code >= 4000 && code <= 4003) || code === 4403;
 };
 
 type UseYjsSetupArgs = {
@@ -153,7 +154,11 @@ export const useYjsSetup = ({ docId, serverUrl, authToken, onStateChange }: UseY
         const error: CollaborationError = {
           type: "forced-close",
           code: closeCode || 0,
-          message: isManualDisconnect ? "Manually disconnected" : "Server forced connection close",
+          message: isManualDisconnect
+            ? "Manually disconnected"
+            : closeCode === 4403
+              ? "Access to this document was revoked"
+              : "Server forced connection close",
         };
         const newStage = { kind: "disconnected" as const, error };
         stageRef.current = newStage;

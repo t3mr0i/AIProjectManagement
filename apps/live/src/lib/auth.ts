@@ -8,6 +8,7 @@
 import type { IncomingHttpHeaders } from "http";
 import type { TUserDetails } from "@plane/editor";
 import { logger } from "@plane/logger";
+import { checkDocumentAccess } from "@/lib/document-access";
 import { AppError } from "@/lib/errors";
 // services
 import { UserService } from "@/services/user.service";
@@ -26,7 +27,9 @@ export const onAuthenticate = async ({
   requestParameters,
   context,
   token,
+  documentName,
 }: {
+  documentName?: string;
   requestHeaders: IncomingHttpHeaders;
   context: HocusPocusServerContext;
   requestParameters: URLSearchParams;
@@ -66,10 +69,23 @@ export const onAuthenticate = async ({
   context.userId = userId;
   context.workspaceSlug = requestParameters.get("workspaceSlug");
 
-  return await handleAuthentication({
+  const authResult = await handleAuthentication({
     cookie: context.cookie,
     userId: context.userId,
   });
+
+  // Also verify document access at connect time: an already-loaded document would otherwise be
+  // served to a user whose access was revoked (e.g. on reconnect after a 4403 close).
+  if (documentName) {
+    const access = await checkDocumentAccess(context, documentName);
+    if (access !== "granted") {
+      const appError = new AppError("Document access denied", { code: "AUTH_DOCUMENT_ACCESS_DENIED" });
+      logger.error("Document access check failed", { documentName, result: access });
+      throw appError;
+    }
+  }
+
+  return authResult;
 };
 
 export const handleAuthentication = async ({ cookie, userId }: { cookie: string; userId: string }) => {

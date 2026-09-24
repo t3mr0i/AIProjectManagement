@@ -19,6 +19,7 @@ export enum ForceCloseReason {
   SERVER_SHUTDOWN = "server_shutdown",
   SECURITY_VIOLATION = "security_violation",
   CORRUPTION_DETECTED = "corruption_detected",
+  ACCESS_REVOKED = "access_revoked",
 }
 
 /**
@@ -56,6 +57,8 @@ export enum CloseCode {
   MEMORY_PRESSURE = 4002,
   /** Custom: Security violation */
   SECURITY_VIOLATION = 4003,
+  /** Custom: The user lost access to the document (periodic access re-check) */
+  ACCESS_REVOKED = 4403,
 }
 
 /**
@@ -143,6 +146,7 @@ export function getForceCloseMessage(reason: ForceCloseReason): string {
     [ForceCloseReason.SERVER_SHUTDOWN]: "Server is shutting down. Please reconnect in a moment.",
     [ForceCloseReason.SECURITY_VIOLATION]: "Security violation detected. Connection terminated.",
     [ForceCloseReason.CORRUPTION_DETECTED]: "Data corruption detected. Please refresh the page.",
+    [ForceCloseReason.ACCESS_REVOKED]: "You no longer have access to this document. Live sync has been stopped.",
   };
 
   return messages[reason] || "Connection closed. Please refresh the page.";

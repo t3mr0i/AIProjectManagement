@@ -28,6 +28,9 @@ const envSchema = z.object({
   REDIS_HOST: z.string().optional(),
   REDIS_PORT: z.string().default("6379").transform(Number),
   REDIS_URL: z.string().optional(),
+  // Periodic document access re-check for open connections (0 disables)
+  LIVE_ACCESS_RECHECK_INTERVAL_MS: z.string().default("30000").transform(Number),
+  LIVE_ACCESS_RECHECK_MAX_FAILURES: z.string().default("3").transform(Number),
 });
 
 const validateEnv = () => {

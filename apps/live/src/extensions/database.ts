@@ -20,6 +20,8 @@ import { getPageService } from "@/services/page/handler";
 import type { FetchPayloadWithContext, StorePayloadWithContext } from "@/types";
 import { ForceCloseReason, CloseCode } from "@/types/admin-commands";
 import { broadcastError } from "@/utils/broadcast-error";
+// access re-check (store context after revocation)
+import { accessRecheckScheduler } from "./access-recheck";
 // force close utility
 import { forceCloseDocumentAcrossServers } from "./force-close-handler";
 
@@ -70,11 +72,19 @@ const fetchDocument = async ({ context, documentName: pageId, instance }: FetchP
 };
 
 const storeDocument = async ({
-  context,
+  context: lastWriterContext,
   state: pageBinaryData,
   documentName: pageId,
   instance,
 }: StorePayloadWithContext) => {
+  // Hocuspocus stores with the context of the connection that sent the last update. If that
+  // connection's access was revoked, persist with a still-authorized context instead (its
+  // pending updates were already rejected: the connection is read-only once revoked).
+  const context = accessRecheckScheduler.resolveStoreContext(pageId, lastWriterContext);
+  if (context === null) {
+    logger.warn(`[ACCESS_RECHECK] No authorized context left to store document ${pageId}; skipping store`);
+    return;
+  }
   try {
     const service = getPageService(context.documentType, context);
     // convert binary data to all formats

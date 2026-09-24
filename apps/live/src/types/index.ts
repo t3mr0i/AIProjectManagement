@@ -32,4 +32,8 @@ export type HocusPocusServerContext = {
   documentType: TDocumentTypes;
   workspaceSlug: string | null;
   userId: string;
+  /** Set by the access re-check once the API denies access; no further updates are accepted. */
+  accessRevoked?: boolean;
+  /** Set after repeated transient access-check failures; writes paused until access is re-confirmed. */
+  accessStale?: boolean;
 };
