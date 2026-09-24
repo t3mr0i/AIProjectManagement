@@ -117,6 +117,9 @@ class ExecutionRun(IssueScopedModel):
     result = models.JSONField(default=dict, blank=True)
     cancel_requested_at = models.DateTimeField(null=True, blank=True)
     pause_reason = models.CharField(max_length=64, blank=True, default="")
+    # Immutable run manifest (written once at run start, never edited; J04).
+    manifest = models.JSONField(default=dict, blank=True)
+    manifest_hash = models.CharField(max_length=64, blank=True, default="")
 
     class Meta:
         db_table = "pf_execution_runs"
