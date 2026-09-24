@@ -45,6 +45,8 @@ import { usePlatformOS } from "@/hooks/use-platform-os";
 // local components
 import { IssuePropertyLabels } from "./labels";
 import { WithDisplayPropertiesHOC } from "./with-display-properties-HOC";
+// project hub (extension, feature-flagged; renders nothing for rows without a package profile)
+import { WorkPackageListBadge } from "@/components/project-hub/work-package";
 
 export interface IIssueProperties {
   issue: TIssue;
@@ -205,6 +207,7 @@ export const IssueProperties = observer(function IssueProperties(props: IIssuePr
 
   return (
     <div className={className}>
+      {!isEpic && <WorkPackageListBadge projectId={issue.project_id} issueId={issue.id} />}
       {/* basic properties */}
       {/* state */}
       <WithDisplayPropertiesHOC displayProperties={displayProperties} displayPropertyKey="state">

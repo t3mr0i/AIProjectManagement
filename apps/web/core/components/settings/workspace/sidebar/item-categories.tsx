@@ -22,6 +22,8 @@ import { SettingsSidebarItem } from "@/components/settings/sidebar/item";
 import { useUserPermissions } from "@/hooks/store/user";
 // local imports
 import { WORKSPACE_SETTINGS_ICONS } from "./item-icon";
+// project hub (extension): renders nothing unless enabled
+import { ProjectHubSettingsSidebarLink } from "@/components/project-hub/navigation/settings-sidebar-link";
 
 export const WorkspaceSettingsSidebarItemCategories = observer(function WorkspaceSettingsSidebarItemCategories() {
   // params
@@ -69,6 +71,7 @@ export const WorkspaceSettingsSidebarItemCategories = observer(function Workspac
           </div>
         );
       })}
+      <ProjectHubSettingsSidebarLink />
     </div>
   );
 });

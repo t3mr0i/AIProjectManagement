@@ -17,6 +17,8 @@ import {
 } from "@makeplane/propel/icons";
 import type { EUserProjectRoles, IPartialProject } from "@plane/types";
 import type { TNavigationItem } from "@/components/navigation/tab-navigation-root";
+// project hub (extension): items are only returned when the extension is enabled
+import { useProjectHubNavigationItems } from "@/components/project-hub/navigation/use-project-navigation-items";
 
 type UseNavigationItemsProps = {
   workspaceSlug: string;
@@ -104,9 +106,11 @@ export const useNavigationItems = ({
     [project]
   );
 
+  const projectHubItems = useProjectHubNavigationItems(workspaceSlug, projectId);
+
   // Combine, filter, and sort navigation items
   const navigationItems = useMemo(() => {
-    const navItems = baseNavigation(workspaceSlug, projectId);
+    const navItems = [...baseNavigation(workspaceSlug, projectId), ...projectHubItems];
 
     // Filter by permissions and shouldRender
     const filteredItems = navItems.filter((item) => {
@@ -118,7 +122,7 @@ export const useNavigationItems = ({
     // Sort by sortOrder
     // oxlint-disable-next-line unicorn/no-array-sort
     return filteredItems.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
-  }, [workspaceSlug, projectId, baseNavigation, allowPermissions, project?.id]);
+  }, [workspaceSlug, projectId, baseNavigation, allowPermissions, project?.id, projectHubItems]);
 
   return navigationItems;
 };

@@ -33,6 +33,8 @@ import { usePlatformOS } from "@/hooks/use-platform-os";
 import { IssueSubscription } from "../issue-detail/subscription";
 import { WorkItemDetailQuickActions } from "../issue-layouts/quick-action-dropdowns";
 import { NameDescriptionUpdateStatus } from "../issue-update-status";
+// project hub (extension, feature-flagged)
+import { WorkPackageHeaderIndicator } from "@/components/project-hub/work-package";
 import { IconButton } from "@makeplane/propel/components/icon-button";
 import { Icon } from "@makeplane/propel/components/icon";
 
@@ -201,6 +203,7 @@ export const IssuePeekOverviewHeader = observer(function IssuePeekOverviewHeader
         )}
       </div>
       <div className="flex items-center gap-x-4">
+        <WorkPackageHeaderIndicator workspaceSlug={workspaceSlug} projectId={projectId} issueId={issueId} />
         <NameDescriptionUpdateStatus isSubmitting={isSubmitting} />
         <div className="flex items-center gap-2">
           {currentUser && !isArchived && (

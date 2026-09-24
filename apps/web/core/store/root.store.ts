@@ -69,6 +69,9 @@ import { ThemeStore } from "./theme.store";
 import type { IUserStore } from "./user";
 import { UserStore } from "./user";
 import type { IWorkspaceRootStore } from "./workspace";
+// project hub (extension)
+import type { IProjectHubStore } from "./project-hub";
+import { ProjectHubStore } from "./project-hub";
 
 enableStaticRendering(typeof window === "undefined");
 
@@ -103,6 +106,7 @@ export class CoreRootStore {
   workItemFilters: IWorkItemFilterStore;
   powerK: IPowerKStore;
   timelineStore: ITimelineStore;
+  projectHub: IProjectHubStore;
 
   constructor() {
     this.router = new RouterStore();
@@ -135,6 +139,7 @@ export class CoreRootStore {
     this.workItemFilters = new WorkItemFilterStore();
     this.powerK = new PowerKStore();
     this.timelineStore = new TimeLineStore(this);
+    this.projectHub = new ProjectHubStore();
   }
 
   resetOnSignOut() {
@@ -169,6 +174,7 @@ export class CoreRootStore {
     this.workItemFilters = new WorkItemFilterStore();
     this.powerK = new PowerKStore();
     this.timelineStore = new TimeLineStore(this);
+    this.projectHub = new ProjectHubStore();
   }
 }
 

@@ -21,6 +21,7 @@ export const NAMESPACES = [
   "page",
   "power-k",
   "project",
+  "project-hub",
   "project-settings",
   "settings",
   "stickies",

@@ -23,6 +23,8 @@ import useReloadConfirmations from "@/hooks/use-reload-confirmation";
 import useSize from "@/hooks/use-window-size";
 // services
 import { WorkItemVersionService } from "@/services/issue";
+// project hub (extension, feature-flagged)
+import { WorkPackageHeaderIndicator, WorkPackageSection } from "@/components/project-hub/work-package";
 // local imports
 import { IssueDetailWidgets } from "../issue-detail-widgets";
 import { NameDescriptionUpdateStatus } from "../issue-update-status";
@@ -91,6 +93,7 @@ export const IssueMainContent = observer(function IssueMainContent(props: Props)
         <div className="mb-2.5 flex items-center justify-between gap-4">
           <IssueTypeSwitcher issueId={issueId} disabled={isArchived || !isEditable} />
           <div className="flex items-center gap-3">
+            <WorkPackageHeaderIndicator workspaceSlug={workspaceSlug} projectId={projectId} issueId={issueId} />
             <NameDescriptionUpdateStatus isSubmitting={isSubmitting} />
           </div>
         </div>
@@ -179,6 +182,13 @@ export const IssueMainContent = observer(function IssueMainContent(props: Props)
           disabled={!isEditable || isArchived}
         />
       )}
+
+      <WorkPackageSection
+        workspaceSlug={workspaceSlug}
+        projectId={projectId}
+        issueId={issueId}
+        disabled={!isEditable || isArchived}
+      />
 
       <IssueActivity workspaceSlug={workspaceSlug} projectId={projectId} issueId={issueId} disabled={isArchived} />
     </>

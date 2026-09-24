@@ -27,6 +27,8 @@ import { useAppTheme } from "@/hooks/store/use-app-theme";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
 import { useProject } from "@/hooks/store/use-project";
 import { useUserPermissions } from "@/hooks/store/user";
+// project hub (extension): items are only returned when the extension is enabled
+import { useProjectHubNavigationItems } from "@/components/project-hub/navigation/use-project-navigation-items";
 
 export type TNavigationItem = {
   name: string;
@@ -141,10 +143,12 @@ export const ProjectNavigation = observer(function ProjectNavigation(props: TPro
     [project]
   );
 
+  const projectHubItems = useProjectHubNavigationItems(workspaceSlug, projectId);
+
   // memoized navigation items and adding additional navigation items
   const navigationItemsMemo = useMemo(() => {
     const navigationItems = (workspaceSlug: string, projectId: string): TNavigationItem[] => {
-      const navItems = baseNavigation(workspaceSlug, projectId);
+      const navItems = [...baseNavigation(workspaceSlug, projectId), ...projectHubItems];
 
       if (additionalNavigationItems) {
         navItems.push(...additionalNavigationItems(workspaceSlug, projectId));
@@ -159,7 +163,7 @@ export const ProjectNavigation = observer(function ProjectNavigation(props: TPro
     );
 
     return sortedNavigationItems;
-  }, [workspaceSlug, projectId, baseNavigation, additionalNavigationItems]);
+  }, [workspaceSlug, projectId, baseNavigation, additionalNavigationItems, projectHubItems]);
 
   const isActive = useCallback(
     (item: TNavigationItem) => {

@@ -14,6 +14,8 @@ import { SidebarFavoritesMenu } from "@/components/workspace/sidebar/favorites/f
 import { SidebarProjectsList } from "@/components/workspace/sidebar/projects-list";
 import { SidebarQuickActions } from "@/components/workspace/sidebar/quick-actions";
 import { SidebarMenuItems } from "@/components/workspace/sidebar/sidebar-menu-items";
+// project hub (extension): renders nothing unless enabled
+import { ProjectHubWorkspaceSidebarItems } from "@/components/project-hub/navigation/workspace-sidebar-items";
 // hooks
 import { useFavorite } from "@/hooks/store/use-favorite";
 import { useUserPermissions } from "@/hooks/store/user";
@@ -34,6 +36,7 @@ export const AppSidebar = observer(function AppSidebar() {
   return (
     <SidebarWrapper title="Projects" quickActions={<SidebarQuickActions />}>
       <SidebarMenuItems />
+      <ProjectHubWorkspaceSidebarItems />
       {/* Favorites Menu */}
       {canPerformWorkspaceMemberActions && !isFavoriteEmpty && <SidebarFavoritesMenu />}
       {/* Projects List */}
