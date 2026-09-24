@@ -231,6 +231,7 @@ _CODE_MAP: dict[str, type[ApiError]] = {
     "ACTION_NOT_ALLOWED": ActionRejected,
     "ACTION_REJECTED": ActionRejected,
     "PATH_NOT_ALLOWED": ActionRejected,
+    "CHECK_NOT_ALLOWED": ActionRejected,
     "BUDGET_EXCEEDED": ActionRejected,
     "TIME_LIMIT_EXCEEDED": ActionRejected,
     "IDEMPOTENCY_MISMATCH": IdempotencyMismatch,

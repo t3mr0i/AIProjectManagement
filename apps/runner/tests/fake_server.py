@@ -279,6 +279,10 @@ class FakeServer:
                 accepted, reason = False, "ACTION_NOT_ALLOWED"
             elif paths and not all(path_matches(p, a["allowed_paths"]) for p in paths):
                 accepted, reason = False, "PATH_NOT_ALLOWED"
+            elif action == "run_allowed_checks" and (body.get("detail") or {}).get("check") not in {
+                c["name"] for c in a["checks"]
+            }:
+                accepted, reason = False, "CHECK_NOT_ALLOWED"
             self.actions.append({"run_id": run["id"], "action": action, "accepted": accepted, "detail": body})
             if not accepted:
                 raise Reject(409, reason)

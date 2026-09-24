@@ -104,6 +104,9 @@ class CheckSpec:
     name: str
     command: tuple[str, ...]
     timeout_seconds: int | None = None
+    # Approver marked the check as trusted: it may run without the operator's ``sandbox_prefix``
+    # (e.g. needs network). Untrusted (default) checks are wrapped in the sandbox when configured.
+    trusted: bool = False
 
 
 @dataclass(frozen=True)
@@ -345,7 +348,10 @@ def parse_checks(raw: Any) -> list[CheckSpec]:
         if not isinstance(cmd, list) or not cmd or not all(isinstance(x, str) for x in cmd):
             raise ManifestInvalid(f"checks[{i}].command must be a non-empty argv list")
         timeout = c.get("timeoutSeconds")
-        checks.append(CheckSpec(name, tuple(cmd), int(timeout) if timeout else None))
+        trusted = c.get("trusted", False)
+        if not isinstance(trusted, bool):
+            raise ManifestInvalid(f"checks[{i}].trusted must be a boolean")
+        checks.append(CheckSpec(name, tuple(cmd), int(timeout) if timeout else None, trusted))
     return checks
 
 

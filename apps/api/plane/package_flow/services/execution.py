@@ -379,6 +379,11 @@ def build_manifest(run, approval, revision, issue):
             "maxSpendMinor": approval.limits.get("max_spend_minor"),
             "currency": approval.limits.get("currency"),
         },
+        # Human-approved checks; the only commands a runner may execute for run_allowed_checks.
+        "checks": [
+            {"name": c["name"], "command": list(c["command"]), "trusted": bool(c.get("trusted", False))}
+            for c in approval.checks or []
+        ],
         "intent": {
             "title": revision.title,
             "intent": revision.intent,
@@ -627,6 +632,17 @@ def evaluate_action(run, principal, data, now=None):
         return False, "VALIDATION_FAILED", "spend_minor must be an integer"
     if spend < 0:
         return False, "VALIDATION_FAILED", "spend_minor must be >= 0"
+    if action == "run_allowed_checks":
+        # Only checks a human approved (and that are in the run manifest) may run (AC27).
+        check_name = detail.get("check")
+        manifest_checks = {c.get("name"): c for c in (run.manifest or {}).get("checks") or []}
+        if check_name not in manifest_checks:
+            return False, "CHECK_NOT_ALLOWED", f"Check '{check_name}' is not in the approved manifest"
+        command = detail.get("command")
+        if command is not None and (
+            not isinstance(command, list) or command != list(manifest_checks[check_name].get("command") or [])
+        ):
+            return False, "CHECK_NOT_ALLOWED", f"Check '{check_name}' command differs from the approved command"
     max_spend = int((approval.limits or {}).get("max_spend_minor") or 0)
     if run.spend_minor + spend > max_spend:
         return False, "BUDGET_EXCEEDED", "Spend limit exceeded"

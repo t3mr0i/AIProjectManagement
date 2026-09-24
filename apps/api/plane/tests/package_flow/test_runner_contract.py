@@ -14,7 +14,7 @@ from pathlib import Path
 
 import pytest
 
-from plane.package_flow.models import Evidence, ExecutionRun
+from plane.package_flow.models import Evidence, ExecutionApproval, ExecutionRun, RunAction
 
 from .pkg_support import Pkg, action
 
@@ -140,3 +140,71 @@ class TestRunnerContract:
         # both make the runner stop all further actions.
         assert r.json()["code"] in ("RUN_PAUSED", "NATIVE_SOURCE_CHANGED")
         assert isinstance(error_for(r.status_code, r.json()), (NativeSourceChanged, RunCancelled))
+
+
+GOOD_CHECK = {"name": "unit", "command": ["pytest", "-q"], "trusted": False}
+
+
+@pytest.mark.unit
+class TestApprovalChecks:
+    @pytest.mark.parametrize(
+        "checks",
+        [
+            "pytest",
+            [{"name": "Bad Name", "command": ["x"]}],
+            [{"name": "unit", "command": "pytest -q"}],
+            [{"name": "unit", "command": []}],
+            [{"name": "unit", "command": ["ok", 3]}],
+            [{"name": "unit", "command": ["x"], "trusted": "yes"}],
+            [GOOD_CHECK, GOOD_CHECK],
+            [{"name": f"c{i}", "command": ["x"]} for i in range(21)],
+        ],
+    )
+    def test_invalid_checks_rejected(self, world, checks):
+        pkg = Pkg(world)
+        pkg.make_ready()
+        rev = pkg.revision()
+        r = pkg.human.post(f"{pkg.wi}/execution-approvals", pkg.approval_body(rev["id"], checks=checks), format="json")
+        assert r.status_code == 422, r.content
+        assert not ExecutionApproval.objects.filter(issue_id=pkg.issue.id).exists()
+
+    def test_checks_in_rest_shape_and_manifest_not_in_contract(self, world):
+        pkg = Pkg(world)
+        approval = pkg.approve(
+            checks=[GOOD_CHECK, {"name": "lint", "command": ["ruff", "check"]}],
+            allowed_actions=["prepare_worktree", "edit_allowed_files", "run_allowed_checks", "create_commit"],
+        )
+        assert approval["checks"] == [GOOD_CHECK, {"name": "lint", "command": ["ruff", "check"], "trusted": False}]
+        assert "checks" not in approval["contract"]  # 1.1.0 schema has additionalProperties:false
+        _, rc = pkg.runner()
+        claim = pkg.claim(rc).json()
+        body = pkg.start(rc, approval["id"], claim["id"]).json()
+        run, token = body["run"], body["run_token"]
+        m = rc.get(f"/api/package-flow/runs/{run['id']}/manifest", HTTP_X_RUN_TOKEN=token).json()
+        assert [c["name"] for c in m["manifest"]["checks"]] == ["unit", "lint"]
+        assert canonical_hash(m["manifest"]) == m["manifest_hash"]  # checks are covered by the hash
+        parsed = parse_manifest(m)
+        assert parsed.checks[0].command == ("pytest", "-q")
+
+        f = claim["fencing_token"]
+        r = action(rc, run["id"], token, f, "run_allowed_checks", check="unit", command=["pytest", "-q"])
+        assert r.status_code == 200, r.content
+        r = action(rc, run["id"], token, f, "run_allowed_checks", check="deploy", command=["./deploy.sh"])
+        assert r.status_code == 409 and r.json()["code"] == "CHECK_NOT_ALLOWED"
+        assert isinstance(error_for(r.status_code, r.json()), ActionRejected)
+        r = action(rc, run["id"], token, f, "run_allowed_checks", check="unit", command=["pytest", "-q", "--pdb"])
+        assert r.status_code == 409 and r.json()["code"] == "CHECK_NOT_ALLOWED"
+        rows = RunAction.objects.filter(run_id=run["id"], action="run_allowed_checks")
+        assert [a.accepted for a in rows.order_by("created_at")] == [True, False, False]
+
+    def test_no_checks_approved_rejects_any_check(self, world):
+        pkg = Pkg(world)
+        approval = pkg.approve(
+            allowed_actions=["prepare_worktree", "edit_allowed_files", "run_allowed_checks", "create_commit"]
+        )
+        assert approval["checks"] == []
+        _, rc = pkg.runner()
+        claim = pkg.claim(rc).json()
+        body = pkg.start(rc, approval["id"], claim["id"]).json()
+        r = action(rc, body["run"]["id"], body["run_token"], claim["fencing_token"], "run_allowed_checks", check="unit")
+        assert r.status_code == 409 and r.json()["code"] == "CHECK_NOT_ALLOWED"

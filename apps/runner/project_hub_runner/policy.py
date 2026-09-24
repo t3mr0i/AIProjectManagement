@@ -117,10 +117,14 @@ class Rules:
     def from_manifest(
         cls, manifest: Manifest, binding_id: str | None = None, extra_checks: tuple[CheckSpec, ...] = ()
     ) -> Rules:
-        """``extra_checks`` = operator-configured checks (local runner config, never repo content)."""
+        """``extra_checks`` = operator-configured checks (local runner config, never repo content).
+
+        Human-approved manifest checks always win; operator checks are only a fallback when the
+        manifest carries none (older servers). Either way each check still needs the server gate
+        to accept ``run_allowed_checks`` — current servers reject names not in the manifest.
+        """
         scope = manifest.scope_for(binding_id)
-        names = {c.name for c in manifest.checks}
-        checks = manifest.checks + tuple(c for c in extra_checks if c.name not in names)
+        checks = manifest.checks if manifest.checks else tuple(extra_checks)
         return cls(
             run_id=manifest.run_id,
             work_item_id=manifest.work_item_id,

@@ -186,6 +186,9 @@ class ExecutionApproval(IssueScopedModel):
         "package_flow.RunnerProfile", on_delete=models.PROTECT, null=True, blank=True, related_name="+"
     )
     limits = models.JSONField(default=dict)
+    # Human-defined checks [{name, command: [argv], trusted}] the runner may execute (run_allowed_checks).
+    # REST approval shape + run manifest only; not part of the 1.1.0 JSON-schema contract.
+    checks = models.JSONField(default=list, blank=True)
     # Hash of the native issue state (description etc.) at approval time (FR-B06).
     native_source_hash = models.CharField(max_length=64, blank=True, default="")
     revoked_at = models.DateTimeField(null=True, blank=True)

@@ -68,9 +68,9 @@ class RunnerConfig:
     env_passthrough: list[str] = field(default_factory=list)
     # Optional OS/container sandbox prefix, e.g. ["firejail", "--net=none", "--"] (INV-10).
     sandbox_prefix: list[str] = field(default_factory=list)
-    # Operator-defined checks [{"name", "command": [argv], "timeout_seconds"?}]. Local config, never
-    # repository content (AC27). Used in addition to manifest checks; manifest wins on name clash.
-    # They still only run if the approval allows ``run_allowed_checks`` (server action gate).
+    # Operator-defined fallback checks [{"name", "command": [argv], "timeout_seconds"?}]. Local config,
+    # never repository content (AC27). Only used when the manifest carries no (human-approved) checks,
+    # and still subject to the server gate, which rejects names not in the manifest.
     checks: list[dict[str, Any]] = field(default_factory=list)
     # Seconds between heartbeats; 0 = lease_seconds / 3.
     heartbeat_interval: float = 0.0

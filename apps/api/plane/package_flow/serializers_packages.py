@@ -162,6 +162,7 @@ def approval_data(approval, with_contract=True):
         "allowed_actions": approval.allowed_actions,
         "runner_profile_id": _id(approval.runner_profile_id),
         "limits": approval.limits,
+        "checks": approval.checks or [],
         "state": approval_state(approval),
         "revoked_at": _iso(approval.revoked_at),
         "revoke_reason": approval.revoke_reason,

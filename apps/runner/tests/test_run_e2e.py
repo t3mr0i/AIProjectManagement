@@ -305,3 +305,32 @@ def test_cli_run_json(fake, cfg, git_repo, binding_id, tmp_path, monkeypatch):
     assert rc == 0
     assert len(git_repo.remote_branches()) == 2
     assert sys.executable  # keep import used
+
+
+def test_operator_checks_ignored_when_manifest_has_checks(fake, cfg, client, git_repo, binding_id):
+    cfg.checks = [{"name": "sneaky", "command": PY_OK}]
+    aid = fake.add_approval(binding_id, git_repo.base, ["src/**"], checks=[{"name": "unit", "command": PY_OK}])
+    out = execute_run(cfg, client, _req(fake, aid, binding_id), adapter=DeterministicAgent(PLAN))
+    assert out.status == "finished"
+    assert [c["name"] for c in out.checks] == ["unit"]
+    assert all(a["detail"]["detail"].get("check") != "sneaky" for a in fake.actions)
+
+
+def test_operator_check_fallback_is_still_gated_by_server(fake, cfg, client, git_repo, binding_id):
+    """No approved checks: the operator fallback is tried, but the server gate refuses it → not_run."""
+    cfg.checks = [{"name": "unit", "command": PY_OK}]
+    aid = fake.add_approval(binding_id, git_repo.base, ["src/**"])
+    out = execute_run(cfg, client, _req(fake, aid, binding_id), adapter=DeterministicAgent(PLAN))
+    assert out.status == "finished"
+    ev = [e for e in fake.evidence if e["name"] == "unit"][0]
+    assert ev["result"] == "not_run" and ev["executed"] is False
+    assert [a["accepted"] for a in fake.actions if a["action"] == "run_allowed_checks"] == [False]
+
+
+def test_untrusted_checks_run_in_sandbox_prefix_trusted_do_not(fake, cfg, client, git_repo, binding_id):
+    cfg.sandbox_prefix = ["/nonexistent/sandbox-wrapper"]
+    checks = [{"name": "sandboxed", "command": PY_OK}, {"name": "trusted", "command": PY_OK, "trusted": True}]
+    aid = fake.add_approval(binding_id, git_repo.base, ["src/**"], checks=checks)
+    out = execute_run(cfg, client, _req(fake, aid, binding_id), adapter=DeterministicAgent(PLAN))
+    results = {c["name"]: c["result"] for c in out.checks}
+    assert results == {"sandboxed": "not_run", "trusted": "passed"}

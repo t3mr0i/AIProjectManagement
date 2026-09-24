@@ -78,6 +78,8 @@ def setup_package(tmp_path, *, runner_kind="customer"):
     ]
     approval = pkg.approve(
         repository_scope=scope,
+        # Human-approved checks → run manifest ``checks`` (the only commands the runner may run).
+        checks=[{"name": "unit", "command": [sys.executable, "-c", "import sys; sys.exit(0)"]}],
         allowed_actions=[
             "prepare_worktree",
             "edit_allowed_files",
@@ -99,7 +101,8 @@ def runner_config(live_server, world, pkg, token, dev, tmp_path):
         token=token,
         runner_home=str(tmp_path / "runner-home"),
         bindings={str(pkg.binding.id): BindingConfig(path=str(dev))},
-        checks=[{"name": "unit", "command": [sys.executable, "-c", "import sys; sys.exit(0)"]}],
+        # Operator fallback that must be ignored: the approval defines checks.
+        checks=[{"name": "operator-only", "command": [sys.executable, "-c", "pass"]}],
         lease_seconds=120,
         request_timeout=30,
     )
@@ -142,6 +145,8 @@ def test_runner_end_to_end_against_live_server(live_server, tmp_path):
     evidence = {e.name: e for e in Evidence.objects.filter(run_id=run.id)}
     assert evidence["unit"].trust == "runner_reported" and evidence["unit"].result == "passed"
     assert evidence["unit"].commit_sha == out.commit_sha
+    assert "operator-only" not in evidence
+    assert run.manifest["checks"][0]["name"] == "unit"
     assert evidence["developer_claim"].trust == "local_self_report"
     assert evidence["developer_claim"].result == "unknown"
 

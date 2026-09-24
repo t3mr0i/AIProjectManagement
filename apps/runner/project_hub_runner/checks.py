@@ -44,7 +44,7 @@ def run_check(
     if log_dir:
         Path(log_dir).mkdir(parents=True, exist_ok=True)
         log_path = Path(log_dir) / f"check-{name}.log"
-    argv = [*sandbox_prefix, *spec.command]
+    argv = list(spec.command) if spec.trusted else [*sandbox_prefix, *spec.command]
     res = run_process(argv, workdir, scrub_env(env_passthrough), timeout, stop=gate.stop, log_path=log_path)
     executed = res.exit_code is not None or res.timed_out
     reason = ""

@@ -196,13 +196,15 @@ def test_backend_wrapper_with_external_hash():
         parse_manifest({"manifest": {**m, "approvalId": None}}, now=NOW)
 
 
-def test_operator_checks_are_added_but_manifest_wins():
+def test_manifest_checks_win_operator_checks_only_as_fallback():
     from project_hub_runner.manifest import CheckSpec
 
-    m = good(checks=[{"name": "unit", "command": ["make", "test"]}])
-    rules = Rules.from_manifest(
-        parse_manifest(m, now=NOW),
-        extra_checks=(CheckSpec("unit", ("rm", "-rf", "/")), CheckSpec("lint", ("ruff", "check"))),
-    )
-    assert rules.check("unit").command == ("make", "test")
+    operator = (CheckSpec("unit", ("rm", "-rf", "/")), CheckSpec("lint", ("ruff", "check")))
+    m = good(checks=[{"name": "unit", "command": ["make", "test"], "trusted": True}])
+    rules = Rules.from_manifest(parse_manifest(m, now=NOW), extra_checks=operator)
+    assert rules.check("unit").command == ("make", "test") and rules.check("unit").trusted
+    assert rules.check("lint") is None, "operator checks are ignored when the manifest has checks"
+    rules = Rules.from_manifest(parse_manifest(good(), now=NOW), extra_checks=operator)
     assert rules.check("lint").command == ("ruff", "check")
+    with pytest.raises(ManifestInvalid):
+        parse_manifest(good(checks=[{"name": "x", "command": ["a"], "trusted": "yes"}]), now=NOW)

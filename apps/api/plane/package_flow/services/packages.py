@@ -55,6 +55,10 @@ DEFAULT_LIMITS = {"max_seconds": 3600, "max_spend_minor": 0, "currency": "EUR"}
 ACTIVE_RUN_STATUSES = ("queued", "claimed", "running", "waiting")
 COMMIT_RE = re.compile(r"^([0-9a-f]{40}|[0-9a-f]{64})$")
 CURRENCY_RE = re.compile(r"^[A-Z]{3}$")
+CHECK_NAME_RE = re.compile(r"^[a-z0-9][a-z0-9_.-]{0,63}$")
+MAX_CHECKS = 20
+MAX_CHECK_ARGS = 64
+MAX_CHECK_ARG_LEN = 1000
 
 PHASES = ("drafts", "ready", "build", "review", "ship", "done")
 
@@ -555,6 +559,45 @@ def _validate_limits(limits):
     return {"max_seconds": max_seconds, "max_spend_minor": max_spend, "currency": currency}
 
 
+def _validate_checks(checks):
+    """Human-defined checks for ``run_allowed_checks``: ``[{name, command: [argv], trusted?}]``.
+
+    The command is an argv list (no shell string); it is executed by the external runner only,
+    never by the Plane server. Names are slugs and unique.
+    """
+    if checks is None:
+        return []
+    if not isinstance(checks, list):
+        raise ValidationFailed("checks must be a list", detail={"field": "checks"})
+    if len(checks) > MAX_CHECKS:
+        raise ValidationFailed("too many checks", detail={"field": "checks", "max": MAX_CHECKS})
+    cleaned, names = [], set()
+    for entry in checks:
+        if not isinstance(entry, dict):
+            raise ValidationFailed("check must be an object", detail={"field": "checks"})
+        name = entry.get("name")
+        command = entry.get("command")
+        if not isinstance(name, str) or not CHECK_NAME_RE.match(name):
+            raise ValidationFailed("check name must be a slug", detail={"field": "checks", "name": name})
+        if name in names:
+            raise ValidationFailed("duplicate check name", detail={"field": "checks", "name": name})
+        if (
+            not isinstance(command, list)
+            or not command
+            or len(command) > MAX_CHECK_ARGS
+            or not all(isinstance(a, str) and a and len(a) <= MAX_CHECK_ARG_LEN for a in command)
+        ):
+            raise ValidationFailed(
+                "check command must be a non-empty list of strings", detail={"field": "checks", "name": name}
+            )
+        trusted = entry.get("trusted", False)
+        if not isinstance(trusted, bool):
+            raise ValidationFailed("check trusted must be a boolean", detail={"field": "checks", "name": name})
+        names.add(name)
+        cleaned.append({"name": name, "command": list(command), "trusted": trusted})
+    return cleaned
+
+
 def create_approval(issue, profile, principal, data):
     """Human execution approval for one exact, ready, current revision."""
     # Principal kind comes from authentication, never from payload (INV-03, AC03).
@@ -594,6 +637,7 @@ def create_approval(issue, profile, principal, data):
     if revision.package_type == PackageProfile.PackageType.CODE and not repository_scope:
         raise ValidationFailed("Code packages need a repository scope", detail={"field": "repository_scope"})
     limits = _validate_limits(data.get("limits"))
+    checks = _validate_checks(data.get("checks"))
     runner = None
     if data.get("runner_profile_id"):
         runner = RunnerProfile.objects.filter(
@@ -625,6 +669,7 @@ def create_approval(issue, profile, principal, data):
             allowed_actions=list(dict.fromkeys(allowed_actions)),
             runner_profile=runner,
             limits=limits,
+            checks=checks,
             native_source_hash=current_hash,
             created_by=principal.user,
         )
