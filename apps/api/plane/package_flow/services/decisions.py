@@ -224,8 +224,12 @@ def confirm(user, project, data):
         # Only the reviewed summary is stored — no DM excerpt, no DM reference (AC12, PRD §14.2).
         text = summary
         snapshot = [
-            {"type": "reviewed_summary", "body": summary, "reviewed_by": str(user.id),
-             "captured_at": timezone.now().isoformat()}
+            {
+                "type": "reviewed_summary",
+                "body": summary,
+                "reviewed_by": str(user.id),
+                "captured_at": timezone.now().isoformat(),
+            }
         ]
         source_conversation = None
 

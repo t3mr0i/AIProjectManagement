@@ -10,11 +10,19 @@ requester's *current* native project memberships and DM participation;
 quarantined uploads never match. Responses carry no total count and never
 include titles of inaccessible sources.
 
-Native Issues and Pages are searched directly via ORM ``icontains`` filtered
-by project membership (no second copy of native content).
+Native Issues and Pages are searched directly via the ORM filtered by project
+membership (no second copy of native content).
+
+Ranking uses Postgres full-text search (``SearchVector``/``SearchRank``, title
+weighted above body, ``simple`` config so German and English both work);
+``icontains`` stays as fallback for substrings and non-Postgres databases.
+Ranking happens strictly *after* the ACL filter, so it can never reveal
+hidden rows.
 """
 
-from django.db.models import Q
+from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
+from django.db import connection
+from django.db.models import FloatField, Q, Value
 from django.utils import timezone
 
 from plane.db.models import Issue, Page
@@ -27,8 +35,18 @@ MAX_LIMIT = 100
 ALL_TYPES = ("package", "issue", "page", "decision", "message", "upload")
 
 
-def index_document(*, workspace_id, object_type, object_id, title, body="", project_id=None, issue_id=None,
-                   conversation_id=None, updated_at=None):
+def index_document(
+    *,
+    workspace_id,
+    object_type,
+    object_id,
+    title,
+    body="",
+    project_id=None,
+    issue_id=None,
+    conversation_id=None,
+    updated_at=None,
+):
     doc = SearchDocument.objects.filter(object_type=object_type, object_id=object_id).first()
     values = {
         "workspace_id": workspace_id,
@@ -91,6 +109,18 @@ def _snippet(text, q, width=160):
     return ("…" if start else "") + text[start : start + width]
 
 
+def _ranked(qs, q, title_field, body_field):
+    """ACL-filtered queryset -> matches annotated with ``rank`` (full-text + substring fallback)."""
+    substring = Q(**{f"{title_field}__icontains": q}) | Q(**{f"{body_field}__icontains": q})
+    if connection.vendor != "postgresql":
+        return qs.filter(substring).annotate(rank=Value(0.0, output_field=FloatField()))
+    vector = SearchVector(title_field, weight="A", config="simple") + SearchVector(
+        body_field, weight="B", config="simple"
+    )
+    query = SearchQuery(q, search_type="websearch", config="simple")
+    return qs.annotate(fts=vector, rank=SearchRank(vector, query)).filter(Q(fts=query) | substring)
+
+
 def my_dm_conversation_ids(user, workspace_id):
     return list(
         ConversationParticipant.objects.filter(
@@ -115,20 +145,21 @@ def search(user, workspace, q, types=None, limit=DEFAULT_LIMIT):
 
     index_types = [t for t in types if t in ("decision", "message", "upload")]
     if index_types:
-        acl = (
-            Q(project_id__in=projects) & (Q(conversation__isnull=True) | ~Q(conversation__kind="direct"))
-        ) | Q(conversation_id__in=dm_ids)
-        quarantined = UploadRecord.objects.filter(workspace_id=workspace.id).exclude(
-            scan_status=UploadRecord.ScanStatus.CLEAN
-        ).values_list("id", flat=True)
+        acl = (Q(project_id__in=projects) & (Q(conversation__isnull=True) | ~Q(conversation__kind="direct"))) | Q(
+            conversation_id__in=dm_ids
+        )
+        quarantined = (
+            UploadRecord.objects.filter(workspace_id=workspace.id)
+            .exclude(scan_status=UploadRecord.ScanStatus.CLEAN)
+            .values_list("id", flat=True)
+        )
         docs = (
             SearchDocument.objects.filter(workspace_id=workspace.id, object_type__in=index_types)
             .filter(acl)
-            .filter(Q(title__icontains=q) | Q(body__icontains=q))
             .exclude(object_type="upload", object_id__in=quarantined)
             .exclude(issue__deleted_at__isnull=False)
-            .order_by("-source_updated_at")[:limit]
         )
+        docs = _ranked(docs, q, "title", "body").order_by("-rank", "-source_updated_at")[:limit]
         for d in docs:
             results.append(
                 {
@@ -141,16 +172,15 @@ def search(user, workspace, q, types=None, limit=DEFAULT_LIMIT):
                     "conversation_id": str(d.conversation_id) if d.conversation_id else None,
                     "source": "package_flow",
                     "updated_at": d.source_updated_at,
+                    "rank": float(d.rank or 0),
                 }
             )
 
     if "issue" in types or "package" in types:
-        issues = (
-            Issue.objects.filter(workspace_id=workspace.id, project_id__in=projects, project__deleted_at__isnull=True)
-            .filter(Q(name__icontains=q) | Q(description_stripped__icontains=q))
-            .select_related("project")
-            .order_by("-updated_at")[:limit]
-        )
+        issues = Issue.objects.filter(
+            workspace_id=workspace.id, project_id__in=projects, project__deleted_at__isnull=True
+        ).select_related("project")
+        issues = _ranked(issues, q, "name", "description_stripped").order_by("-rank", "-updated_at")[:limit]
         for i in issues:
             has_profile = hasattr(i, "package_profile")
             results.append(
@@ -164,11 +194,12 @@ def search(user, workspace, q, types=None, limit=DEFAULT_LIMIT):
                     "identifier": f"{i.project.identifier}-{i.sequence_id}",
                     "source": "plane",
                     "updated_at": i.updated_at,
+                    "rank": float(i.rank or 0),
                 }
             )
 
     if "page" in types:
-        pages = (
+        page_ids = (
             Page.objects.filter(
                 workspace_id=workspace.id,
                 project_pages__project_id__in=projects,
@@ -176,10 +207,11 @@ def search(user, workspace, q, types=None, limit=DEFAULT_LIMIT):
                 archived_at__isnull=True,
             )
             .filter(Q(access=0) | Q(owned_by=user))
-            .filter(Q(name__icontains=q) | Q(description_stripped__icontains=q))
-            .distinct()
-            .order_by("-updated_at")[:limit]
+            .values("id")
         )
+        pages = _ranked(Page.objects.filter(id__in=page_ids), q, "name", "description_stripped").order_by(
+            "-rank", "-updated_at"
+        )[:limit]
         for p in pages:
             pp = p.project_pages.filter(project_id__in=projects).first()
             results.append(
@@ -191,8 +223,9 @@ def search(user, workspace, q, types=None, limit=DEFAULT_LIMIT):
                     "project_id": str(pp.project_id) if pp else None,
                     "source": "plane",
                     "updated_at": p.updated_at,
+                    "rank": float(p.rank or 0),
                 }
             )
 
-    results.sort(key=lambda r: r["updated_at"] or timezone.now(), reverse=True)
+    results.sort(key=lambda r: (r["rank"], r["updated_at"] or timezone.now()), reverse=True)
     return results[:limit]

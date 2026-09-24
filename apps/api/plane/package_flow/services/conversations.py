@@ -42,11 +42,12 @@ def can_read(user, conversation) -> bool:
     if conversation.deleted_at is not None:
         return False
     if conversation.kind == Conversation.Kind.DIRECT:
-        return ConversationParticipant.objects.filter(
-            conversation=conversation, member=user, is_active=True
-        ).exists() and WorkspaceMember.objects.filter(
-            workspace_id=conversation.workspace_id, member=user, is_active=True
-        ).exists()
+        return (
+            ConversationParticipant.objects.filter(conversation=conversation, member=user, is_active=True).exists()
+            and WorkspaceMember.objects.filter(
+                workspace_id=conversation.workspace_id, member=user, is_active=True
+            ).exists()
+        )
     if conversation.project_id is None or not is_project_member(user, conversation.project_id):
         return False
     if conversation.issue_id and not Issue.objects.filter(id=conversation.issue_id).exists():

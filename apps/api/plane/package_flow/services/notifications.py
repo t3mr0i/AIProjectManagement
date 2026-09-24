@@ -124,8 +124,10 @@ def _event_category(event):
         return None
     if et == "question.raised":
         return "decision_needed"
-    if et in ("run.paused",) or payload.get("blocked") or (
-        et in ("run.finished", "ci.check.observed") and status in ("blocked", "waiting_for_decision")
+    if (
+        et in ("run.paused",)
+        or payload.get("blocked")
+        or (et in ("run.finished", "ci.check.observed") and status in ("blocked", "waiting_for_decision"))
     ):
         return "blocked"
     if et == "run.finished" and status in ("failed", "failure", "error"):

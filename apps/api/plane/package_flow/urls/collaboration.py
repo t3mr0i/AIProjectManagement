@@ -42,6 +42,8 @@ urlpatterns = [
     *both(
         W + "notifications/<uuid:notification_id>/read", v.NotificationReadEndpoint.as_view(), "pf-notification-read"
     ),
+    *both(W + "exports/", v.ExportListEndpoint.as_view(), "pf-exports"),
+    *both(W + "exports/<uuid:export_id>/", v.ExportDetailEndpoint.as_view(), "pf-export"),
     *both(W + "retention/", v.RetentionEndpoint.as_view(), "pf-retention"),
     *both(W + "retention/apply", v.RetentionApplyEndpoint.as_view(), "pf-retention-apply"),
     # decisions

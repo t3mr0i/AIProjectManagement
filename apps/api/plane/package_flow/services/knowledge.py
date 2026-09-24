@@ -51,8 +51,23 @@ DEFAULT_BLOCKED_MIME = {
     "text/html",
 }
 DEFAULT_BLOCKED_EXT = {
-    ".exe", ".dll", ".msi", ".bat", ".cmd", ".com", ".scr", ".sh", ".ps1", ".vbs", ".js", ".jar",
-    ".app", ".bin", ".elf", ".html", ".htm",
+    ".exe",
+    ".dll",
+    ".msi",
+    ".bat",
+    ".cmd",
+    ".com",
+    ".scr",
+    ".sh",
+    ".ps1",
+    ".vbs",
+    ".js",
+    ".jar",
+    ".app",
+    ".bin",
+    ".elf",
+    ".html",
+    ".htm",
 }
 
 OFFICE_EXT = {
@@ -211,9 +226,7 @@ def read_asset_bytes(asset, limit=MAX_SCAN_BYTES):
 
 
 def register(user, project, asset_id, *, declared_mime="", filename="", issue_id=None, content=None):
-    asset = FileAsset.objects.filter(
-        id=asset_id, workspace_id=project.workspace_id, is_deleted=False
-    ).first()
+    asset = FileAsset.objects.filter(id=asset_id, workspace_id=project.workspace_id, is_deleted=False).first()
     if asset is None or (asset.project_id is not None and asset.project_id != project.id):
         raise NotFound("Asset not found")
     issue = None

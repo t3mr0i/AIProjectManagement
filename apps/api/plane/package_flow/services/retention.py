@@ -36,9 +36,7 @@ TERMINAL_RUN_STATES = ("failed", "cancelled", "finished")
 
 def get_policies(workspace):
     rows = {p.category: p for p in RetentionPolicy.objects.filter(workspace=workspace, project__isnull=True)}
-    return [
-        {"category": c, "retain_days": rows[c].retain_days if c in rows else None} for c in CATEGORIES
-    ]
+    return [{"category": c, "retain_days": rows[c].retain_days if c in rows else None} for c in CATEGORIES]
 
 
 def set_policies(user, workspace, policies):
@@ -51,16 +49,24 @@ def set_policies(user, workspace, policies):
             raise ValidationFailed("retain_days must be a positive integer or null")
     with transaction.atomic():
         for p in policies or []:
-            row = RetentionPolicy.objects.filter(workspace=workspace, project__isnull=True,
-                                                 category=p["category"]).first()
+            row = RetentionPolicy.objects.filter(
+                workspace=workspace, project__isnull=True, category=p["category"]
+            ).first()
             if row is None:
-                RetentionPolicy.objects.create(workspace=workspace, category=p["category"],
-                                               retain_days=p.get("retain_days"))
+                RetentionPolicy.objects.create(
+                    workspace=workspace, category=p["category"], retain_days=p.get("retain_days")
+                )
             else:
                 row.retain_days = p.get("retain_days")
                 row.save(update_fields=["retain_days", "updated_at"])
-        audit(workspace_id=workspace.id, action="retention.updated", target_type="workspace",
-              target_id=workspace.id, actor=user, detail={"policies": policies})
+        audit(
+            workspace_id=workspace.id,
+            action="retention.updated",
+            target_type="workspace",
+            target_id=workspace.id,
+            actor=user,
+            detail={"policies": policies},
+        )
     return get_policies(workspace)
 
 
@@ -86,9 +92,11 @@ def _purge_ai_outputs(workspace, cutoff):
 
 
 def _purge_raw_events(workspace, cutoff):
-    n, _ = InboundEvent.all_objects.filter(workspace=workspace, created_at__lt=cutoff).exclude(
-        status=InboundEvent.Status.RECEIVED
-    ).delete()
+    n, _ = (
+        InboundEvent.all_objects.filter(workspace=workspace, created_at__lt=cutoff)
+        .exclude(status=InboundEvent.Status.RECEIVED)
+        .delete()
+    )
     return n
 
 
@@ -104,8 +112,9 @@ def _purge_audit(workspace, cutoff):
 
 
 def _purge_exports(workspace, cutoff):
-    # Exports are generated on demand; no persisted export store exists in the extension yet.
-    return 0
+    from .exports import purge_expired
+
+    return purge_expired(workspace, cutoff=cutoff)
 
 
 PURGERS = {
@@ -124,13 +133,25 @@ def apply(workspace, *, user=None, now=None):
     for policy in get_policies(workspace):
         days = policy["retain_days"]
         if days is None:
-            result[policy["category"]] = {"retain_days": None, "deleted": 0}
+            deleted = 0
+            if policy["category"] == "exports":
+                # Expired export bundles are always removed, independent of a retention period.
+                from .exports import purge_expired
+
+                deleted = purge_expired(workspace, now=now)
+            result[policy["category"]] = {"retain_days": None, "deleted": deleted}
             continue
         cutoff = now - timedelta(days=days)
         with transaction.atomic():
             deleted = PURGERS[policy["category"]](workspace, cutoff)
         result[policy["category"]] = {"retain_days": days, "deleted": deleted, "cutoff": cutoff}
-    audit(workspace_id=workspace.id, action="retention.applied", target_type="workspace",
-          target_id=workspace.id, actor=user, actor_kind="human" if user else "system",
-          detail={k: v["deleted"] for k, v in result.items()})
+    audit(
+        workspace_id=workspace.id,
+        action="retention.applied",
+        target_type="workspace",
+        target_id=workspace.id,
+        actor=user,
+        actor_kind="human" if user else "system",
+        detail={k: v["deleted"] for k, v in result.items()},
+    )
     return result

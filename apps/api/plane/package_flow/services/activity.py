@@ -133,8 +133,12 @@ def _compact(entries):
         for item in items:
             key = item.get("status") or "observed"
             statuses[key] = statuses.get(key, 0) + 1
-        label = {"ci.check.observed": "pipeline/check events", "run.progress": "progress updates",
-                 "run.heartbeat": "heartbeats", "git.commit.observed": "commits"}.get(event_type, event_type)
+        label = {
+            "ci.check.observed": "pipeline/check events",
+            "run.progress": "progress updates",
+            "run.heartbeat": "heartbeats",
+            "git.commit.observed": "commits",
+        }.get(event_type, event_type)
         detail = ", ".join(f"{v} {k}" for k, v in sorted(statuses.items()))
         out.append(
             {
@@ -189,16 +193,15 @@ def feed(user, project, *, since=None, until=None, raw=False, issue_id=None):
                 "issue_name": issue.name if issue else None,
                 "identifier": f"{project.identifier}-{issue.sequence_id}" if issue else None,
                 "last_at": max(e["occurred_at"] for e in entries),
-                "days": [
-                    {"date": d, "entries": items if raw else _compact(items)} for d, items in days.items()
-                ],
+                "days": [{"date": d, "entries": items if raw else _compact(items)} for d, items in days.items()],
             }
         )
     groups.sort(key=lambda g: g["last_at"], reverse=True)
 
     decisions = Decision.objects.filter(project=project)
-    confirmed = decisions.filter(status=Decision.Status.CONFIRMED, confirmed_at__gt=since_dt,
-                                 confirmed_at__lte=until_dt)
+    confirmed = decisions.filter(
+        status=Decision.Status.CONFIRMED, confirmed_at__gt=since_dt, confirmed_at__lte=until_dt
+    )
     open_decisions = open_decision_qs(project)
     return {
         "since": since_dt,
@@ -229,10 +232,14 @@ def _decision_brief(d):
 def open_decision_qs(project):
     from django.db.models import Q
 
-    return Decision.objects.filter(project=project).filter(
-        Q(kind="open_question", status__in=[Decision.Status.PROPOSED, Decision.Status.CONFIRMED])
-        | Q(status=Decision.Status.PROPOSED)
-    ).exclude(status__in=[Decision.Status.WITHDRAWN, Decision.Status.SUPERSEDED])
+    return (
+        Decision.objects.filter(project=project)
+        .filter(
+            Q(kind="open_question", status__in=[Decision.Status.PROPOSED, Decision.Status.CONFIRMED])
+            | Q(status=Decision.Status.PROPOSED)
+        )
+        .exclude(status__in=[Decision.Status.WITHDRAWN, Decision.Status.SUPERSEDED])
+    )
 
 
 # -- overview / next work ----------------------------------------------------------
@@ -250,9 +257,7 @@ def _local_status(issue):
     if group == "completed":
         return "shipped"
     now = timezone.now()
-    approved = ExecutionApproval.objects.filter(
-        issue=issue, revoked_at__isnull=True, expires_at__gt=now
-    ).exists()
+    approved = ExecutionApproval.objects.filter(issue=issue, revoked_at__isnull=True, expires_at__gt=now).exists()
     if group == "started":
         return "active"
     if approved:
@@ -320,8 +325,11 @@ def unmet_dependencies(user, issue):
             if ms.project_id in visible_projects:
                 blockers.append({"type": "milestone", "id": str(ms.id), "name": ms.name})
             else:
-                blockers.append({"type": "external", "name": "external prerequisite open"}
-                                if dep.allow_anonymous_blocker else {"type": "hidden"})
+                blockers.append(
+                    {"type": "external", "name": "external prerequisite open"}
+                    if dep.allow_anonymous_blocker
+                    else {"type": "hidden"}
+                )
     return blockers
 
 
@@ -355,8 +363,7 @@ def overview(user, project):
         if blockers:
             names = [b.get("name") for b in blockers if b.get("name")]
             reasons.append(
-                "Blocked by confirmed dependency: " + ", ".join(names) if names
-                else "Blocked by a confirmed dependency"
+                "Blocked by confirmed dependency: " + ", ".join(names) if names else "Blocked by a confirmed dependency"
             )
         next_work.append(
             {

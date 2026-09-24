@@ -24,6 +24,7 @@ from ..models import AIProposal, Capability, Conversation, MessageVersion, Notif
 from ..services import activity as activity_service
 from ..services import conversations as conv_service
 from ..services import decisions as decision_service
+from ..services import exports as export_service
 from ..services import knowledge as knowledge_service
 from ..services import notifications as notification_service
 from ..services import retention as retention_service
@@ -561,3 +562,28 @@ class RetentionApplyEndpoint(CollaborationBaseView):
         self.require(workspace.id, None, Capability.WORKSPACE_ADMIN, enabled=False)
         return Response({"result": retention_service.apply(workspace, user=request.user)})
 
+
+
+# -- exports (FR-I06) --------------------------------------------------------------------------------------
+
+
+class ExportListEndpoint(CollaborationBaseView):
+    def get(self, request, slug):
+        workspace = self.get_workspace(slug)
+        return Response([export_service.serialize(j) for j in export_service.visible_jobs(request.user, workspace)])
+
+    def post(self, request, slug):
+        workspace = self.get_workspace(slug)
+        self.require_human()
+        data = request.data
+        job = export_service.create(
+            request.user, workspace, project_ids=data.get("project_ids") or None, include=data.get("include") or None
+        )
+        return Response(export_service.serialize(job, with_content=True), status=status.HTTP_201_CREATED)
+
+
+class ExportDetailEndpoint(CollaborationBaseView):
+    def get(self, request, slug, export_id):
+        workspace = self.get_workspace(slug)
+        job, withheld = export_service.get_for(request.user, workspace, export_id)
+        return Response(export_service.serialize(job, with_content=True, withheld=withheld))

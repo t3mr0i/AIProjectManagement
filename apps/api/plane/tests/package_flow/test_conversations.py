@@ -199,3 +199,39 @@ class TestConversations:
             conversation__kind="direct"
         ).exists()
         assert ConversationParticipant.objects.filter(conversation_id=private["id"]).count() == 2
+
+
+@pytest.mark.unit
+def test_pf09_public_deploy_board_has_no_package_flow_data(world, human_client):
+    """Native public (space) endpoints of a published project expose no extension data (FR-B09)."""
+    from plane.db.models import DeployBoard
+    from plane.package_flow.models import Decision, PackageProfile
+
+    project, (alice, bob) = setup_project(world)
+    issue = world.issue(project, name="Public item")
+    PackageProfile.objects.create(issue=issue, outcome="profile-marker-7781", intent="intent-marker-7781")
+    Decision.objects.create(workspace=world.workspace, project=project, issue=issue, title="decision-marker-7781",
+                            text="decision-marker-7781", status="confirmed", confirmed_by=alice)
+    thread = human_client(alice).get(f"{world.base(project)}/work-items/{issue.id}/thread").json()
+    post(world, human_client(alice), thread["id"], "message-marker-7781")
+    private = dm(world, human_client(alice), bob)
+    post(world, human_client(alice), private["id"], "dm-marker-7781")
+    board = DeployBoard.objects.create(workspace=world.workspace, project=project, entity_name="project",
+                                       entity_identifier=project.id)
+
+    anon = APIClient()
+    urls = [
+        f"/api/public/anchor/{board.anchor}/issues/",
+        f"/api/public/anchor/{board.anchor}/issues/{issue.id}/",
+        f"/api/public/anchor/{board.anchor}/meta/",
+        f"/api/public/anchor/{board.anchor}/settings/",
+    ]
+    seen_ok = 0
+    for url in urls:
+        r = anon.get(url)
+        if r.status_code == 200:
+            seen_ok += 1
+        assert "7781" not in r.content.decode(), url
+        assert "package_profile" not in r.content.decode() and "pf_" not in r.content.decode()
+    assert seen_ok >= 1  # the public surface itself works
+    assert "Public item" in anon.get(urls[0]).content.decode()  # native data is published, extension data is not

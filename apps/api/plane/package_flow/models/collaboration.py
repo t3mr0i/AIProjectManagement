@@ -284,3 +284,18 @@ class RetentionPolicy(ExtensionBaseModel):
                 name="pf_retention_unique",
             )
         ]
+
+
+class ExportJob(ExtensionBaseModel):
+    """Structured, ACL-filtered export bundle (FR-I06). Subject to ``exports`` retention (FR-I08)."""
+
+    requested_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="+")
+    scope = models.JSONField(default=dict)  # {"project_ids": [...], "include": [...]}
+    status = models.CharField(max_length=16, default="completed")  # completed | failed
+    content = models.JSONField(default=dict, blank=True)
+    contains_private = models.BooleanField(default=False)
+    expires_at = models.DateTimeField()
+
+    class Meta:
+        db_table = "pf_export_jobs"
+        ordering = ("-created_at",)

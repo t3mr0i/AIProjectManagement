@@ -35,6 +35,7 @@ from .collaboration import (  # noqa: F401
     Decision,
     DiagramDocument,
     DiagramVersion,
+    ExportJob,
     Message,
     MessageVersion,
     RetentionPolicy,

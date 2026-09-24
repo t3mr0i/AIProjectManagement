@@ -119,3 +119,18 @@ class TestSearch:
         for r in b["results"]:
             assert r["project_id"] != str(secret_project.id)
             assert {"type", "id", "title", "snippet", "project_id", "source", "updated_at"} <= set(r)
+
+    def test_full_text_ranking_keeps_acl(self, world, human_client):
+        project, alice, bob = setup(world)
+        secret_project = world.project(identifier="SE2", members=[(alice, 15)])
+        world.issue(project, name="Misc", description_html="<p>x</p>").__class__.objects.filter(
+            name="Misc").update(description_stripped="something about invoices somewhere")
+        best = world.issue(project, name="Invoice export")
+        world.issue(secret_project, name="Invoice export secret")
+        # Word-based match (stemming-free "simple" config) plus substring fallback.
+        results = human_client(bob).get(f"{world.ws_base()}/search/?q=invoice export").json()["results"]
+        assert results and results[0]["id"] == str(best.id)
+        assert results[0]["rank"] > 0
+        assert all("secret" not in r["title"] for r in results)
+        partial = human_client(bob).get(f"{world.ws_base()}/search/?q=nvoic").json()["results"]
+        assert str(best.id) in [r["id"] for r in partial]

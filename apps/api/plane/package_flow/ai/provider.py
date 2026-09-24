@@ -53,6 +53,11 @@ ERROR_MESSAGES = {
     STATUS_ERROR: "The AI provider failed. Nothing was changed; you can retry.",
 }
 
+ALLOWED_ACTIONS = ("propose",)
+# Source types whose content is a claim or code observation, never a confirmation (FR-R01, FR-W07).
+CLAIM_SOURCE_TYPES = {"commit", "self_report", "runner_report", "code"}
+TRUSTED_EVIDENCE = {"provider_ci", "human"}
+
 DEFAULT_TIMEOUT_S = float(os.environ.get("PACKAGE_FLOW_AI_TIMEOUT_S", "30"))
 DEFAULT_BUDGET_TOKENS = int(os.environ.get("PACKAGE_FLOW_AI_BUDGET_TOKENS", "8000"))
 
@@ -112,6 +117,12 @@ class AIResult:
     error: str = ""
     usage: dict = field(default_factory=dict)
     notes: List[str] = field(default_factory=list)
+    # Structured, provider-independent findings (PRD §14.5): unverified_claim, missing_evidence,
+    # contradiction, unknown_intent, scope_change_requires_new_approval, instruction_like_content.
+    flags: List[dict] = field(default_factory=list)
+    needs_clarification: bool = False
+    # The AI layer can only ever propose; it has no write tools (AC27).
+    allowed_actions: List[str] = field(default_factory=lambda: list(ALLOWED_ACTIONS))
 
     @property
     def ok(self) -> bool:
@@ -198,10 +209,7 @@ class AIProvider:
         result.statements = [s.normalized() for s in result.statements]
         result.usage.setdefault("input_tokens_estimate", used)
         result.usage.setdefault("budget_tokens", budget_tokens)
-        if any(m.get("role") == "context" and detect_instruction_like(m.get("content", "")) for m in messages):
-            result.notes.append(
-                "A source contains instruction-like text; it was treated as data and changed no permissions."
-            )
+        apply_guards(result, messages)
         return result
 
     def _complete(self, task, messages, remaining_tokens, cancel) -> AIResult:  # pragma: no cover - abstract
@@ -218,6 +226,105 @@ _STOP = {
 
 def keywords(text: str) -> set:
     return {w.lower() for w in _WORD.findall(text or "") if w.lower() not in _STOP}
+
+
+# -- provider-independent guards ---------------------------------------------------
+
+_PASS_CLAIM = re.compile(r"(tests? (all )?pass|all tests (have )?passed|all green|tests? bestanden|ci (is )?green|"
+                         r"verified|fully tested)", re.IGNORECASE)
+_ASSERTION = re.compile(r"([A-Za-zÄÖÜäöüß][\wÄÖÜäöüß -]{2,40}?)(?:\s+(?:is|are|ist|sind)\s+|\s*[:=]\s*)"
+                        r"(?:an? |der |die |das )?([\wÄÖÜäöüß.+-]{2,40})", re.IGNORECASE)
+_WHY = re.compile(r"\b(why|warum|weshalb|wieso|original intent|reason for|motivation)\b", re.IGNORECASE)
+
+
+def _assertions(text):
+    out = {}
+    for subject, value in _ASSERTION.findall(text or ""):
+        key = frozenset(keywords(subject))
+        if key:
+            out[key] = value.lower().strip(".")
+    return out
+
+
+def apply_guards(result: "AIResult", messages: List[dict]) -> "AIResult":
+    """Deterministic checks applied to *every* provider's output (PRD §14.4: skills are no security boundary)."""
+    contexts = [m for m in messages if m.get("role") == "context"]
+    question = " ".join(str(m.get("content", "")) for m in messages if m.get("role") == "user")
+    q_words = keywords(question)
+    sources = [(m.get("source") or {}, str(m.get("content", ""))) for m in contexts]
+
+    def add(flag):
+        if flag not in result.flags:
+            result.flags.append(flag)
+
+    # Instruction-like content is data (AC27).
+    for src, text in sources:
+        if detect_instruction_like(text):
+            add({"kind": "instruction_like_content", "source": src})
+            note = "A source contains instruction-like text; it was treated as data and changed no permissions."
+            if note not in result.notes:
+                result.notes.append(note)
+
+    # Claims (commit messages, self reports, code) are never confirmations (FR-R01, FR-W07).
+    claim_refs = []
+    for src, text in sources:
+        if src.get("type") in CLAIM_SOURCE_TYPES:
+            claim_refs.append(src)
+            if src.get("type") != "code" and _PASS_CLAIM.search(text):
+                add({"kind": "unverified_claim", "source": src})
+    for st in result.statements:
+        if st.sources and all(s.get("type") in CLAIM_SOURCE_TYPES for s in st.sources) and st.status == "confirmed":
+            st.status = "observed"
+
+    # Acceptance criteria without trusted passing evidence stay unproven.
+    evidence = [src for src, _ in sources if src.get("type") == "evidence"]
+    for src, _ in sources:
+        if src.get("type") != "criterion":
+            continue
+        cid = str(src.get("id"))
+        proven = any(
+            str(e.get("criterion_id")) == cid and e.get("result") == "passed" and e.get("trust") in TRUSTED_EVIDENCE
+            for e in evidence
+        )
+        if not proven:
+            add({"kind": "missing_evidence", "criterion_id": cid})
+
+    # Contradicting sources create a clarification, not a silent choice (PRD §14.2).
+    seen = {}
+    for src, text in sources:
+        for subject, value in _assertions(text).items():
+            if q_words and not (set(subject) & q_words):
+                continue
+            prev = seen.get(subject)
+            if prev and prev[1] != value:
+                add({"kind": "contradiction", "subject": sorted(subject), "sources": [prev[0], src]})
+                result.needs_clarification = True
+            elif not prev:
+                seen[subject] = (src, value)
+
+    # Unknown original intent: only a confirmed decision can state why (FR-W07).
+    if _WHY.search(question) and not any(
+        src.get("type") == "decision" and src.get("confirmed") for src, _ in sources
+    ):
+        add({"kind": "unknown_intent"})
+        result.needs_clarification = True
+        for st in result.statements:
+            if st.status == "confirmed":
+                st.status = "inferred"
+
+    # A run bound to another revision than the current one: scope changed -> new approval needed.
+    run_revs = {str(src.get("revision_id")) for src, _ in sources if src.get("type") == "run"}
+    current = [src for src, _ in sources if src.get("type") == "revision" and src.get("current")]
+    if run_revs and current and str(current[0].get("id")) not in run_revs:
+        add({"kind": "scope_change_requires_new_approval", "run_revision_ids": sorted(run_revs),
+             "current_revision_id": str(current[0].get("id"))})
+
+    if result.needs_clarification and not any(st.status == "proposed" for st in result.statements):
+        result.statements.append(
+            Statement(text="Ask the responsible person to clarify before relying on this.", status="proposed")
+        )
+    result.allowed_actions = list(ALLOWED_ACTIONS)
+    return result
 
 
 class RuleBasedProvider(AIProvider):
