@@ -25,7 +25,10 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
 
-from .errors import ApiError, FencingLost, RunCancelled, RunnerError, ServerUnreachable
+from .errors import ApiError, FencingLost, RunCancelled, RunnerError, ServerUnreachable, stop_reason
+
+# Server clamps leases to this range (package_flow/services/execution.py).
+MIN_LEASE_SECONDS, MAX_LEASE_SECONDS = 30, 3600
 
 
 class StopSignal:
@@ -119,10 +122,12 @@ def acquire_claim(
     binding_id: str | None = None,
     exclusive: bool = True,
     lease_seconds: int = 300,
+    approval_id: str | None = None,
 ) -> ClaimHandle:
     """Atomically claim a package/repo unit. Raises ClaimHeld if someone else owns it (AC05)."""
+    lease_seconds = max(MIN_LEASE_SECONDS, min(MAX_LEASE_SECONDS, int(lease_seconds)))
     sent_at = time.monotonic()
-    resp = client.create_claim(project_id, work_item_id, binding_id, exclusive, lease_seconds)
+    resp = client.create_claim(project_id, work_item_id, binding_id, exclusive, lease_seconds, approval_id=approval_id)
     if not isinstance(resp, dict) or "id" not in resp or "fencing_token" not in resp:
         raise RunnerError(f"unexpected claim response: {resp!r}")
     granted = int(resp.get("lease_seconds") or lease_seconds)
@@ -142,7 +147,7 @@ def acquire_claim(
 
 def heartbeat_once(client, claim: ClaimHandle) -> dict[str, Any]:
     sent_at = time.monotonic()
-    resp = client.heartbeat(claim.id, claim.fencing_token) or {}
+    resp = client.heartbeat(claim.id, claim.fencing_token, claim.lease_seconds) or {}
     claim.lease_expires_at = str(resp.get("lease_expires_at") or claim.lease_expires_at)
     claim.local_deadline = sent_at + int(resp.get("lease_seconds") or claim.lease_seconds)
     return resp
@@ -201,7 +206,7 @@ class Supervisor(threading.Thread):
             self._trigger_stop(exc.code)
             return
         except RunCancelled as exc:
-            self._trigger_stop(f"cancelled ({exc.code})")
+            self._trigger_stop(stop_reason(exc))
             return
         except (ServerUnreachable, ApiError) as exc:
             self.last_error = str(exc)

@@ -140,7 +140,7 @@ class Client:
     # --------------------------------------------------------------- runners
 
     def whoami(self) -> Any:
-        # Not (yet) part of API.md §3: proposed ``GET R/runner/me``. Callers treat NotFound as "not supported".
+        # ``GET R/runner/me`` (runner identity). Older servers return 404; callers treat it as "not supported".
         return self.request("GET", f"{self.paths.R()}/runner/me")
 
     # ---------------------------------------------------------------- claims
@@ -153,16 +153,22 @@ class Client:
         exclusive: bool = True,
         lease_seconds: int = 300,
         idempotency_key: str | None = None,
+        approval_id: str | None = None,
     ) -> dict[str, Any]:
         body: dict[str, Any] = {"exclusive": bool(exclusive), "lease_seconds": int(lease_seconds)}
         if repository_binding_id:
             body["repository_binding_id"] = repository_binding_id
+        if approval_id:
+            body["approval_id"] = approval_id
         path = f"{self.paths.P(self.workspace, project_id)}/work-items/{_q(issue_id)}/claims"
         return self.request("POST", path, body, idempotency_key=idempotency_key)
 
-    def heartbeat(self, claim_id: str, fencing_token: int) -> dict[str, Any]:
+    def heartbeat(self, claim_id: str, fencing_token: int, lease_seconds: int | None = None) -> dict[str, Any]:
         path = f"{self.paths.R()}/claims/{_q(claim_id)}/heartbeat"
-        return self.request("POST", path, {"fencing_token": fencing_token}) or {}
+        body: dict[str, Any] = {"fencing_token": fencing_token}
+        if lease_seconds:
+            body["lease_seconds"] = int(lease_seconds)
+        return self.request("POST", path, body) or {}
 
     def release(self, claim_id: str, fencing_token: int) -> dict[str, Any]:
         path = f"{self.paths.R()}/claims/{_q(claim_id)}/release"

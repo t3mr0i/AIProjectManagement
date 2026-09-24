@@ -50,6 +50,23 @@ class RunnerListView(PackageFlowBaseView):
         return Response(body, status=code)
 
 
+class RunnerMeView(PackageFlowBaseView):
+    """``GET package-flow/runner/me``: identity of the authenticating runner token (``ph-runner whoami``)."""
+
+    def get(self, request):
+        runner = self.principal.runner
+        if runner is None:
+            raise NotFound("Only available for runner tokens")
+        return Response(
+            {
+                **runner_data(runner),
+                "workspace_id": str(runner.workspace_id),
+                "workspace_slug": runner.workspace.slug,
+                "principal_kind": self.principal.kind,
+            }
+        )
+
+
 class RunnerDetailView(PackageFlowBaseView):
     def delete(self, request, slug, runner_id):
         workspace = self.get_workspace(slug)
@@ -79,7 +96,8 @@ class ClaimHeartbeatView(PackageFlowBaseView):
         data = _body(request)
         claim = svc.get_claim_for(self.principal, claim_id)
         claim = svc.heartbeat_claim(claim, self.principal, data.get("fencing_token"), data.get("lease_seconds"))
-        return Response(claim_data(claim))
+        # Additive runner fields: granted lease and whether the claim's current run was cancelled (FR-G06).
+        return Response({**claim_data(claim), **svc.heartbeat_extras(claim)})
 
 
 class ClaimReleaseView(PackageFlowBaseView):

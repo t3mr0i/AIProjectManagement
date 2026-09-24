@@ -68,6 +68,10 @@ class RunnerConfig:
     env_passthrough: list[str] = field(default_factory=list)
     # Optional OS/container sandbox prefix, e.g. ["firejail", "--net=none", "--"] (INV-10).
     sandbox_prefix: list[str] = field(default_factory=list)
+    # Operator-defined checks [{"name", "command": [argv], "timeout_seconds"?}]. Local config, never
+    # repository content (AC27). Used in addition to manifest checks; manifest wins on name clash.
+    # They still only run if the approval allows ``run_allowed_checks`` (server action gate).
+    checks: list[dict[str, Any]] = field(default_factory=list)
     # Seconds between heartbeats; 0 = lease_seconds / 3.
     heartbeat_interval: float = 0.0
     lease_seconds: int = 300
@@ -101,6 +105,7 @@ class RunnerConfig:
                 agent_command=[str(x) for x in data.get("agent_command") or []],
                 env_passthrough=[str(x) for x in data.get("env_passthrough") or []],
                 sandbox_prefix=[str(x) for x in data.get("sandbox_prefix") or []],
+                checks=[dict(c) for c in data.get("checks") or []],
                 heartbeat_interval=float(data.get("heartbeat_interval") or 0.0),
                 lease_seconds=int(data.get("lease_seconds") or 300),
                 request_timeout=float(data.get("request_timeout") or 15.0),

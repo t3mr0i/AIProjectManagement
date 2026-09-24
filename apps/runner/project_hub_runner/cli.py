@@ -96,6 +96,7 @@ def cmd_claim(args) -> int:
             args.repo or None,
             not args.shared,
             args.lease_seconds or cfg.lease_seconds,
+            approval_id=args.approval,
         )
     except ClaimHeld as exc:
         _print({"status": "claim_held", "holder": exc.holder}, args.json)
@@ -298,6 +299,7 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--project", required=True)
     s.add_argument("--work-item", required=True)
     s.add_argument("--repo", help="repository binding id")
+    s.add_argument("--approval", help="execution approval id (default: the currently valid one)")
     s.add_argument("--shared", action="store_true", help="explicitly collaborative (non-exclusive) claim")
     s.add_argument("--lease-seconds", type=int)
     s.add_argument("--hold", action="store_true", help="keep heartbeating in the foreground until Ctrl-C")

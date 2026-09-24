@@ -96,7 +96,7 @@ def test_deterministic_agent_end_to_end(fake, cfg, client, git_repo, binding_id)
     assert ev["unit"]["trust"] == "runner_reported" and ev["unit"]["result"] == "passed"
     assert ev["unit"]["executed"] is True and ev["unit"]["commit_sha"] == out.commit_sha
     assert ev["lint"]["result"] == "failed" and ev["lint"]["exit_code"] == 1
-    assert ev["developer_claim"]["trust"] == "local_self_report" and ev["developer_claim"]["result"] == "claimed"
+    assert ev["developer_claim"]["trust"] == "local_self_report" and ev["developer_claim"]["result"] == "unknown"
     assert all(e["result"] != "passed" or e["executed"] for e in fake.evidence)
 
     types = fake.event_types(out.run_id)

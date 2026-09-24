@@ -147,14 +147,11 @@ class FakeServer:
             "revisionHash": a["revision_hash"],
             "revisionState": a["state"],
             "policyVersion": "policy-1",
-            "approval": {
-                "id": a["id"],
-                "revisionId": a["revision_id"],
-                "approvedBy": {"principalId": str(uuid.uuid4()), "kind": "human"},
-                "approvedAt": iso(now - timedelta(hours=1)),
-                "expiresAt": iso(now + timedelta(hours=1)),
-                "revokedAt": None,
-            },
+            # Same shape as plane/package_flow/services/execution.py::build_manifest
+            "approvalId": a["id"],
+            "expiresAt": iso(now + timedelta(hours=1)),
+            "claimId": run["claim_id"],
+            "fencingToken": self.claims[run["claim_id"]]["fencing_token"],
             "repositoryScope": [
                 {
                     "bindingId": a["binding_id"],
@@ -166,10 +163,9 @@ class FakeServer:
             "allowedActions": a["allowed_actions"],
             "limits": {"maxSeconds": a["max_seconds"], "maxSpendMinor": a["max_spend_minor"], "currency": "EUR"},
             "checks": a["checks"],
-            "task": {"title": "Add feature", "intent": "Implement the feature", "criteria": ["works"]},
+            "intent": {"title": "Add feature", "intent": "Implement the feature", "criteria": [{"text": "works"}]},
         }
         m.update(self.manifest_overrides)
-        m["manifestHash"] = canonical_hash(m)
         return m
 
     # ------------------------------------------------------------- routing
@@ -223,7 +219,9 @@ class FakeServer:
             claim = self._fence(m["cid"], body.get("fencing_token"))
             claim["expires"] = time.time() + claim["lease"]
             cancel = any(r["claim_id"] == claim["id"] and r["status"] == "cancelled" for r in self.runs.values())
-            return 200, {"lease_seconds": claim["lease"], "cancel_requested": cancel}
+            claim["lease"] = int(body.get("lease_seconds") or claim["lease"])
+            claim["expires"] = time.time() + claim["lease"]
+            return 200, {"id": claim["id"], "lease_seconds": claim["lease"], "cancel_requested": cancel}
         m = re.fullmatch(R + r"/claims/(?P<cid>[^/]+)/release", path)
         if m and method == "POST":
             claim = self._fence(m["cid"], body.get("fencing_token"))
@@ -257,7 +255,8 @@ class FakeServer:
         m = re.fullmatch(R + r"/runs/(?P<rid>[^/]+)/manifest", path)
         if m and method == "GET":
             run = self._run_auth(m["rid"], headers, None, need_fence=False)
-            return 200, self.manifest_for(run)
+            m = self.manifest_for(run)
+            return 200, {"manifest": m, "manifest_hash": canonical_hash(m)}
         m = re.fullmatch(R + r"/runs/(?P<rid>[^/]+)/(?P<kind>events|actions|evidence)", path)
         if m and method == "POST":
             run = self._run_auth(m["rid"], headers, body)
@@ -268,6 +267,8 @@ class FakeServer:
                     run["status"] = status_map[body["type"]]
                 return 201, {"ok": True}
             if m["kind"] == "evidence":
+                if body.get("result") not in ("passed", "failed", "not_run", "unknown"):
+                    raise Reject(422, "VALIDATION_FAILED")
                 self.evidence.append({"run_id": run["id"], **body})
                 return 201, {"ok": True}
             a = self.approvals[run["approval_id"]]

@@ -26,7 +26,16 @@ from functools import lru_cache
 from typing import Any
 
 from .claim import ClaimHandle, StopSignal
-from .errors import ActionRejected, ActionsStopped, FencingLost, PolicyViolation, RunCancelled
+from .errors import (
+    ActionRejected,
+    ActionsStopped,
+    FencingLost,
+    Forbidden,
+    PolicyViolation,
+    RunCancelled,
+    RunRefused,
+    stop_reason,
+)
 from .manifest import CheckSpec, Manifest
 
 
@@ -105,8 +114,13 @@ class Rules:
     on_base_moved: str = "wait"
 
     @classmethod
-    def from_manifest(cls, manifest: Manifest, binding_id: str | None = None) -> Rules:
+    def from_manifest(
+        cls, manifest: Manifest, binding_id: str | None = None, extra_checks: tuple[CheckSpec, ...] = ()
+    ) -> Rules:
+        """``extra_checks`` = operator-configured checks (local runner config, never repo content)."""
         scope = manifest.scope_for(binding_id)
+        names = {c.name for c in manifest.checks}
+        checks = manifest.checks + tuple(c for c in extra_checks if c.name not in names)
         return cls(
             run_id=manifest.run_id,
             work_item_id=manifest.work_item_id,
@@ -120,7 +134,7 @@ class Rules:
             max_seconds=manifest.limits.max_seconds,
             max_spend_minor=manifest.limits.max_spend_minor,
             currency=manifest.limits.currency,
-            checks=manifest.checks,
+            checks=checks,
             on_base_moved=manifest.on_base_moved,
         )
 
@@ -219,8 +233,14 @@ class PolicyGate:
             self.stop.trigger(exc.code)
             raise
         except RunCancelled as exc:
-            self.stop.trigger(f"cancelled ({exc.code})")
+            self.stop.trigger(stop_reason(exc))
             raise
+        except (RunRefused, Forbidden) as exc:
+            # Approval revoked/expired, native source changed, project archived, capability lost:
+            # the basis of the run is gone — stop everything (FR-B06, FR-B07, FR-I07).
+            self.stop.trigger(exc.code)
+            self.log.append({"action": action, "accepted": False, "by": "server", "reason": exc.code})
+            raise ActionsStopped(exc.code) from exc
         except ActionRejected as exc:
             self.log.append({"action": action, "accepted": False, "by": "server", "reason": exc.code})
             raise PolicyViolation(f"server rejected {action}: {exc.code} {exc.message}", path_list, action) from exc

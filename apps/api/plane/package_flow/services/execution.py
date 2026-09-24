@@ -307,6 +307,18 @@ def heartbeat_claim(claim, principal, fencing_token, lease_seconds=None):
     return claim
 
 
+def heartbeat_extras(claim):
+    """Runner-facing heartbeat fields: granted lease and cancellation of the claim's latest run."""
+    latest = ExecutionRun.objects.filter(claim_id=claim.id, deleted_at__isnull=True).order_by("-created_at").first()
+    lease = int((claim.lease_expires_at - (claim.last_heartbeat_at or timezone.now())).total_seconds())
+    return {
+        "lease_seconds": lease,
+        "run_id": str(latest.id) if latest else None,
+        "run_status": latest.status if latest else None,
+        "cancel_requested": bool(latest and (latest.status == "cancelled" or latest.cancel_requested_at)),
+    }
+
+
 def release_claim(claim, principal, fencing_token):
     now = timezone.now()
     with transaction.atomic():
@@ -672,6 +684,9 @@ def record_evidence(run, principal, data):
         raise ValidationFailed("invalid result")
     runner_kind = run.runner.kind if run.runner_id else "local"
     trust = Evidence.Trust.LOCAL_SELF_REPORT if runner_kind == "local" else Evidence.Trust.RUNNER_REPORTED
+    # A runner may downgrade its own evidence (e.g. a developer claim), never upgrade it.
+    if data.get("trust") == Evidence.Trust.LOCAL_SELF_REPORT:
+        trust = Evidence.Trust.LOCAL_SELF_REPORT
     binding_id = data.get("repository_binding_id")
     if binding_id and not RepositoryBinding.objects.filter(id=binding_id, project_id=run.project_id).exists():
         raise ValidationFailed("Unknown repository binding", code="BINDING_NOT_FOUND")

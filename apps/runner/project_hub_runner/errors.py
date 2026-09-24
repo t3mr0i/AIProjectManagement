@@ -141,6 +141,10 @@ class RunCancelled(ApiError):
     exit_code = 5
 
 
+class RunNotActive(RunCancelled):
+    """Run ended or is paused server-side (``RUN_ENDED`` / ``RUN_PAUSED``); stop acting."""
+
+
 class ActionRejected(ApiError):
     """The server action gate refused a controlled action."""
 
@@ -215,7 +219,14 @@ _CODE_MAP: dict[str, type[ApiError]] = {
     "RUN_CANCELLED": RunCancelled,
     "RUN_TOKEN_EXPIRED": RunCancelled,
     "RUN_TOKEN_INVALID": RunCancelled,
-    "RUN_NOT_ACTIVE": RunCancelled,
+    "RUN_NOT_ACTIVE": RunNotActive,
+    "RUN_ENDED": RunNotActive,
+    "RUN_PAUSED": RunNotActive,
+    "RUN_ALREADY_ACTIVE": RunRefused,
+    "NO_PROFILE": RunRefused,
+    "BINDING_NOT_IN_SCOPE": RunRefused,
+    "RUNNER_NOT_ALLOWED": Forbidden,
+    "GATE_REJECTED": ActionRejected,
     "RUNNER_DEACTIVATED": Unauthenticated,
     "ACTION_NOT_ALLOWED": ActionRejected,
     "ACTION_REJECTED": ActionRejected,
@@ -232,6 +243,14 @@ _STATUS_MAP: dict[int, type[ApiError]] = {
     404: NotFound,
     429: RateLimited,
 }
+
+
+def stop_reason(exc: Exception) -> str:
+    """Human-readable reason for a StopSignal triggered by a server error."""
+    code = getattr(exc, "code", None) or type(exc).__name__
+    if isinstance(exc, RunCancelled) and not isinstance(exc, RunNotActive):
+        return f"cancelled ({code})"
+    return code
 
 
 def error_for(status: int, body: Any) -> ApiError:

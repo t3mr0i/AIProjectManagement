@@ -162,3 +162,47 @@ def test_rules_are_immutable_and_manifest_only():
         rules.allowed_paths = ("**",)  # type: ignore[misc]
     assert not rules.path_allowed("README.md")
     assert not rules.action_allowed("push_work_branch")
+
+
+def backend_shape():
+    m = good()
+    del m["approval"]
+    m.update(approvalId="ap-1", expiresAt=(NOW + timedelta(hours=1)).isoformat(), claimId="c-1", fencingToken=7)
+    m["intent"] = {"title": "T", "intent": "I", "criteria": [{"text": "c1", "verification": "test"}]}
+    return m
+
+
+def test_backend_wrapper_with_external_hash():
+    m = backend_shape()
+    parsed = parse_manifest(
+        {"manifest": m, "manifest_hash": canonical_hash(m)},
+        expected_claim_id="c-1",
+        expected_fencing_token=7,
+        now=NOW,
+    )
+    assert parsed.approval.id == "ap-1"
+    assert parsed.task.title == "T" and parsed.task.criteria == ("c1",)
+    with pytest.raises(ManifestInvalid, match="hash"):
+        parse_manifest(
+            {"manifest": {**m, "allowedActions": ["push_work_branch"]}, "manifest_hash": canonical_hash(m)}, now=NOW
+        )
+    with pytest.raises(ManifestInvalid, match="fencing"):
+        parse_manifest({"manifest": m}, expected_fencing_token=8, now=NOW)
+    with pytest.raises(ManifestInvalid, match="claim"):
+        parse_manifest({"manifest": m}, expected_claim_id="other", now=NOW)
+    with pytest.raises(ManifestInvalid, match="expired"):
+        parse_manifest({"manifest": {**m, "expiresAt": (NOW - timedelta(1)).isoformat()}}, now=NOW)
+    with pytest.raises(ManifestInvalid, match="approval"):
+        parse_manifest({"manifest": {**m, "approvalId": None}}, now=NOW)
+
+
+def test_operator_checks_are_added_but_manifest_wins():
+    from project_hub_runner.manifest import CheckSpec
+
+    m = good(checks=[{"name": "unit", "command": ["make", "test"]}])
+    rules = Rules.from_manifest(
+        parse_manifest(m, now=NOW),
+        extra_checks=(CheckSpec("unit", ("rm", "-rf", "/")), CheckSpec("lint", ("ruff", "check"))),
+    )
+    assert rules.check("unit").command == ("make", "test")
+    assert rules.check("lint").command == ("ruff", "check")

@@ -16,10 +16,15 @@ source of the runner's policy. The runner refuses to act if:
 Accepted spelling: camelCase (JSON-schema transport contract) or snake_case
 (REST); keys are normalized to camelCase.
 
-Manifest hash canonicalization (if the server sends ``manifestHash`` /
-``manifest_hash``): SHA-256 hex over ``json.dumps(payload_without_hash,
-sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")``
-computed on the payload exactly as received (before key normalization).
+Plane backend response (verified): ``{"manifest": {...}, "manifest_hash": "<sha256>"}``
+with ``approvalId``/``expiresAt``/``claimId``/``fencingToken`` at top level and the
+approved task text under ``intent``. A bare manifest with an embedded
+``manifestHash`` and an ``approval {...}`` object is accepted too.
+
+Manifest hash canonicalization (= backend ``canonical_json``): SHA-256 hex over
+``json.dumps(manifest_without_hash, sort_keys=True, separators=(",", ":"),
+ensure_ascii=False, default=str).encode("utf-8")`` computed on the manifest
+exactly as received (before key normalization).
 """
 
 from __future__ import annotations
@@ -67,7 +72,8 @@ def normalize_keys(value: Any) -> Any:
 
 def canonical_hash(payload: dict[str, Any]) -> str:
     body = {k: v for k, v in payload.items() if k not in ("manifestHash", "manifest_hash")}
-    raw = json.dumps(body, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    # Identical to the backend's ``canonical_json`` (package_flow/services/packages.py).
+    raw = json.dumps(body, sort_keys=True, separators=(",", ":"), ensure_ascii=False, default=str).encode("utf-8")
     return hashlib.sha256(raw).hexdigest()
 
 
@@ -171,15 +177,23 @@ def parse_manifest(
     expected_run_id: str | None = None,
     expected_work_item_id: str | None = None,
     expected_project_id: str | None = None,
+    expected_claim_id: str | None = None,
+    expected_fencing_token: int | None = None,
     now: datetime | None = None,
 ) -> Manifest:
-    """Validate a manifest payload. Raises :class:`ManifestInvalid` on any doubt."""
+    """Validate a manifest payload. Raises :class:`ManifestInvalid` on any doubt.
+
+    Accepts the Plane backend response ``{"manifest": {...}, "manifest_hash": "..."}``
+    (hash outside the object) as well as a bare manifest with an embedded ``manifestHash``.
+    """
+    declared_hash = None
     if isinstance(payload, dict) and isinstance(payload.get("manifest"), dict):
+        declared_hash = payload.get("manifest_hash") or payload.get("manifestHash")
         payload = payload["manifest"]
     if not isinstance(payload, dict):
         raise ManifestInvalid("manifest is not a JSON object")
 
-    declared_hash = payload.get("manifestHash") or payload.get("manifest_hash")
+    declared_hash = declared_hash or payload.get("manifestHash") or payload.get("manifest_hash")
     if declared_hash is not None:
         actual = canonical_hash(payload)
         if str(declared_hash).lower() != actual:
@@ -202,10 +216,17 @@ def parse_manifest(
         raise ManifestInvalid("revisionHash must be 64 lowercase hex chars")
 
     approval_raw = data.get("approval")
-    if not isinstance(approval_raw, dict) or not approval_raw.get("id"):
+    if not isinstance(approval_raw, dict):
+        # Plane backend shape: top-level ``approvalId`` + ``expiresAt`` (approval is server-issued).
+        approval_raw = {"id": data.get("approvalId"), "expiresAt": data.get("expiresAt")}
+        if data.get("approvedBy"):
+            approval_raw["approvedBy"] = data["approvedBy"]
+    if not approval_raw.get("id"):
         raise ManifestInvalid("manifest has no server-side approval; refusing to act (INV-01)")
     approved_by = approval_raw.get("approvedBy") or {}
-    kind = str(approved_by.get("kind") or approval_raw.get("approvedByKind") or "")
+    # The server only creates approvals for authenticated human principals (HUMAN_PRINCIPAL_REQUIRED).
+    # If the manifest states the approver kind, it must be human (INV-03); an absent kind is accepted.
+    kind = str(approved_by.get("kind") or approval_raw.get("approvedByKind") or "human")
     if kind != "human":
         raise ManifestInvalid("approval was not granted by a human principal (INV-03)")
     if approval_raw.get("revisionId") and approval_raw["revisionId"] != data["revisionId"]:
@@ -257,19 +278,11 @@ def parse_manifest(
     if limits.max_seconds < 1 or limits.max_spend_minor < 0 or not _CURRENCY.match(limits.currency):
         raise ManifestInvalid("limits out of range")
 
-    checks: list[CheckSpec] = []
-    for i, c in enumerate(data.get("checks") or []):
-        if not isinstance(c, dict):
-            raise ManifestInvalid(f"checks[{i}] is not an object")
-        name, cmd = c.get("name"), c.get("command")
-        if not isinstance(name, str) or not _CHECK_NAME.match(name):
-            raise ManifestInvalid(f"checks[{i}].name invalid")
-        if not isinstance(cmd, list) or not cmd or not all(isinstance(x, str) for x in cmd):
-            raise ManifestInvalid(f"checks[{i}].command must be a non-empty argv list")
-        timeout = c.get("timeoutSeconds")
-        checks.append(CheckSpec(name, tuple(cmd), int(timeout) if timeout else None))
+    checks = parse_checks(data.get("checks") or [])
 
     task_raw = data.get("task") or data.get("revision") or {}
+    if not task_raw and isinstance(data.get("intent"), dict):
+        task_raw = data["intent"]  # Plane backend: ``intent {title, intent, outcome, nonGoals, criteria}``
     task = TaskText(
         title=str(task_raw.get("title") or ""),
         intent=str(task_raw.get("intent") or task_raw.get("description") or ""),
@@ -285,6 +298,14 @@ def parse_manifest(
         raise ManifestInvalid("manifest workItemId differs from the claimed work item")
     if expected_project_id and data["projectId"] != expected_project_id:
         raise ManifestInvalid("manifest projectId differs from the claimed project")
+    if expected_claim_id and data.get("claimId") and str(data["claimId"]) != expected_claim_id:
+        raise ManifestInvalid("manifest belongs to another claim")
+    if (
+        expected_fencing_token is not None
+        and data.get("fencingToken") is not None
+        and int(data["fencingToken"]) != int(expected_fencing_token)
+    ):
+        raise ManifestInvalid("manifest fencing token differs from our claim (stale claim)")
 
     on_base_moved = str((data.get("policy") or {}).get("onBaseMoved") or data.get("onBaseMoved") or "wait")
     if on_base_moved not in ("wait", "continue"):
@@ -308,6 +329,24 @@ def parse_manifest(
         manifest_hash=str(declared_hash) if declared_hash else None,
         raw=payload,
     )
+
+
+def parse_checks(raw: Any) -> list[CheckSpec]:
+    """Validate check specs (manifest ``checks`` or operator config ``checks``)."""
+    if not isinstance(raw, list):
+        raise ManifestInvalid("checks must be a list")
+    checks: list[CheckSpec] = []
+    for i, c in enumerate(normalize_keys(raw)):
+        if not isinstance(c, dict):
+            raise ManifestInvalid(f"checks[{i}] is not an object")
+        name, cmd = c.get("name"), c.get("command")
+        if not isinstance(name, str) or not _CHECK_NAME.match(name):
+            raise ManifestInvalid(f"checks[{i}].name invalid")
+        if not isinstance(cmd, list) or not cmd or not all(isinstance(x, str) for x in cmd):
+            raise ManifestInvalid(f"checks[{i}].command must be a non-empty argv list")
+        timeout = c.get("timeoutSeconds")
+        checks.append(CheckSpec(name, tuple(cmd), int(timeout) if timeout else None))
+    return checks
 
 
 def _as_text(value: Any) -> str:

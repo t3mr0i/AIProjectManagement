@@ -11,7 +11,10 @@
     if it actually ran and exited 0; otherwise ``failed`` / ``timed_out`` /
     ``not_run``. A missing check is never reported as passed.
   - ``local_self_report``: a claim made by the developer or the agent
-    (e.g. "I ran the tests in my IDE"). Stored as a claim, not as a result.
+    (e.g. "I ran the tests in my IDE"). Stored as a claim (result ``unknown``).
+  The server decides the final trust class from the runner kind (a ``local``
+  runner's evidence is always ``local_self_report``); the runner may only ask
+  for a *lower* class, never a higher one.
 * If the server is unreachable an event is kept locally as *unsent* — the
   runner never invents a server status (FR-G07, AC32).
 """
@@ -22,7 +25,7 @@ import time
 from dataclasses import dataclass
 from typing import Any
 
-from .errors import ApiError, FencingLost, RunCancelled, ServerUnreachable
+from .errors import ApiError, FencingLost, RunCancelled, ServerUnreachable, stop_reason
 
 TRUST_RUNNER = "runner_reported"
 TRUST_SELF = "local_self_report"
@@ -50,6 +53,11 @@ class CheckResult:
             return "passed"
         return "failed"
 
+    @property
+    def evidence_result(self) -> str:
+        """Server vocabulary (Evidence.Result): passed | failed | not_run | unknown."""
+        return "failed" if self.result == "timed_out" else self.result
+
 
 class Reporter:
     def __init__(
@@ -74,6 +82,8 @@ class Reporter:
         self.sent: list[dict[str, Any]] = []
         self.unsent: list[dict[str, Any]] = []
         self.evidence: list[dict[str, Any]] = []
+        # Set once the manifest is known; links evidence to the repository binding (FR-G08).
+        self.binding_id: str | None = None
 
     # ---------------------------------------------------------------- events
 
@@ -94,7 +104,7 @@ class Reporter:
                 return False
             raise
         except RunCancelled as exc:
-            self.stop.trigger(f"cancelled ({exc.code})")
+            self.stop.trigger(stop_reason(exc))
             record["error"] = exc.code
             self.unsent.append(record)
             if best_effort:
@@ -144,17 +154,23 @@ class Reporter:
             "kind": "check",
             "name": check.name,
             "trust": TRUST_RUNNER,
-            "result": check.result,
+            "result": check.evidence_result,
             "executed": check.executed,
             "exit_code": check.exit_code,
             "commit_sha": commit_sha,
             "detail": {
+                "local_result": check.result,
+                "timed_out": check.timed_out,
+                "executed": check.executed,
+                "exit_code": check.exit_code,
                 "command": check.command,
                 "duration_s": round(check.duration_s, 3),
                 "output_tail": check.output_tail[-2000:],
                 "reason": check.reason,
             },
         }
+        if self.binding_id:
+            payload["repository_binding_id"] = self.binding_id
         self.evidence.append(payload)
         return self._send("evidence", payload, best_effort=True)
 
@@ -164,11 +180,13 @@ class Reporter:
             "kind": "self_report",
             "name": "developer_claim",
             "trust": TRUST_SELF,
-            # A claim is not a result: never "passed".
-            "result": "claimed",
+            # A claim is not a result: never "passed" (server vocabulary: "unknown").
+            "result": "unknown",
             "executed": False,
             "commit_sha": commit_sha,
-            "detail": {"text": claim_text[:4000], **(detail or {})},
+            "detail": {"text": claim_text[:4000], "claim": True, **(detail or {})},
         }
+        if self.binding_id:
+            payload["repository_binding_id"] = self.binding_id
         self.evidence.append(payload)
         return self._send("evidence", payload, best_effort=True)

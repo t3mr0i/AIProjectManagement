@@ -41,7 +41,7 @@ from .errors import (
     ServerUnreachable,
     WorkspaceError,
 )
-from .manifest import Manifest, fetch_manifest
+from .manifest import Manifest, fetch_manifest, parse_checks
 from .policy import PolicyGate, Rules
 from .reporter import CheckResult, Reporter
 from .sandbox import enforcement_report
@@ -121,8 +121,12 @@ class RunSession:
             self.run_token,
             expected_work_item_id=self.claim.work_item_id,
             expected_project_id=self.claim.project_id,
+            expected_claim_id=self.claim.id,
+            expected_fencing_token=self.claim.fencing_token,
         )
-        self.rules = Rules.from_manifest(self.manifest, binding_id or self.claim.binding_id)
+        self.rules = Rules.from_manifest(
+            self.manifest, binding_id or self.claim.binding_id, tuple(parse_checks(self.cfg.checks))
+        )
         self.gate = PolicyGate(self.rules, self.client, self.run_token, self.claim, self.stop)
 
 
@@ -169,7 +173,13 @@ def execute_run(
             claim = ClaimHandle.from_state(saved)
         else:
             claim = acquire_claim(
-                client, req.project_id, req.work_item_id, req.binding_id, req.exclusive, lease_seconds
+                client,
+                req.project_id,
+                req.work_item_id,
+                req.binding_id,
+                req.exclusive,
+                lease_seconds,
+                approval_id=req.approval_id,
             )
             state.save_claim(claim.id, claim.to_state())
     except ClaimHeld as exc:
@@ -251,6 +261,7 @@ def execute_run(
             return finish(RunOutcome("refused", EXIT_REFUSED, run_id, reason=f"manifest invalid: {exc}"))
         gate, rules, reporter = session.gate, session.rules, session.reporter
         assert gate is not None and rules is not None and session.manifest is not None
+        reporter.binding_id = rules.binding_id
 
         reporter.started(
             {

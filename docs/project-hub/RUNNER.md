@@ -58,9 +58,10 @@ Tests: `apps/runner/tests/` (fake in-process server + temporary git repositories
 {reason: paths_outside_scope}`; nothing is committed or pushed.
 9. Commit with trailers `Work-Item:`, `Revision:`, `Run:` (FR-G08); agent-made commits
    are squashed so every change carries them. Git hooks are disabled for runner commits.
-10. Approved checks (argv from the manifest only) → evidence `runner_reported`
-    (`passed` only if executed and exit 0; otherwise `failed` / `timed_out` / `not_run`).
-    Developer/agent claims → evidence `local_self_report`, result `claimed`.
+10. Approved checks (argv from the manifest, or operator config until the backend manifest
+    carries checks — see §7; never from the repository) → evidence `runner_reported`
+    (server-side: for `customer`/`managed` runners). `passed` only if executed and exit 0;
+    otherwise `failed` / `not_run`. Developer/agent claims → `local_self_report`, result `unknown`.
 11. `push_work_branch` through the gate, then `git push remote refs/heads/ph/…` (no
     `--force`, no `+` refspec, never the target branch). There is no merge code (K09).
 12. `finished` event with commit sha, branch, changed files, check results; claim released.
@@ -85,6 +86,7 @@ for non-local servers. Map repository bindings to local clones in `runner.json`:
   "agent_command": ["claude", "-p"],
   "env_passthrough": ["ANTHROPIC_API_KEY"],
   "sandbox_prefix": ["firejail", "--quiet", "--net=none", "--"],
+  "checks": [{ "name": "unit", "command": ["make", "test"], "timeout_seconds": 600 }],
   "lease_seconds": 300
 }
 ```
@@ -158,29 +160,40 @@ The contract supports all three; the first real path still has to be chosen:
 Recommendation for the pilot: customer-hosted runner in a container (network off by default,
 explicit egress allowlist for the agent's model API), plus developer-machine human mode.
 
-## 7. Contract assumptions for the backend (please confirm/adjust)
+## 7. Contract with the backend — verified against the real implementation
 
-The HTTP client isolates all paths in `project_hub_runner/client.py` (`Paths`). The runner assumes:
+Verified by `apps/api/plane/tests/package_flow/test_runner_contract.py` (backend + runner
+parsing in one test) and `apps/api/plane/tests/package_flow/test_runner_e2e.py` (the real
+`project_hub_runner` package driving a live Django server over HTTP: claim → run → manifest →
+worktree → deterministic agent → checks/evidence → push → finish; plus a negative run refused
+with `NATIVE_SOURCE_CHANGED`). All paths remain isolated in `project_hub_runner/client.py`.
 
-- Manifest (`GET R/runs/{id}/manifest`) is either the object or `{"manifest": {...}}`, camelCase or
-  snake_case, with: `runId`, `workspaceId`, `projectId`, `workItemId`, `revisionId`,
-  `revisionHash` (64 hex), `policyVersion`, `approval {id, approvedBy {kind: "human"},
-expiresAt, revokedAt, revisionId?, revisionHash?}`, `repositoryScope[{bindingId, baseCommit,
-targetBranch, allowedPaths}]`, `allowedActions`, `limits {maxSeconds, maxSpendMinor, currency}`.
-  Optional: `revisionState` (anything but `approved` is refused), `checks [{name, command: [argv],
-timeoutSeconds?}]`, `task {title, intent, outcome, criteria, nonGoals}`,
-  `policy.onBaseMoved` (`wait` default | `continue`), `manifestHash`.
-- `manifestHash` = SHA-256 hex of `json.dumps(manifest_without_hash, sort_keys=True,
-separators=(",", ":"), ensure_ascii=False)` UTF-8.
-- Heartbeat response may include `lease_seconds` and `cancel_requested: true`.
-- `GET P/work-items/{issue}/runs` items carry `id`, `status` and `cancel_requested_at`
-  (used for cancel polling and `status`).
-- Error codes mapped: `CLAIM_HELD` (`detail.holder`), `STALE_FENCING_TOKEN`, `LEASE_EXPIRED`,
-  `CLAIM_INVALID`, `REVISION_NOT_APPROVED`, `APPROVAL_REVOKED`, `APPROVAL_EXPIRED`,
-  `NATIVE_SOURCE_CHANGED`, `PROJECT_ARCHIVED`, `RUN_CANCELLED` / `RUN_TOKEN_EXPIRED` /
-  `RUN_TOKEN_INVALID` (→ stop), `ACTION_NOT_ALLOWED` / `PATH_NOT_ALLOWED` /
-  `BUDGET_EXCEEDED` (→ action rejected), `IDEMPOTENCY_MISMATCH`, `EXTENSION_DISABLED`.
-- Action gate body `{action, fencing_token, detail: {paths?, spend_minor?, binding_id, branch?,
-head_sha?, check?}}`; evidence body `{fencing_token, kind, name, trust, result, executed,
-exit_code?, commit_sha, detail}`.
-- Proposed (not in API.md yet): `GET R/runner/me` for `whoami`; `whoami` degrades gracefully on 404.
+| Topic                      | Actual backend (`plane/package_flow`)                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Runner behaviour                                                                                                                                                                                                                                                       |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Auth                       | `Authorization: Runner <token>` resolves to the runner's owner as an _agent_ principal on `P/`, `W/` and `R/` routes; capability checks use the owner's grants (`run.start`, `project.read`). Run-scoped `R/runs/*` additionally need `X-Run-Token`.                                                                                                                                                                                                                                                     | as assumed ✔                                                                                                                                                                                                                                                           |
+| Claim                      | `POST P/work-items/{id}/claims {repository_binding_id?, exclusive, lease_seconds, approval_id?}`; binding must be in the approved scope; lease clamped to 30–3600 s; response `{id, fencing_token, lease_expires_at, status, …}` (no `lease_seconds`).                                                                                                                                                                                                                                                   | now sends `approval_id`; clamps lease locally ✔                                                                                                                                                                                                                        |
+| Heartbeat                  | body `{fencing_token, lease_seconds?}` — **without `lease_seconds` the server resets the lease to 300 s**. Response = claim + (added for the runner) `lease_seconds`, `run_id`, `run_status`, `cancel_requested`.                                                                                                                                                                                                                                                                                        | now always sends its lease; stops on `cancel_requested` ✔                                                                                                                                                                                                              |
+| Run start                  | `POST P/work-items/{id}/runs` → `{run, run_token, manifest}`; errors `REVISION_NOT_APPROVED`, `APPROVAL_REVOKED`, `APPROVAL_EXPIRED`, `NATIVE_SOURCE_CHANGED`, `CLAIM_INVALID`, `RUN_ALREADY_ACTIVE`, `PROJECT_ARCHIVED`.                                                                                                                                                                                                                                                                                | all mapped to `RunRefused` (exit 2), claim released ✔                                                                                                                                                                                                                  |
+| Manifest                   | `GET R/runs/{id}/manifest` → `{"manifest": {...}, "manifest_hash": "…"}`; hash is **outside** the object. Keys: `schemaVersion, runId, workspaceId, projectId, workItemId, revisionId, revisionNumber, revisionHash, approvalId, policyVersion, claimId, fencingToken, runnerProfileId, mode, repositoryScope[], allowedActions, limits, intent{title,intent,outcome,nonGoals,criteria,scope}, expiresAt`. No `approval{}` object, no `approvedBy`, no `revisionState`, no `checks`.                     | parser fixed: reads the wrapper hash, `approvalId`/`expiresAt`, task from `intent`; also verifies `claimId` and `fencingToken` against its own claim. Approver kind is enforced server-side (`HUMAN_PRINCIPAL_REQUIRED`); if a manifest states it, it must be `human`. |
+| Manifest hash              | `sha256(json.dumps(m, sort_keys=True, separators=(",",":"), ensure_ascii=False, default=str))`                                                                                                                                                                                                                                                                                                                                                                                                           | identical (`canonical_hash`) ✔, tamper test ✔                                                                                                                                                                                                                          |
+| Action gate                | `POST R/runs/{id}/actions {action, fencing_token, detail{paths?, binding_id?, spend_minor?, …}}` → `{accepted:true}`; rejection 409 `GATE_REJECTED` subtype codes: `STALE_FENCING_TOKEN`, `LEASE_EXPIRED`, `CLAIM_INVALID`, `RUN_CANCELLED`, `RUN_ENDED`, `RUN_PAUSED`, `APPROVAL_REVOKED/EXPIRED`, `NATIVE_SOURCE_CHANGED`, `ACTION_NOT_ALLOWED`, `PATH_NOT_ALLOWED`, `BUDGET_EXCEEDED`, `TIME_LIMIT_EXCEEDED`, `PROJECT_ARCHIVED`; 403 `PERMISSION_DENIED`. Every decision is stored as a `RunAction`. | fencing/cancel/paused/ended/revoked/source-changed/permission → **stop all actions**; path/action/budget/time → `PolicyViolation` (run fails) ✔                                                                                                                        |
+| Cancel                     | `P/runs/{id}/cancel` sets status `cancelled`, clears the run token → later run-scoped calls get 403 `RUN_TOKEN_INVALID`.                                                                                                                                                                                                                                                                                                                                                                                 | mapped to `RunCancelled` → stop, no commit/push ✔                                                                                                                                                                                                                      |
+| Native change during a run | a native-hook pauses the run (`RUN_PAUSED`, `pause_reason=scope_changed`) before the gate would say `NATIVE_SOURCE_CHANGED`.                                                                                                                                                                                                                                                                                                                                                                             | both stop the runner ✔                                                                                                                                                                                                                                                 |
+| Events                     | `POST R/runs/{id}/events {type, fencing_token, detail}`; terminal runs → `RUN_ENDED`/`RUN_CANCELLED`. `finished.detail` is stored as `run.result`.                                                                                                                                                                                                                                                                                                                                                       | ✔                                                                                                                                                                                                                                                                      |
+| Evidence                   | `POST R/runs/{id}/evidence {kind, name, result∈passed/failed/not_run/unknown, commit_sha, repository_binding_id?, detail}`. **Trust is decided by the server from the runner kind**: `local` runner → always `local_self_report`; `customer`/`managed` → `runner_reported`. Added: a runner may request `trust: local_self_report` (downgrade only, never upgrade).                                                                                                                                      | fixed vocabulary: timed-out check → `failed` (+`detail.timed_out`), developer/agent claims → `unknown` + `trust: local_self_report`; sends `repository_binding_id` ✔                                                                                                   |
+| Run list                   | `GET P/work-items/{id}/runs` → `{"results": [run]}` with `status`, `cancel_requested_at`, `pause_reason`, `last_heartbeat_at`.                                                                                                                                                                                                                                                                                                                                                                           | used for `status` / `cancel-check` ✔                                                                                                                                                                                                                                   |
+| whoami                     | added `GET R/runner/me` → runner (`id, name, kind, token_prefix, workspace_slug, principal_kind`); 404 for non-runner principals.                                                                                                                                                                                                                                                                                                                                                                        | `ph-runner whoami` ✔                                                                                                                                                                                                                                                   |
+
+Consequences / open points:
+
+- **Checks are not part of the backend manifest yet.** The runner therefore also accepts
+  operator-configured checks (`checks` in `runner.json`, local config — never repository
+  content, AC27). They still only run if the approval allows `run_allowed_checks` and the
+  server gate accepts each one; a manifest check with the same name wins. Recommended
+  backend follow-up: approve checks explicitly (approval `checks: [{name, command}]` →
+  manifest `checks`), then drop the operator fallback.
+- A `local` (developer-machine) runner can never produce `runner_reported` evidence — by
+  design of the backend; register a `customer`/`managed` runner for that (O01).
+- The manifest carries no approver kind; INV-03 relies on the server-side
+  `HUMAN_PRINCIPAL_REQUIRED` check at approval time (tested in the E2E: the only approval is
+  the human one, the agent created none).
