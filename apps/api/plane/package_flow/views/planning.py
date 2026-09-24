@@ -84,6 +84,26 @@ class RiskDetailEndpoint(PackageFlowBaseView):
         risk = planning.update_risk(project, self.principal, risk_id, request.data or {})
         return Response(planning.serialize_risk(risk, request.user))
 
+    def delete(self, request, slug, project_id, risk_id):
+        project = self.get_project(slug, project_id)
+        self.require(project.workspace_id, project.id, Capability.PROJECT_PLAN)
+        planning.delete_risk(project, self.principal, risk_id)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class EventDetailEndpoint(PackageFlowBaseView):
+    def patch(self, request, slug, project_id, event_id):
+        project = self.get_project(slug, project_id)
+        self.require(project.workspace_id, project.id, Capability.PROJECT_PLAN)
+        event = planning.update_event(project, self.principal, event_id, request.data or {})
+        return Response(planning.serialize_event(event))
+
+    def delete(self, request, slug, project_id, event_id):
+        project = self.get_project(slug, project_id)
+        self.require(project.workspace_id, project.id, Capability.PROJECT_PLAN)
+        planning.delete_event(project, self.principal, event_id)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class EventListEndpoint(PackageFlowBaseView):
     def get(self, request, slug, project_id):

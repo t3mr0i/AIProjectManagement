@@ -385,7 +385,7 @@ def import_spec(
 
         if not result.is_clean:
             state.state = "conflict"
-            state.conflict = {"commit": commit, "blocks": result.conflicts}
+            state.conflict = {"commit": commit, "blocks": result.conflicts, "resolutions": resolutions or {}}
             state.save()
             events.emit(
                 workspace_id=issue.workspace_id,
@@ -446,6 +446,9 @@ def import_spec(
         state.platform_content = _dump_files(merged_files)
         state.state = "clean" if merged_files == git_files else "ahead"
         state.conflict = {}
+        if state.published_commit.startswith("pending:"):
+            # The exported snapshot is superseded by this import; it can no longer be confirmed.
+            state.published_commit = ""
         state.save()
         events.emit(
             workspace_id=issue.workspace_id,
@@ -496,3 +499,119 @@ def _comparable(fields: dict) -> dict:
         "tasks": [{"id": t.get("id"), "text": t.get("text")} for t in scope.get("tasks") or []],
         "criteria": criteria,
     }
+
+
+# ---------------------------------------------------------------------------
+# conflict resolution + publication confirmation
+# ---------------------------------------------------------------------------
+def resolve_conflict(issue, principal, *, resolutions, repository_binding_id=None) -> dict:
+    """Resolve an open import conflict with an explicit choice per block (no last-write-wins)."""
+    require_profile(issue)
+    if not isinstance(resolutions, dict) or not resolutions:
+        raise ValidationFailed(
+            "resolutions must map conflicting block ids to 'platform' or 'git'", detail={"field": "resolutions"}
+        )
+    qs = SpecSyncState.objects.filter(issue_id=issue.id, state="conflict", deleted_at__isnull=True)
+    if repository_binding_id:
+        qs = qs.filter(repository_binding_id=repository_binding_id)
+    states = list(qs)
+    if not states:
+        raise Conflict("There is no open spec conflict", code="SPEC_NO_CONFLICT")
+    if len(states) > 1:
+        raise ValidationFailed(
+            "Several open conflicts; pass repository_binding_id", detail={"field": "repository_binding_id"}
+        )
+    state = states[0]
+    open_ids = {c["block_id"] for c in (state.conflict or {}).get("blocks", [])}
+    # Earlier partial resolutions stay in force; a new choice may override them.
+    prior = dict((state.conflict or {}).get("resolutions") or {})
+    unknown = sorted(set(resolutions) - open_ids - set(prior))
+    if unknown:
+        raise ValidationFailed(
+            "resolutions reference blocks that are not in conflict",
+            detail={"field": "resolutions", "block_ids": unknown, "open": sorted(open_ids)},
+        )
+    return import_spec(
+        issue,
+        principal,
+        files=_load_files(state.git_content),
+        commit=(state.conflict or {}).get("commit"),
+        repository_binding_id=state.repository_binding_id,
+        resolutions={**prior, **resolutions},
+    )
+
+
+def confirm_publication(issue, principal, *, repository_binding_id, commit, revision_id=None) -> dict:
+    """Adapter/runner confirms the real commit of an export: binds revision <-> commit (PRD §12.4).
+
+    The exported snapshot becomes the new synced base. Confirming publication is
+    still not an execution approval (INV-02).
+    """
+    require_profile(issue)
+    binding = _binding(issue, repository_binding_id, required=True)
+    commit = (commit or "").strip()
+    if not commit:
+        raise ValidationFailed("commit is required", detail={"field": "commit"})
+    with transaction.atomic():
+        state = (
+            SpecSyncState.objects.select_for_update()
+            .filter(issue_id=issue.id, repository_binding=binding, deleted_at__isnull=True)
+            .first()
+        )
+        if state is None:
+            raise NotFound("No spec export for this repository")
+        expected_revision = str(state.published_revision_id) if state.published_revision_id else None
+        given_revision = str(revision_id) if revision_id else None
+        if given_revision != expected_revision:
+            raise Conflict(
+                "revision_id does not match the exported revision",
+                code="SPEC_REVISION_MISMATCH",
+                detail={"expected_revision_id": expected_revision, "revision_id": given_revision},
+            )
+        if state.published_commit == commit:
+            return {"already_confirmed": True, "state": serialize_state(state), "execution_approved": False}
+        if not state.published_commit.startswith("pending:"):
+            raise Conflict(
+                "No pending export to confirm (it was confirmed or superseded by an import)",
+                code="SPEC_NOT_PENDING",
+                detail={"published_commit": state.published_commit},
+            )
+        pending = state.published_commit
+        state.published_commit = commit
+        state.base_commit = commit
+        state.base_content = state.platform_content
+        state.git_content = state.platform_content
+        state.state = "clean"
+        state.conflict = {}
+        state.save()
+        events.emit(
+            workspace_id=issue.workspace_id,
+            project_id=issue.project_id,
+            issue_id=issue.id,
+            event_type="spec.published",
+            aggregate_type="package",
+            aggregate_id=issue.id,
+            actor_kind=principal.kind,
+            actor_id=principal.id,
+            deduplication_key=f"spec.published:{state.id}:{commit}",
+            payload={
+                "specPath": state.spec_path,
+                "repositoryBindingId": str(binding.id),
+                "commit": commit,
+                "revisionId": expected_revision,
+                "placeholder": pending,
+            },
+            summary=f"OpenSpec publication confirmed at {commit[:12]}",
+        )
+        events.audit(
+            workspace_id=issue.workspace_id,
+            project_id=issue.project_id,
+            issue_id=issue.id,
+            actor=principal.user,
+            actor_kind=principal.kind,
+            action="spec.published",
+            target_type="spec_sync_state",
+            target_id=state.id,
+            detail={"commit": commit, "revision_id": expected_revision},
+        )
+    return {"already_confirmed": False, "state": serialize_state(state), "execution_approved": False}

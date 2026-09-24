@@ -28,6 +28,7 @@ urlpatterns = [
     *both(P + "risks/<uuid:risk_id>/", v.RiskDetailEndpoint.as_view(), "pf-risk"),
     path(P + "events.ics", v.EventIcsEndpoint.as_view(), name="pf-events-ics"),
     *both(P + "events/", v.EventListEndpoint.as_view(), "pf-events"),
+    *both(P + "events/<uuid:event_id>/", v.EventDetailEndpoint.as_view(), "pf-event"),
     *both(P + "cycles-context/", v.CyclesContextEndpoint.as_view(), "pf-cycles-context"),
     # dependencies / roadmap / scenarios / teams (workspace scoped)
     *both(W + "dependencies/", v.DependencyListEndpoint.as_view(), "pf-dependencies"),
@@ -52,6 +53,12 @@ urlpatterns = [
     *both(P + "work-items/<uuid:issue_id>/spec", s.SpecStateEndpoint.as_view(), "pf-spec"),
     *both(P + "work-items/<uuid:issue_id>/spec/export", s.SpecExportEndpoint.as_view(), "pf-spec-export"),
     *both(P + "work-items/<uuid:issue_id>/spec/import", s.SpecImportEndpoint.as_view(), "pf-spec-import"),
+    *both(P + "work-items/<uuid:issue_id>/spec/resolve", s.SpecResolveEndpoint.as_view(), "pf-spec-resolve"),
+    *both(
+        P + "work-items/<uuid:issue_id>/spec/publish-confirm",
+        s.SpecPublishConfirmEndpoint.as_view(),
+        "pf-spec-publish-confirm",
+    ),
     # diagrams (FR-E02, FR-E03)
     *both(P + "diagrams/", d.DiagramListEndpoint.as_view(), "pf-diagrams"),
     *both(P + "diagrams/<uuid:diagram_id>/", d.DiagramDetailEndpoint.as_view(), "pf-diagram"),

@@ -232,3 +232,102 @@ class TestSpecApi:
         assert r.status_code == 403
         r = human_client(guest).get(_url(world, project, issue))
         assert r.status_code == 200 and r.json()["states"] == []
+
+
+@pytest.mark.unit
+class TestSpecPublishAndResolve:
+    def _import(self, client, world, project, issue, binding, files, commit):
+        return client.post(
+            _url(world, project, issue, "import"),
+            {"files": files, "commit": commit, "repository_binding_id": str(binding.id)},
+            format="json",
+        )
+
+    def _export(self, client, world, project, issue, binding, base):
+        return client.post(
+            _url(world, project, issue, "export"),
+            {"repository_binding_id": str(binding.id), "expected_base_commit": base},
+            format="json",
+        )
+
+    def test_publish_confirm_binds_revision_and_commit(self, world, human_client, runner_client):
+        project, issue, profile, binding = _setup(world)
+        client = human_client(world.owner)
+        assert self._import(client, world, project, issue, binding, _files(), "c1").status_code == 200
+        profile.refresh_from_db()
+        profile.intent = "Edited in UI."
+        profile.save()
+        r = self._export(client, world, project, issue, binding, "c1")
+        assert r.status_code == 200, r.content
+        assert r.json()["published_commit"].startswith("pending:")
+        revision_id = r.json()["published_revision_id"]
+        url = _url(world, project, issue, "publish-confirm")
+        # Wrong revision is rejected.
+        bad = client.post(
+            url, {"repository_binding_id": str(binding.id), "commit": "c2", "revision_id": str(issue.id)}, format="json"
+        )
+        assert bad.status_code == 409 and bad.json()["code"] == "SPEC_REVISION_MISMATCH"
+        # The runner (agent) confirms the real commit.
+        _, token = world.runner(world.owner)
+        body = {"repository_binding_id": str(binding.id), "commit": "c2", "revision_id": revision_id}
+        r = runner_client(token).post(url, body, format="json")
+        assert r.status_code == 200, r.content
+        assert r.json()["execution_approved"] is False
+        state = SpecSyncState.objects.get(issue=issue)
+        assert state.published_commit == "c2" and state.base_commit == "c2" and state.state == "clean"
+        assert str(state.published_revision_id) == revision_id
+        assert DomainEvent.objects.filter(issue=issue, event_type="spec.published").count() == 1
+        assert ExecutionApproval.objects.filter(issue=issue).count() == 0
+        # Idempotent re-confirmation; next export must use the new base.
+        assert runner_client(token).post(url, body, format="json").json()["already_confirmed"] is True
+        assert self._export(client, world, project, issue, binding, "c1").json()["code"] == "SPEC_BASE_MOVED"
+        assert self._export(client, world, project, issue, binding, "c2").status_code == 200
+
+    def test_publish_confirm_rejected_after_superseding_import(self, world, human_client):
+        project, issue, profile, binding = _setup(world)
+        client = human_client(world.owner)
+        assert self._import(client, world, project, issue, binding, _files(), "c1").status_code == 200
+        r = self._export(client, world, project, issue, binding, "c1")
+        revision_id = r.json()["published_revision_id"]
+        ide = _files(**{"tasks.md": TASKS + "- [ ] 1.3 Docs\n"})
+        assert self._import(client, world, project, issue, binding, ide, "c2").status_code == 200
+        r = client.post(
+            _url(world, project, issue, "publish-confirm"),
+            {"repository_binding_id": str(binding.id), "commit": "c3", "revision_id": revision_id},
+            format="json",
+        )
+        assert r.status_code == 409 and r.json()["code"] in ("SPEC_NOT_PENDING", "SPEC_REVISION_MISMATCH")
+
+    def test_resolve_endpoint(self, world, human_client):
+        project, issue, profile, binding = _setup(world)
+        client = human_client(world.owner)
+        assert self._import(client, world, project, issue, binding, _files(), "c1").status_code == 200
+        profile.refresh_from_db()
+        profile.intent = "UI why."
+        profile.outcome = "UI what."
+        profile.save()
+        ide = _files(
+            **{
+                "proposal.md": PROPOSAL.replace(
+                    "Accounts are compromised through reused passwords.", "IDE why."
+                ).replace("- Add OTP second factor on login", "- IDE what")
+            }
+        )
+        assert self._import(client, world, project, issue, binding, ide, "c2").status_code == 409
+        url = _url(world, project, issue, "resolve")
+        r = client.post(url, {"resolutions": {"proposal.md#nope": "git"}}, format="json")
+        assert r.status_code == 422
+        # Partial resolution keeps the remaining conflict open.
+        r = client.post(url, {"resolutions": {"proposal.md#why": "git"}}, format="json")
+        assert r.status_code == 409 and r.json()["code"] == "SPEC_CONFLICT"
+        assert [c["block_id"] for c in r.json()["detail"]["conflicts"]] == ["proposal.md#what_changes"]
+        r = client.post(
+            url, {"resolutions": {"proposal.md#why": "git", "proposal.md#what_changes": "platform"}}, format="json"
+        )
+        assert r.status_code == 200, r.content
+        profile.refresh_from_db()
+        assert profile.intent == "IDE why." and profile.outcome == "UI what."
+        state = SpecSyncState.objects.get(issue=issue)
+        assert state.state == "ahead" and state.base_commit == "c2"
+        r = client.post(url, {"resolutions": {"proposal.md#why": "git"}}, format="json")
+        assert r.status_code == 409 and r.json()["code"] == "SPEC_NO_CONFLICT"

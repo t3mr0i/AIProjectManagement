@@ -626,7 +626,10 @@ def refresh_automatic_risks(workspace_id):
     open_auto = {
         r.cause.get("dependency_id"): r
         for r in Risk.objects.filter(
-            workspace_id=workspace_id, origin="automatic", status="open", deleted_at__isnull=True
+            workspace_id=workspace_id,
+            origin="automatic",
+            status__in=ACTIVE_AUTO_RISK_STATUS,
+            deleted_at__isnull=True,
         )
     }
     for dep_id, (dep, pred, succ) in at_risk.items():
@@ -736,11 +739,25 @@ def create_risk(project, principal, data):
     )
 
 
-def update_risk(project, principal, risk_id, data):
+RISK_STATUS = ("open", "mitigated", "accepted", "resolved", "closed")
+ACTIVE_AUTO_RISK_STATUS = ("open", "mitigated", "accepted")
+
+
+def _load_risk(project, user, risk_id):
     risk = Risk.objects.filter(id=risk_id, project=project, deleted_at__isnull=True).first()
-    if risk is None:
+    # A risk whose cause is hidden from this viewer does not exist for them (PRD §15.2).
+    if risk is None or serialize_risk(risk, user) is None:
         raise NotFound("Risk not found")
-    for key in ("title", "description", "severity", "status"):
+    return risk
+
+
+def update_risk(project, principal, risk_id, data):
+    _require_human(principal, "Editing a risk")
+    risk = _load_risk(project, principal.user, risk_id)
+    if "status" in data and data["status"] not in RISK_STATUS:
+        raise ValidationFailed("invalid status", detail={"field": "status", "allowed": list(RISK_STATUS)})
+    editable = ("severity", "status") if risk.origin == "automatic" else ("title", "description", "severity", "status")
+    for key in editable:
         if key in data:
             setattr(risk, key, str(data[key] or "")[: 255 if key == "title" else 5000])
     if "owner_id" in data:
@@ -748,9 +765,25 @@ def update_risk(project, principal, risk_id, data):
         if owner_id and not ProjectMember.objects.filter(project=project, member_id=owner_id, is_active=True).exists():
             raise ValidationFailed("owner must be a project member", detail={"field": "owner_id"})
         risk.owner_id = owner_id or None
+    if "cause" in data and risk.origin != "automatic":
+        if not isinstance(data["cause"], dict):
+            raise ValidationFailed("cause must be an object", detail={"field": "cause"})
+        risk.cause = data["cause"]
     risk.updated_by = principal.user
     risk.save()
     return risk
+
+
+def delete_risk(project, principal, risk_id):
+    _require_human(principal, "Deleting a risk")
+    risk = _load_risk(project, principal.user, risk_id)
+    if risk.origin == "automatic":
+        # Automatic risks follow their cause; close them via status instead of deleting the evidence.
+        raise Conflict(
+            "Automatic risks cannot be deleted; set status 'accepted' or fix the cause",
+            code="AUTOMATIC_RISK",
+        )
+    risk.delete()
 
 
 # ---------------------------------------------------------------------------
@@ -842,9 +875,6 @@ def scenario_impact(workspace, user, scenario):
                 if succ is None or succ["project_id"] not in readable:
                     continue  # hidden successors (and anything behind them) are not revealed
                 key = _node_key(succ)
-                late = bool(
-                    depth == 0 and new_target and succ["target_instant"] and new_target > succ["target_instant"]
-                )
                 entry = affected.get(key)
                 if entry is None or entry["depth"] > depth + 1:
                     affected[key] = {
@@ -857,15 +887,58 @@ def scenario_impact(workspace, user, scenario):
                         "via": via + [succ["label"]],
                         "dependency_strength": dep.strength,
                         "would_be_affected": True,
-                        "would_be_late": late or (entry or {}).get("would_be_late", False),
                     }
                 queue.append((succ_key, depth + 1, via + [succ["label"]]))
+    projected = _propagate_shift(graph, nodes, readable, scenario.changes)
+    for entry in affected.values():
+        node_key = (entry["type"], entry["id"])
+        node = nodes[node_key]
+        current = node["target_instant"]
+        new = projected.get(node_key)
+        late = bool(current and new and new > current)
+        entry["would_be_late"] = late
+        entry["projected_target"] = iso_utc(new) if late else entry["current_target"]
+        entry["shift_hours"] = round((new - current).total_seconds() / 3600, 2) if late else 0
+        if current is None:
+            entry["projected_target_label"] = NO_RELIABLE_DATE
     return {
         "scenario": serialize_scenario(scenario),
         "changes": changes_out,
         "affected": sorted(affected.values(), key=lambda a: (a["depth"], a["label"])),
         "modifies_plan": False,
     }
+
+
+def _propagate_shift(graph, nodes, readable, changes):
+    """Projected targets after the scenario shift, propagated over confirmed *hard* deps.
+
+    A successor only moves when a (projected) predecessor ends after its current
+    target, i.e. when the shift exceeds its slack. Soft deps inform but never shift.
+    Hidden nodes stop propagation (nothing behind them is revealed). Read-only.
+    """
+    projected = {k: n["target_instant"] for k, n in nodes.items()}
+    work = []
+    for change in changes:
+        key = ("milestone", change["id"])
+        projected[key] = parse_instant(change["target_at"]) if change.get("target_at") else None
+        work.append(key)
+    budget = 10000  # guards against pathological (soft/unconfirmed) loops
+    while work and budget > 0:
+        budget -= 1
+        current = work.pop(0)
+        pred_end = projected.get(current)
+        if pred_end is None:
+            continue
+        for succ_key, dep in graph.get(current, []):
+            if dep.strength != PlanningDependency.Strength.HARD:
+                continue
+            succ = nodes.get(succ_key)
+            if succ is None or succ["project_id"] not in readable or succ["target_instant"] is None:
+                continue
+            if pred_end > (projected.get(succ_key) or succ["target_instant"]):
+                projected[succ_key] = pred_end
+                work.append(succ_key)
+    return projected
 
 
 def apply_scenario(workspace, principal, scenario_id):
@@ -932,36 +1005,70 @@ def serialize_event(e, display_tz=None):
     return body
 
 
-def create_event(project, principal, data):
-    title = str(data.get("title") or "").strip()
-    if not title:
-        raise ValidationFailed("title is required", detail={"field": "title"})
-    tz_name = data.get("timezone") or "UTC"
+def _event_values(project, principal, data, instance=None):
+    values = {}
+    if instance is None or "title" in data:
+        title = str(data.get("title") or "").strip()
+        if not title:
+            raise ValidationFailed("title is required", detail={"field": "title"})
+        values["title"] = title[:255]
+    if "description" in data or instance is None:
+        values["description"] = str(data.get("description") or "")
+    tz_name = data.get("timezone") or (instance.timezone if instance else "UTC")
     _zone(tz_name)
-    starts = parse_instant(data.get("starts_at"), tz_name, "starts_at")
-    if starts is None:
-        raise ValidationFailed("starts_at is required", detail={"field": "starts_at"})
-    ends = parse_instant(data.get("ends_at"), tz_name, "ends_at")
+    values["timezone"] = tz_name
+    starts = instance.starts_at if instance else None
+    if instance is None or "starts_at" in data:
+        starts = parse_instant(data.get("starts_at"), tz_name, "starts_at")
+        if starts is None:
+            raise ValidationFailed("starts_at is required", detail={"field": "starts_at"})
+        values["starts_at"] = starts
+    ends = instance.ends_at if instance else None
+    if instance is None or "ends_at" in data:
+        ends = parse_instant(data.get("ends_at"), tz_name, "ends_at")
+        values["ends_at"] = ends
     if ends is not None and ends < starts:
         raise ValidationFailed("ends_at must be after starts_at", detail={"field": "ends_at"})
-    owner_id = data.get("owner_id") or principal.user.id
-    if not ProjectMember.objects.filter(project=project, member_id=owner_id, is_active=True).exists():
-        raise ValidationFailed("owner must be a project member", detail={"field": "owner_id"})
-    issue_id = data.get("issue_id")
-    if issue_id and not Issue.all_objects.filter(id=issue_id, project=project, deleted_at__isnull=True).exists():
-        raise NotFound("Work item not found")
+    if instance is None or "owner_id" in data:
+        owner_id = data.get("owner_id") or principal.user.id
+        if not ProjectMember.objects.filter(project=project, member_id=owner_id, is_active=True).exists():
+            raise ValidationFailed("owner must be a project member", detail={"field": "owner_id"})
+        values["owner_id"] = owner_id
+    if instance is None or "issue_id" in data:
+        issue_id = data.get("issue_id")
+        if issue_id and not Issue.all_objects.filter(id=issue_id, project=project, deleted_at__isnull=True).exists():
+            raise NotFound("Work item not found")
+        values["issue_id"] = issue_id or None
+    return values
+
+
+def create_event(project, principal, data):
+    values = _event_values(project, principal, data)
     return CalendarEvent.objects.create(
-        workspace_id=project.workspace_id,
-        project=project,
-        title=title[:255],
-        description=str(data.get("description") or ""),
-        starts_at=starts,
-        ends_at=ends,
-        timezone=tz_name,
-        owner_id=owner_id,
-        issue_id=issue_id or None,
-        created_by=principal.user,
+        workspace_id=project.workspace_id, project=project, created_by=principal.user, **values
     )
+
+
+def _load_event(project, event_id):
+    event = CalendarEvent.objects.filter(id=event_id, project=project, deleted_at__isnull=True).first()
+    if event is None:
+        raise NotFound("Event not found")
+    return event
+
+
+def update_event(project, principal, event_id, data):
+    _require_human(principal, "Editing a calendar event")
+    event = _load_event(project, event_id)
+    for key, value in _event_values(project, principal, data, event).items():
+        setattr(event, key, value)
+    event.updated_by = principal.user
+    event.save()
+    return event
+
+
+def delete_event(project, principal, event_id):
+    _require_human(principal, "Deleting a calendar event")
+    _load_event(project, event_id).delete()
 
 
 def _ics_escape(text):

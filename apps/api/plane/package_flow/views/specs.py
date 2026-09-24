@@ -64,3 +64,45 @@ class SpecImportEndpoint(PackageFlowBaseView):
             return status.HTTP_200_OK, body
 
         return self.idempotent(issue.workspace_id, f"spec.import:{issue.id}", data, run)
+
+
+class SpecResolveEndpoint(PackageFlowBaseView):
+    def post(self, request, slug, project_id, issue_id):
+        issue = self.get_issue(slug, project_id, issue_id)
+        self.require(issue.workspace_id, issue.project_id, Capability.PACKAGE_EDIT)
+        data = request.data or {}
+        body = spec_service.resolve_conflict(
+            issue,
+            self.principal,
+            resolutions=data.get("resolutions"),
+            repository_binding_id=data.get("repository_binding_id"),
+        )
+        if body.get("conflict"):
+            return Response(
+                {
+                    "error": "Conflicts remain unresolved",
+                    "code": "SPEC_CONFLICT",
+                    "detail": {"conflicts": body["conflicts"], "state": body["state"]},
+                },
+                status=status.HTTP_409_CONFLICT,
+            )
+        return Response(body)
+
+
+class SpecPublishConfirmEndpoint(PackageFlowBaseView):
+    def post(self, request, slug, project_id, issue_id):
+        issue = self.get_issue(slug, project_id, issue_id)
+        self.require(issue.workspace_id, issue.project_id, Capability.PACKAGE_EDIT)
+        data = request.data or {}
+
+        def run():
+            body = spec_service.confirm_publication(
+                issue,
+                self.principal,
+                repository_binding_id=data.get("repository_binding_id"),
+                commit=data.get("commit"),
+                revision_id=data.get("revision_id"),
+            )
+            return status.HTTP_200_OK, body
+
+        return self.idempotent(issue.workspace_id, f"spec.publish:{issue.id}", data, run)

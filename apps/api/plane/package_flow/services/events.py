@@ -54,6 +54,7 @@ INTERNAL_EVENT_TYPES = {
     "question.raised",
     "spec.exported",
     "spec.imported",
+    "spec.published",
     "diagram.changed",
     "dependency.changed",
     "milestone.changed",

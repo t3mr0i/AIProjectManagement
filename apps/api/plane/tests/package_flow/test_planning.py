@@ -292,3 +292,90 @@ class TestRoadmapTeamsCycles:
         styles = sorted((e["style"], e["blocking"]) for e in edges)
         assert styles == [("hard", True), ("suggested", False)]
         assert PlanningDependency.objects.count() == 2
+
+
+@pytest.mark.unit
+class TestEditDelete:
+    def test_event_patch_delete_human_only(self, world, human_client, runner_client):
+        (project,) = _plan_world(world, 1)
+        client = human_client(world.owner)
+        ev = client.post(
+            f"{world.base(project)}/events/",
+            {"title": "Demo", "starts_at": "2026-10-02T15:00:00", "timezone": "Europe/Berlin"},
+            format="json",
+        ).json()
+        url = f"{world.base(project)}/events/{ev['id']}/"
+        r = client.patch(url, {"starts_at": "2026-10-03T10:00:00", "title": "Demo 2"}, format="json")
+        assert r.status_code == 200, r.content
+        assert r.json()["starts_at"] == "2026-10-03T08:00:00Z" and r.json()["title"] == "Demo 2"
+        assert client.patch(url, {"ends_at": "2026-10-01T00:00:00Z"}, format="json").status_code == 422
+        _, token = world.runner(world.owner)
+        assert runner_client(token).patch(url, {"title": "x"}, format="json").status_code == 403
+        assert runner_client(token).delete(url).status_code == 403
+        member = world.member()
+        world.add_project_member(project, member)
+        assert human_client(member).delete(url).status_code == 403  # no project.plan
+        assert client.delete(url).status_code == 204
+        assert client.get(f"{world.base(project)}/events/").json() == []
+
+    def test_risk_patch_delete(self, world, human_client, runner_client):
+        (project,) = _plan_world(world, 1)
+        client = human_client(world.owner)
+        risk = client.post(f"{world.base(project)}/risks/", {"title": "Vendor"}, format="json").json()
+        url = f"{world.base(project)}/risks/{risk['id']}/"
+        r = client.patch(url, {"status": "mitigated", "severity": "high"}, format="json")
+        assert r.status_code == 200 and r.json()["status"] == "mitigated"
+        assert client.patch(url, {"status": "bogus"}, format="json").status_code == 422
+        _, token = world.runner(world.owner)
+        assert runner_client(token).patch(url, {"status": "open"}, format="json").status_code == 403
+        assert client.delete(url).status_code == 204
+        assert client.get(f"{world.base(project)}/risks/").json() == []
+
+    def test_automatic_risk_not_deletable_and_accept_is_sticky(self, world, human_client):
+        p1, p2 = _plan_world(world)
+        client = human_client(world.owner)
+        m1 = _milestone(client, world, p1, "A", "2026-10-15T00:00:00Z", date_confidence="confirmed")
+        m2 = _milestone(client, world, p2, "B", "2026-10-10T00:00:00Z", date_confidence="confirmed")
+        _dep(client, world, {"type": "milestone", "id": m1["id"]}, {"type": "milestone", "id": m2["id"]})
+        auto = [x for x in client.get(f"{world.base(p2)}/risks/").json() if x["origin"] == "automatic"]
+        assert len(auto) == 1
+        url = f"{world.base(p2)}/risks/{auto[0]['id']}/"
+        r = client.delete(url)
+        assert r.status_code == 409 and r.json()["code"] == "AUTOMATIC_RISK"
+        assert client.patch(url, {"status": "accepted", "title": "renamed"}, format="json").status_code == 200
+        # Refresh does not create a duplicate; title of automatic risks is not editable.
+        client.patch(f"{world.base(p1)}/milestones/{m1['id']}/", {"target_at": "2026-10-16T00:00:00Z"}, format="json")
+        risks = [x for x in client.get(f"{world.base(p2)}/risks/").json() if x["origin"] == "automatic"]
+        assert (
+            len(risks) == 1 and risks[0]["status"] == "accepted" and risks[0]["title"].startswith("Milestone at risk")
+        )
+
+
+@pytest.mark.unit
+class TestTransitiveLateness:
+    def test_transitive_successor_late_only_when_shift_exceeds_slack(self, world, human_client):
+        (p1,) = _plan_world(world, 1)
+        client = human_client(world.owner)
+        a = _milestone(client, world, p1, "A", "2026-10-01T00:00:00Z", date_confidence="confirmed")
+        b = _milestone(client, world, p1, "B", "2026-10-05T00:00:00Z", date_confidence="confirmed")
+        c = _milestone(client, world, p1, "C", "2026-10-08T00:00:00Z", date_confidence="confirmed")
+        d = _milestone(client, world, p1, "D", "2026-10-30T00:00:00Z", date_confidence="confirmed")
+        for pred, succ in ((a, b), (b, c), (c, d)):
+            assert (
+                _dep(client, world, {"type": "milestone", "id": pred["id"]}, {"type": "milestone", "id": succ["id"]})
+            ).status_code == 201
+        sid = client.post(
+            f"{world.ws_base()}/scenarios/",
+            {"name": "slip", "changes": [{"type": "milestone", "id": a["id"], "target_at": "2026-10-10T00:00:00Z"}]},
+            format="json",
+        ).json()["id"]
+        impact = client.get(f"{world.ws_base()}/scenarios/{sid}/impact").json()
+        affected = {x["label"]: x for x in impact["affected"]}
+        assert affected["B"]["would_be_late"] is True and affected["B"]["projected_target"] == "2026-10-10T00:00:00Z"
+        # C is transitive: B's projected end (10th) exceeds C's slack (8th).
+        assert affected["C"]["would_be_late"] is True and affected["C"]["depth"] == 2
+        assert affected["C"]["shift_hours"] == 48
+        # D has enough slack: affected but not late.
+        assert affected["D"]["would_be_affected"] is True and affected["D"]["would_be_late"] is False
+        assert impact["modifies_plan"] is False
+        assert Milestone.objects.get(id=c["id"]).target_at == dt.datetime(2026, 10, 8, tzinfo=dt.timezone.utc)
