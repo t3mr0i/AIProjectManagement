@@ -29,7 +29,7 @@ interface IssueMetadata {
 }
 
 // Loader function runs on the server and fetches metadata
-export async function loader({ params }: Route.LoaderArgs) {
+export async function loader({ params, request }: Route.LoaderArgs) {
   const { anchor } = params;
 
   // Validate anchor before using in request (only allow alphanumeric, -, _)
@@ -38,8 +38,16 @@ export async function loader({ params }: Route.LoaderArgs) {
     return { metadata: null };
   }
 
+  // Server-side fetch needs an absolute URL. VITE_API_BASE_URL is baked in at build time and is
+  // empty for same-origin deployments, so fall back to the runtime API_BASE_URL (read via
+  // globalThis because vite replaces `process.env` at build time), then to the request's origin.
+  const apiBaseUrl =
+    process.env.VITE_API_BASE_URL ||
+    (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.API_BASE_URL ||
+    new URL(request.url).origin;
+
   try {
-    const response = await fetch(`${process.env.VITE_API_BASE_URL}/api/public/anchor/${anchor}/meta/`);
+    const response = await fetch(`${apiBaseUrl}/api/public/anchor/${anchor}/meta/`);
 
     if (!response.ok) {
       return { metadata: null };
