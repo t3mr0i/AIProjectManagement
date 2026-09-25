@@ -73,6 +73,8 @@ export function ParentIssuesListModal({
   useEffect(() => {
     if (!isOpen || !workspaceSlug || !projectId) return;
 
+    let ignore = false;
+
     setIsSearching(true);
     setIsLoading(true);
 
@@ -84,11 +86,18 @@ export function ParentIssuesListModal({
         workspace_search: false,
         epic: searchEpic ? true : undefined,
       })
-      .then((res) => setIssues(res))
+      .then((res) => {
+        if (!ignore) setIssues(res);
+      })
       .finally(() => {
+        if (ignore) return;
         setIsSearching(false);
         setIsLoading(false);
       });
+
+    return () => {
+      ignore = true;
+    };
   }, [debouncedSearchTerm, isOpen, issueId, projectId, searchEpic, workspaceSlug]);
 
   return (
