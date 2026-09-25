@@ -68,7 +68,11 @@ export interface IBaseIssuesStore {
   getIssueIds: (groupId?: string, subGroupId?: string) => string[] | undefined;
   // current order by value applied on the issues of this store
   orderBy: TIssueOrderByOptions | undefined;
-  issuesSortWithOrderBy(issueIds: string[], key: Partial<TIssueOrderByOptions>, preserveUnresolvedIds?: boolean): string[];
+  issuesSortWithOrderBy(
+    issueIds: string[],
+    key: Partial<TIssueOrderByOptions>,
+    preserveUnresolvedIds?: boolean
+  ): string[];
   getPaginationData(groupId: string | undefined, subGroupId: string | undefined): TPaginationData | undefined;
   getIssueLoader(groupId?: string, subGroupId?: string): TLoader;
   getGroupIssueCount: (
