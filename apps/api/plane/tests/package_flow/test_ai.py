@@ -214,6 +214,8 @@ class TestClarify:
         assert not ExecutionApproval.objects.exists()
 
     def test_reject_changes_nothing(self, world, human_client):
+
+        """FR-E06: a rejected AI change leaves the shared version unchanged."""
         project, alice, _ = setup(world)
         issue = world.issue(project)
         PackageProfile.objects.create(issue=issue)

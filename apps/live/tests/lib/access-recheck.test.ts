@@ -64,7 +64,7 @@ describe("AccessRecheckScheduler", () => {
     vi.useRealTimers();
   });
 
-  it("closes a revoked connection within one interval with code 4403", async () => {
+  it("AC14 FR-E01: closes a revoked connection within one interval with code 4403", async () => {
     const connection = createConnection();
     const context: TestContext = { userId: "u1" };
     scheduler.track(connection, context, "page-1");
@@ -205,7 +205,7 @@ describe("AccessRecheckScheduler", () => {
       expect(error.reason).toBe(ACCESS_REVOKED_CLOSE_REASON);
     });
 
-    it("stores with a still-authorized context when the last writer was revoked", async () => {
+    it("AC30 FR-E01: stores with a still-authorized context when the last writer was revoked", async () => {
       const revokedConn = createConnection();
       const keptConn = createConnection();
       const revoked: TestContext = { userId: "revoked" };
@@ -221,7 +221,7 @@ describe("AccessRecheckScheduler", () => {
       expect(scheduler.resolveStoreContext("page-1", kept)).toBe(kept);
     });
 
-    it("falls back to the last authorized context after other users disconnected (final flush)", async () => {
+    it("AC30 NFR-05: falls back to the last authorized context after other users disconnected (final flush)", async () => {
       const keptConn = createConnection();
       const revokedConn = createConnection();
       const kept: TestContext = { userId: "kept" };

@@ -252,6 +252,8 @@ class TestStatusAndList:
         assert s["native_state_group"] == "completed"
 
     def test_non_code_package_completes_without_git(self, world):
+
+        """AC31 / FR-W10: non-code package completes by accepted deliverable, no fictitious commit."""
         pkg = Pkg(world, package_type="analysis")
         pkg.make_ready()
         rev = pkg.revision()
@@ -321,6 +323,8 @@ class TestStatusAndList:
         assert c.get(f"{pkg.base}/packages/").json()["results"] == []
 
     def test_list_views_filter_by_phase(self, world):
+
+        """FR-P05: filtered views are projections of the same shared objects, not copies."""
         pkg = Pkg(world)
         pkg.approve()
         other = world.issue(pkg.project, name="Other")
@@ -350,6 +354,7 @@ class TestStatusAndList:
 @pytest.mark.unit
 class TestIsolation:
     def test_fr_b09_two_workspaces_isolated(self, world):
+        """FR-P01: projects/workspaces stay isolated for users without membership."""
         pkg_a = Pkg(world)
         pkg_a.activate()
         world_b = World()

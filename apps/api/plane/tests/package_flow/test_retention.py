@@ -28,6 +28,8 @@ class TestRetention:
         assert r.status_code == 422
 
     def test_message_retention_cascades(self, world, human_client):
+
+        """FR-I08: retention deletes messages together with index rows and source excerpts."""
         alice = world.member()
         project = world.project(identifier="RET", members=[(alice, 15)])
         world.enable(project)

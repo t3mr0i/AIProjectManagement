@@ -329,6 +329,7 @@ class TestDeliveryStates:
 @pytest.mark.unit
 class TestImportPreview:
     def test_j01_preview_observed_and_proposed_without_writes(self, world, human_client, fake_transport):
+        """FR-W07: repository-derived statements carry commit and observed/proposed status."""
         project = world.project()
         c = make_connection(world)
         fake_transport.add(

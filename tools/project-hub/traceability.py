@@ -34,6 +34,7 @@ CODE_DIRS = [
     ROOT / "tools/project-hub",
 ]
 TEST_DIRS = [ROOT / "apps/api/plane/tests/package_flow", ROOT / "apps/runner/tests"]
+TS_TEST_DIRS = [ROOT / "apps/live/tests", ROOT / "packages/utils/src/project-hub", ROOT / "apps/web/e2e"]
 OUT = ROOT / "docs/project-hub/TRACEABILITY.md"
 SKIP_DOC_FILES = {"TRACEABILITY.md"}
 
@@ -59,6 +60,12 @@ def test_index():
                     for m in node.body:
                         if isinstance(m, ast.FunctionDef) and m.name.startswith("test_"):
                             tests.append((f.relative_to(ROOT).as_posix(), f"{node.name}.{m.name}", cdoc))
+    for d in TS_TEST_DIRS:
+        if not d.exists():
+            continue
+        for f in sorted(list(d.rglob("*.test.ts")) + list(d.rglob("*.spec.ts"))):
+            for title in re.findall(r"""\b(?:it|test)\(\s*["'`](.+?)["'`]""", f.read_text()):
+                tests.append((f.relative_to(ROOT).as_posix(), title, title))
     return tests
 
 
@@ -89,18 +96,20 @@ def matching_tests(req_id, tests):
 
 
 def scenarios():
+    """[(scenario_id, title, [FR ids tagged on the scenario])]"""
     result = []
     for f in FEATURES:
-        tag = None
+        tag, frs = None, []
         for line in f.read_text().splitlines():
             m = re.match(r"\s*@((?:AC|PF)\d\d)", line)
             if m:
                 tag = m.group(1)
+                frs = re.findall(r"@(FR-[A-Z]\d\d)", line)
                 continue
             m = re.match(r"\s*Szenario:\s*(.*)", line)
             if m and tag:
-                result.append((tag, m.group(1).strip()))
-                tag = None
+                result.append((tag, m.group(1).strip(), frs))
+                tag, frs = None, []
     return result
 
 
@@ -125,7 +134,12 @@ def main():
         "|---|---|---|",
     ]
     missing = []
-    for tag, title in scenarios():
+    scen = scenarios()
+    via_scenario = {}
+    for tag, _title, frs in scen:
+        for fr in frs:
+            via_scenario.setdefault(fr, []).extend(f"{t} (via {tag})" for t in matching_tests(tag, tests))
+    for tag, title, _frs in scen:
         found = matching_tests(tag, tests)
         if not found:
             missing.append(tag)
@@ -133,7 +147,7 @@ def main():
     lines += ["", "## Functional requirements", "", "| ID | Treatment | Implementation refs | Tests |", "|---|---|---|---|"]
     for r in reqs:
         rid = r["requirementId"]
-        found = matching_tests(rid, tests)
+        found = matching_tests(rid, tests) + sorted(set(via_scenario.get(rid, [])))
         refs = code_refs(rid)
         if not found:
             missing.append(rid)

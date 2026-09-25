@@ -44,6 +44,7 @@ def post(world, client, conv_id, body, **extra):
 @pytest.mark.unit
 class TestConversations:
     def test_pf03_same_native_identities(self, world, human_client):
+        """FR-C01: the package thread is reachable from package and chat as one conversation."""
         project, (alice, _) = setup_project(world)
         issue = world.issue(project, name="Export reports")
         client = human_client(alice)

@@ -22,6 +22,9 @@ def _parse(argv):
 
 
 def test_vscode_tasks_parse():
+
+
+    """FR-G03: VS Code workflow uses the ph-runner CLI contract."""
     tasks = json.loads((IDE / "vscode-tasks.json").read_text())["tasks"]
     cmds = set()
     for t in tasks:
@@ -31,6 +34,9 @@ def test_vscode_tasks_parse():
 
 
 def test_jetbrains_tools_parse():
+
+
+    """FR-G03: JetBrains workflow uses the same ph-runner CLI contract."""
     root = ET.parse(IDE / "jetbrains-external-tools.xml").getroot()
     cmds = set()
     for tool in root.iter("tool"):

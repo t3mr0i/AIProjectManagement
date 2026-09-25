@@ -27,6 +27,7 @@ from .integration_helpers import HEAD_A, SECRET, FakeTransport, gl_merged, gl_mr
 class TestDeclarations:
     @pytest.mark.parametrize("provider", sorted(ADAPTERS))
     def test_every_adapter_declares_all_13_capabilities(self, provider):
+        """FR-I02: adapters declare capabilities, auth, rate limits, events and editions."""
         decl = get_adapter(provider, transport=FakeTransport()).declare()
         assert set(decl.capabilities) == set(CAPABILITIES) and len(CAPABILITIES) == 13
         assert all(level in LEVELS for level in decl.capabilities.values())
@@ -47,6 +48,8 @@ class TestDeclarations:
         assert adapter.declare(edition="premium").level("verify_human_approval") == "supported"
 
     def test_trackers_declare_no_git_capabilities(self):
+
+        """FR-I02: unsupported operations are declared unsupported, not silently accepted."""
         for provider in ("jira", "linear"):
             decl = get_adapter(provider).declare()
             assert decl.level("request_merge") == UNSUPPORTED
