@@ -12,6 +12,7 @@ Runner / webhook ingress: ``/api/package-flow/...``
 Each domain module owns its own patterns so workstreams stay independent.
 """
 
+from .ai import urlpatterns as ai_urls
 from .collaboration import urlpatterns as collaboration_urls
 from .execution import urlpatterns as execution_urls
 from .integrations import urlpatterns as integration_urls
@@ -23,5 +24,6 @@ urlpatterns = [
     *execution_urls,
     *integration_urls,
     *collaboration_urls,
+    *ai_urls,
     *planning_urls,
 ]

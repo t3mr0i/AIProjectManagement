@@ -60,3 +60,37 @@ def expire_leases():
 
     result = expire()
     return result if isinstance(result, (int, str, list, dict, type(None))) else str(result)
+
+
+@shared_task(name="plane.package_flow.tasks.ai_refresh_embeddings")
+def ai_refresh_embeddings(workspace_id=None, since_minutes=None):
+    """(Re)build the semantic AI index; unchanged sources are skipped by content hash.
+
+    Without ``workspace_id`` every workspace with the extension enabled is refreshed
+    (periodic run). No-op when the configured provider has no embeddings.
+    """
+    from datetime import timedelta
+
+    from django.utils import timezone
+
+    from plane.package_flow.ai import retrieval
+    from plane.package_flow.ai.provider import get_provider
+    from plane.package_flow.models import ExtensionActivation
+
+    provider = get_provider()
+    if not getattr(provider, "embedding_model", ""):
+        return {"status": "no_embeddings"}
+    since = timezone.now() - timedelta(minutes=int(since_minutes)) if since_minutes else None
+    if workspace_id:
+        workspace_ids = [workspace_id]
+    else:
+        workspace_ids = set(
+            ExtensionActivation.objects.filter(is_enabled=True).values_list("workspace_id", flat=True).distinct()
+        )
+    results = {}
+    for ws in workspace_ids:
+        try:
+            results[str(ws)] = retrieval.refresh_workspace(ws, since=since, provider=provider)
+        except Exception as exc:  # noqa: BLE001 - one workspace must not stop the sweep
+            results[str(ws)] = {"error": type(exc).__name__}
+    return results

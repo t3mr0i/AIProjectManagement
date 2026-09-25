@@ -1023,6 +1023,108 @@
       "edge": "Kante",
       "ambiguous_short": "Unklar",
       "read_only": "Nur lesen — zum Ändern dieses Diagramms ist „Pakete bearbeiten“ erforderlich."
+    },
+    "ai": {
+      "status": {
+        "llm": "{provider} · {model}",
+        "rule_based": "Regelbasiert (kein Modell konfiguriert)",
+        "rule_based_hint": "Es ist kein Sprachmodell konfiguriert, daher stammen Antworten aus eingebauten Regeln. Eine Instanz-Administration kann in der Admin-App einen Anbieter einrichten.",
+        "embeddings": "Semantische Suche: {model}"
+      },
+      "task": {
+        "concretize": "Konkretisierung",
+        "interpret": "Interpretation",
+        "report": "Statusbericht",
+        "answer": "Antwort"
+      },
+      "result_status": {
+        "ok": "Fertig",
+        "timeout": "Zeitüberschreitung",
+        "budget_exceeded": "Budget überschritten",
+        "cancelled": "Abgebrochen",
+        "error": "Fehler",
+        "unavailable": "Nicht verfügbar"
+      },
+      "result_failed": "Die KI konnte nicht abschließen: {status}",
+      "needs_clarification": "Die KI benötigt weitere Informationen, bevor sie fortfahren kann.",
+      "flags_title": "Befunde",
+      "flag": {
+        "unverified_claim": "Unbelegte Behauptung",
+        "missing_evidence": "Fehlender Nachweis",
+        "contradiction": "Widerspruch",
+        "unknown_intent": "Unklares Ziel",
+        "scope_change_requires_new_approval": "Umfangsänderung erfordert neue Freigabe",
+        "instruction_like_content": "Anweisungsähnlicher Inhalt ignoriert"
+      },
+      "notes_title": "Hinweise",
+      "generated_by": "Erstellt mit {model}",
+      "statement_sources": "{count, plural, one {# Quelle} other {# Quellen}}",
+      "sources_used": "Verwendete Quellen",
+      "sources_retrieved": "Über semantische Suche gefunden",
+      "sources_blocked": "{count, plural, one {# Quelle nicht verwendet} other {# Quellen nicht verwendet}}",
+      "source_stale": "Veraltet",
+      "no_sources": "Es wurden keine Quellen verwendet.",
+      "no_statements": "Die KI hat keine Aussagen geliefert.",
+      "block_reason": {
+        "unavailable": "Nicht verfügbar",
+        "private_source": "Private Quelle",
+        "audience_mismatch": "Nicht für alle Beteiligten sichtbar",
+        "quarantined": "Datei in Quarantäne",
+        "scan_pending": "Virenprüfung ausstehend"
+      },
+      "dismiss": "Verwerfen",
+      "patch": {
+        "new": "Neu",
+        "verification": "Nachweis: {method}"
+      },
+      "assist": {
+        "title": "KI-Assistent",
+        "description": "Lassen Sie die KI diesen Auftrag konkretisieren, interpretieren oder einen Bericht erstellen. Ergebnisse erscheinen unter KI-Vorschläge; nichts ändert sich, bis Sie annehmen.",
+        "instruction": "Anweisung",
+        "instruction_placeholder": "z. B. Fokus auf Abnahmekriterien für die API",
+        "concretize": "Konkretisieren",
+        "concretize_hint": "Ergebnis, Ziel, Nichtziele und Abnahmekriterien vorschlagen",
+        "interpret": "Interpretieren",
+        "interpret_hint": "Erklären, was dieser Auftrag bedeutet und was noch unklar ist",
+        "report": "Bericht",
+        "report_hint": "Den aktuellen Stand dieses Arbeitspakets zusammenfassen",
+        "requested": "KI-Vorschlag ist bereit"
+      },
+      "ask": {
+        "title": "KI fragen",
+        "description": "Stellen Sie eine Frage über alle Projekte, die Sie lesen dürfen. Nur Sie sehen die Antwort.",
+        "label": "Ihre Frage",
+        "placeholder": "z. B. Welche Arbeitspakete sind blockiert und warum?",
+        "submit": "Fragen",
+        "clear": "Leeren",
+        "shortcut": "Ctrl/⌘ + Enter zum Senden",
+        "answer": "Antwort"
+      },
+      "report": {
+        "title": "KI-Statusbericht",
+        "description": "Eine Statuszusammenfassung aus Daten, die alle Projektmitglieder lesen dürfen.",
+        "empty": "Noch kein Statusbericht",
+        "generate": "Bericht erstellen",
+        "regenerate": "Neu erstellen",
+        "snapshot": "Fakten, auf denen der Bericht beruht"
+      },
+      "usage": {
+        "title": "KI-Nutzung",
+        "description": "KI-Aufrufe und Tokens in diesem Workspace in den letzten {days} Tagen.",
+        "calls": "Aufrufe",
+        "input_tokens": "Eingabe-Tokens",
+        "output_tokens": "Ausgabe-Tokens",
+        "errors": "Fehler",
+        "by_feature": "Nach Funktion",
+        "by_model": "Nach Modell",
+        "row": "Aufrufe: {calls} · Ein: {input} · Aus: {output}",
+        "empty": "Keine KI-Aufrufe in diesem Zeitraum.",
+        "reindex": "Semantischer Index",
+        "reindex_action": "Neu aufbauen",
+        "reindex_description": "Bettet Seiten, Arbeitspakete und Entscheidungen mit {model} neu ein, damit „KI fragen“ sie findet. Läuft im Hintergrund.",
+        "reindex_unavailable": "Kein Embedding-Modell konfiguriert. „KI fragen“ nutzt die Stichwortsuche.",
+        "reindex_queued": "Neuaufbau des semantischen Index gestartet"
+      }
     }
   }
 }

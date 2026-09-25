@@ -1023,6 +1023,108 @@
       "edge": "連線",
       "ambiguous_short": "不明確",
       "read_only": "唯讀 — 變更此圖表需要「編輯工作包」權限。"
+    },
+    "ai": {
+      "status": {
+        "llm": "{provider} · {model}",
+        "rule_based": "以規則為基礎（未設定模型）",
+        "rule_based_hint": "未設定語言模型，因此回答來自內建規則。執行個體管理員可以在管理應用程式中設定供應商。",
+        "embeddings": "語意搜尋：{model}"
+      },
+      "task": {
+        "concretize": "具體化",
+        "interpret": "解讀",
+        "report": "狀態報告",
+        "answer": "回答"
+      },
+      "result_status": {
+        "ok": "已完成",
+        "timeout": "已逾時",
+        "budget_exceeded": "超出預算",
+        "cancelled": "已取消",
+        "error": "錯誤",
+        "unavailable": "無法使用"
+      },
+      "result_failed": "AI 無法完成：{status}",
+      "needs_clarification": "AI 需要更多資訊才能繼續。",
+      "flags_title": "發現",
+      "flag": {
+        "unverified_claim": "未經驗證的陳述",
+        "missing_evidence": "缺少證據",
+        "contradiction": "矛盾",
+        "unknown_intent": "目標不明確",
+        "scope_change_requires_new_approval": "範圍變更需要重新核准",
+        "instruction_like_content": "已忽略類似指令的內容"
+      },
+      "notes_title": "備註",
+      "generated_by": "由 {model} 產生",
+      "statement_sources": "{count, plural, one {# 個來源} other {# 個來源}}",
+      "sources_used": "使用的來源",
+      "sources_retrieved": "透過語意搜尋找到",
+      "sources_blocked": "{count, plural, one {# 個未使用的來源} other {# 個未使用的來源}}",
+      "source_stale": "已過時",
+      "no_sources": "未使用任何來源。",
+      "no_statements": "AI 未傳回任何陳述。",
+      "block_reason": {
+        "unavailable": "無法使用",
+        "private_source": "私人來源",
+        "audience_mismatch": "並非所有對象都可見",
+        "quarantined": "已隔離的檔案",
+        "scan_pending": "等待病毒掃描"
+      },
+      "dismiss": "忽略",
+      "patch": {
+        "new": "新增",
+        "verification": "驗證：{method}"
+      },
+      "assist": {
+        "title": "AI 助理",
+        "description": "讓 AI 將此任務說明具體化、解讀或產生報告。結果會顯示在「AI 建議」中；在您接受之前不會有任何變更。",
+        "instruction": "指示",
+        "instruction_placeholder": "例如：著重於 API 的驗收標準",
+        "concretize": "具體化",
+        "concretize_hint": "提出結果、目標、非目標與驗收標準",
+        "interpret": "解讀",
+        "interpret_hint": "說明此任務說明的意義以及仍不明確之處",
+        "report": "報告",
+        "report_hint": "摘要此工作包的目前狀態",
+        "requested": "AI 建議已就緒"
+      },
+      "ask": {
+        "title": "詢問 AI",
+        "description": "針對您可讀取的所有專案提問。只有您能看到回答。",
+        "label": "您的問題",
+        "placeholder": "例如：哪些工作包遭到封鎖，原因為何？",
+        "submit": "提問",
+        "clear": "清除",
+        "shortcut": "按 Ctrl/⌘ + Enter 傳送",
+        "answer": "回答"
+      },
+      "report": {
+        "title": "AI 狀態報告",
+        "description": "根據所有專案成員皆可讀取的資料產生的狀態摘要。",
+        "empty": "尚無狀態報告",
+        "generate": "產生報告",
+        "regenerate": "重新產生",
+        "snapshot": "報告所依據的事實"
+      },
+      "usage": {
+        "title": "AI 使用情況",
+        "description": "過去 {days} 天內此工作區的 AI 呼叫與 token。",
+        "calls": "呼叫",
+        "input_tokens": "輸入 token",
+        "output_tokens": "輸出 token",
+        "errors": "錯誤",
+        "by_feature": "依功能",
+        "by_model": "依模型",
+        "row": "呼叫：{calls} · 輸入：{input} · 輸出：{output}",
+        "empty": "此期間沒有 AI 呼叫。",
+        "reindex": "語意索引",
+        "reindex_action": "重建",
+        "reindex_description": "使用 {model} 重新產生頁面、工作包與決策的嵌入，讓「詢問 AI」能夠找到它們。在背景執行。",
+        "reindex_unavailable": "未設定嵌入模型。「詢問 AI」將使用關鍵字搜尋。",
+        "reindex_queued": "已開始重建語意索引"
+      }
     }
   }
 }

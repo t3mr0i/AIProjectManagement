@@ -1023,6 +1023,108 @@
       "edge": "Muchie",
       "ambiguous_short": "Neclar",
       "read_only": "Doar citire — este necesară capabilitatea „Editați pachetele” pentru a modifica această diagramă."
+    },
+    "ai": {
+      "status": {
+        "llm": "{provider} · {model}",
+        "rule_based": "Bazat pe reguli (niciun model configurat)",
+        "rule_based_hint": "Nu este configurat niciun model de limbaj, așa că răspunsurile provin din reguli integrate. Un administrator al instanței poate configura un furnizor în aplicația de administrare.",
+        "embeddings": "Căutare semantică: {model}"
+      },
+      "task": {
+        "concretize": "Concretizare",
+        "interpret": "Interpretare",
+        "report": "Raport de stare",
+        "answer": "Răspuns"
+      },
+      "result_status": {
+        "ok": "Finalizat",
+        "timeout": "Timp expirat",
+        "budget_exceeded": "Buget depășit",
+        "cancelled": "Anulat",
+        "error": "Eroare",
+        "unavailable": "Indisponibil"
+      },
+      "result_failed": "AI nu a putut finaliza: {status}",
+      "needs_clarification": "AI are nevoie de mai multe informații pentru a continua.",
+      "flags_title": "Constatări",
+      "flag": {
+        "unverified_claim": "Afirmație neverificată",
+        "missing_evidence": "Dovadă lipsă",
+        "contradiction": "Contradicție",
+        "unknown_intent": "Obiectiv neclar",
+        "scope_change_requires_new_approval": "Modificarea domeniului necesită o nouă aprobare",
+        "instruction_like_content": "Conținut de tip instrucțiune ignorat"
+      },
+      "notes_title": "Note",
+      "generated_by": "Generat de {model}",
+      "statement_sources": "{count, plural, one {# sursă} few {# surse} other {# de surse}}",
+      "sources_used": "Surse folosite",
+      "sources_retrieved": "Găsită prin căutare semantică",
+      "sources_blocked": "{count, plural, one {# sursă neutilizată} few {# surse neutilizate} other {# de surse neutilizate}}",
+      "source_stale": "Învechită",
+      "no_sources": "Nu a fost folosită nicio sursă.",
+      "no_statements": "AI nu a returnat nicio afirmație.",
+      "block_reason": {
+        "unavailable": "Indisponibil",
+        "private_source": "Sursă privată",
+        "audience_mismatch": "Nu este vizibil pentru toți destinatarii",
+        "quarantined": "Fișier în carantină",
+        "scan_pending": "Scanare antivirus în așteptare"
+      },
+      "dismiss": "Renunțați",
+      "patch": {
+        "new": "Nou",
+        "verification": "Verificare: {method}"
+      },
+      "assist": {
+        "title": "Asistent AI",
+        "description": "Lăsați AI să concretizeze, să interpreteze sau să raporteze despre această sarcină. Rezultatele apar în Propuneri AI; nimic nu se schimbă până nu acceptați.",
+        "instruction": "Instrucțiune",
+        "instruction_placeholder": "de ex. Concentrați-vă pe criteriile de acceptare pentru API",
+        "concretize": "Concretizați",
+        "concretize_hint": "Propuneți rezultatul, obiectivul, non-obiectivele și criteriile de acceptare",
+        "interpret": "Interpretați",
+        "interpret_hint": "Explicați ce înseamnă această sarcină și ce este încă neclar",
+        "report": "Raport",
+        "report_hint": "Rezumați starea actuală a acestui pachet de lucru",
+        "requested": "Propunerea AI este gata"
+      },
+      "ask": {
+        "title": "Întrebați AI",
+        "description": "Puneți o întrebare despre toate proiectele pe care le puteți citi. Doar dumneavoastră vedeți răspunsul.",
+        "label": "Întrebarea dumneavoastră",
+        "placeholder": "de ex. Ce pachete de lucru sunt blocate și de ce?",
+        "submit": "Întrebați",
+        "clear": "Goliți",
+        "shortcut": "Ctrl/⌘ + Enter pentru trimitere",
+        "answer": "Răspuns"
+      },
+      "report": {
+        "title": "Raport de stare AI",
+        "description": "Un rezumat al stării creat din date pe care le pot citi toți membrii proiectului.",
+        "empty": "Încă nu există un raport de stare",
+        "generate": "Generați raportul",
+        "regenerate": "Regenerați",
+        "snapshot": "Faptele pe care se bazează raportul"
+      },
+      "usage": {
+        "title": "Utilizarea AI",
+        "description": "Apeluri și tokenuri AI în acest spațiu de lucru în ultimele {days} zile.",
+        "calls": "Apeluri",
+        "input_tokens": "Tokenuri de intrare",
+        "output_tokens": "Tokenuri de ieșire",
+        "errors": "Erori",
+        "by_feature": "După funcție",
+        "by_model": "După model",
+        "row": "Apeluri: {calls} · Intrare: {input} · Ieșire: {output}",
+        "empty": "Niciun apel AI în această perioadă.",
+        "reindex": "Index semantic",
+        "reindex_action": "Reconstruiți",
+        "reindex_description": "Recalculează embeddingurile paginilor, pachetelor de lucru și deciziilor cu {model}, astfel încât „Întrebați AI” să le găsească. Rulează în fundal.",
+        "reindex_unavailable": "Niciun model de embedding configurat. „Întrebați AI” folosește căutarea după cuvinte cheie.",
+        "reindex_queued": "Reconstruirea indexului semantic a început"
+      }
     }
   }
 }

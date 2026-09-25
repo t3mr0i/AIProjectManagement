@@ -27,6 +27,7 @@ import { useProject } from "@/hooks/store/use-project";
 import { useProjectHub } from "@/hooks/store/use-project-hub";
 import { PH_KEYS } from "@/store/project-hub";
 // local imports
+import { HubAskAIPanel } from "../ai/ask-panel";
 import { HubChip } from "../common/chip";
 import { useProjectHubCapabilities } from "../common/gate";
 import { HubList, HubListGroup, HubListRow, useHubListNavigation } from "../common/list";
@@ -341,6 +342,10 @@ export const WorkspaceOverviewPage = observer(function WorkspaceOverviewPage({
 
   return (
     <HubPage title={t("project_hub.overview.title")} width="full" flush>
+      {/* AI is the entry point: ask across every project the viewer can read. */}
+      <div className="border-b border-subtle px-4 py-4 md:px-6">
+        <HubAskAIPanel workspaceSlug={workspaceSlug} className="max-w-3xl" />
+      </div>
       <div
         ref={listRef}
         role="group"

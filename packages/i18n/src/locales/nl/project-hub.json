@@ -1023,6 +1023,108 @@
       "edge": "Verbinding",
       "ambiguous_short": "Onduidelijk",
       "read_only": "Alleen-lezen — ‘Pakketten bewerken’ is vereist om dit diagram te wijzigen."
+    },
+    "ai": {
+      "status": {
+        "llm": "{provider} · {model}",
+        "rule_based": "Op regels gebaseerd (geen model geconfigureerd)",
+        "rule_based_hint": "Er is geen taalmodel geconfigureerd, dus antwoorden komen uit ingebouwde regels. Een instantiebeheerder kan een provider instellen in de beheer-app.",
+        "embeddings": "Semantisch zoeken: {model}"
+      },
+      "task": {
+        "concretize": "Concretisering",
+        "interpret": "Interpretatie",
+        "report": "Statusrapport",
+        "answer": "Antwoord"
+      },
+      "result_status": {
+        "ok": "Gereed",
+        "timeout": "Time-out",
+        "budget_exceeded": "Budget overschreden",
+        "cancelled": "Geannuleerd",
+        "error": "Fout",
+        "unavailable": "Niet beschikbaar"
+      },
+      "result_failed": "De AI kon niet afronden: {status}",
+      "needs_clarification": "De AI heeft meer informatie nodig om verder te gaan.",
+      "flags_title": "Bevindingen",
+      "flag": {
+        "unverified_claim": "Niet-geverifieerde bewering",
+        "missing_evidence": "Ontbrekend bewijs",
+        "contradiction": "Tegenstrijdigheid",
+        "unknown_intent": "Onduidelijk doel",
+        "scope_change_requires_new_approval": "Scopewijziging vereist nieuwe goedkeuring",
+        "instruction_like_content": "Instructieachtige inhoud genegeerd"
+      },
+      "notes_title": "Opmerkingen",
+      "generated_by": "Gegenereerd door {model}",
+      "statement_sources": "{count, plural, one {# bron} other {# bronnen}}",
+      "sources_used": "Gebruikte bronnen",
+      "sources_retrieved": "Gevonden via semantisch zoeken",
+      "sources_blocked": "{count, plural, one {# bron niet gebruikt} other {# bronnen niet gebruikt}}",
+      "source_stale": "Verouderd",
+      "no_sources": "Er zijn geen bronnen gebruikt.",
+      "no_statements": "De AI gaf geen uitspraken terug.",
+      "block_reason": {
+        "unavailable": "Niet beschikbaar",
+        "private_source": "Privébron",
+        "audience_mismatch": "Niet zichtbaar voor iedereen in het publiek",
+        "quarantined": "Bestand in quarantaine",
+        "scan_pending": "Virusscan in behandeling"
+      },
+      "dismiss": "Negeren",
+      "patch": {
+        "new": "Nieuw",
+        "verification": "Verificatie: {method}"
+      },
+      "assist": {
+        "title": "AI-assistent",
+        "description": "Laat de AI deze opdracht concretiseren, interpreteren of erover rapporteren. Resultaten verschijnen onder AI-voorstellen; er verandert niets totdat u accepteert.",
+        "instruction": "Instructie",
+        "instruction_placeholder": "bijv. Focus op acceptatiecriteria voor de API",
+        "concretize": "Concretiseren",
+        "concretize_hint": "Resultaat, doel, buiten-scope-punten en acceptatiecriteria voorstellen",
+        "interpret": "Interpreteren",
+        "interpret_hint": "Uitleggen wat deze opdracht betekent en wat nog onduidelijk is",
+        "report": "Rapport",
+        "report_hint": "De huidige status van dit werkpakket samenvatten",
+        "requested": "AI-voorstel is klaar"
+      },
+      "ask": {
+        "title": "AI vragen",
+        "description": "Stel een vraag over alle projecten die u kunt lezen. Alleen u ziet het antwoord.",
+        "label": "Uw vraag",
+        "placeholder": "bijv. Welke werkpakketten zijn geblokkeerd en waarom?",
+        "submit": "Vragen",
+        "clear": "Wissen",
+        "shortcut": "Ctrl/⌘ + Enter om te verzenden",
+        "answer": "Antwoord"
+      },
+      "report": {
+        "title": "AI-statusrapport",
+        "description": "Een statusoverzicht op basis van gegevens die alle projectleden kunnen lezen.",
+        "empty": "Nog geen statusrapport",
+        "generate": "Rapport genereren",
+        "regenerate": "Opnieuw genereren",
+        "snapshot": "Feiten waarop het rapport is gebaseerd"
+      },
+      "usage": {
+        "title": "AI-gebruik",
+        "description": "AI-aanroepen en tokens in deze workspace in de afgelopen {days} dagen.",
+        "calls": "Aanroepen",
+        "input_tokens": "Invoertokens",
+        "output_tokens": "Uitvoertokens",
+        "errors": "Fouten",
+        "by_feature": "Per functie",
+        "by_model": "Per model",
+        "row": "Aanroepen: {calls} · In: {input} · Uit: {output}",
+        "empty": "Geen AI-aanroepen in deze periode.",
+        "reindex": "Semantische index",
+        "reindex_action": "Opnieuw opbouwen",
+        "reindex_description": "Berekent de embeddings van pagina's, werkpakketten en besluiten opnieuw met {model} zodat \"AI vragen\" ze vindt. Draait op de achtergrond.",
+        "reindex_unavailable": "Geen embeddingmodel geconfigureerd. \"AI vragen\" gebruikt zoeken op trefwoorden.",
+        "reindex_queued": "Opnieuw opbouwen van de semantische index gestart"
+      }
     }
   }
 }

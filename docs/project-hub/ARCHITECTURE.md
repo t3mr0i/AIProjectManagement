@@ -22,9 +22,11 @@ apps/api  plane.package_flow (Django, DRF)
                  planning · conversations · decisions · knowledge · search · activity
                  notifications · retention · exports · events (transactional outbox)
   adapters/      gitlab · github · jira · linear · azure_devops · generic_git (capability-declared)
-  ai/            provider (LLM or offline rules) · context (audience ACL) · clarify
+  ai/            AI core: config (OpenAI · Anthropic · Gemini · Ollama · OpenAI-compatible)
+                 provider (timeout, budget, guards, streaming, embeddings; offline rules fallback)
+                 context (audience ACL) · retrieval (semantic + full-text) · usage (metering) · clarify
   openspec/      lossless parse/render · three-way merge · manifest
-  tasks.py       celery: inbound events, reconcile, lease expiry, outbound field push
+  tasks.py       celery: inbound events, reconcile, lease expiry, outbound field push, AI index refresh
         ▲                         ▲
         │ webhooks (signed)       │ Runner token + X-Run-Token
    providers                  apps/runner (ph-runner, stdlib) ── git worktree ── agent adapter
@@ -37,6 +39,7 @@ apps/api  plane.package_flow (Django, DRF)
 - **Delivery.** Signed webhook → durable `InboundEvent` (deduplicated by connection and external id; rate-limited; replay window) → normalized events → `MergeRequestLink`, `Evidence` (trust classes), `Delivery` (integrated → deployed → released, rollback appended) → `delivery_summary` per repository. A new head invalidates code reviews. The merge gate re-fetches the provider head.
 - **Status projection.** `compute_package_status` derives phase (Drafts/Ready/Build/Review/Ship/Done), lifecycle, delivery and flags from evidence. Native "Done" without delivery shows a flag and is never shown as shipped (FR-B11). List views batch the inputs (`batch_status_facts`).
 - **Collaboration.** Conversations (project, package thread, DM) with explicit participants. @AI context includes a source only if every audience member may read it. Decisions snapshot exact message versions and are idempotent. All AI output is an `AIProposal` until a human accepts it.
+- **AI core.** Every AI call in the product — @AI chat answers, package proposals (concretize/interpret/report/answer), project status reports, workspace "Ask AI", editor writing help and the upstream `ai-assistant`/`rephrase-grammar` endpoints — goes through `package_flow.ai`: one configuration (`LLM_PROVIDER`, `LLM_MODEL`, `LLM_API_KEY`, `LLM_BASE_URL`, `LLM_EMBEDDING_MODEL`), one provider interface with timeout, token budget and cancellation, provider-independent guards (instruction-like content, unverified claims, missing evidence, contradictions), and usage metering (`AIUsageRecord`: feature, provider, model, real tokens, duration, status). Retrieval blends vector similarity (`AIEmbedding`, refreshed every 15 minutes by content hash; DMs never embedded) with ACL-aware full-text search; every retrieved source still passes the audience check. Concretize proposals carry a validated `patch` (outcome, intent, non-goals, new criteria) that is applied to the working draft only when a human accepts. Without a configured model the deterministic rule-based provider keeps every feature working except free-text writing help.
 - **Planning.** Milestones in UTC with a timezone name. Dependencies are typed and confirmed, with cycle detection over confirmed hard edges. The roadmap removes unreadable nodes (or shows an anonymous blocker). Scenarios only preview until applied. Risks carry their cause.
 - **Specs and diagrams.** OpenSpec export requires the expected base (no force push) and never approves. Import merges three-way into a new working revision; the approved revision is untouched. Diagram layout changes never create proposals; semantic changes do.
 
@@ -46,4 +49,5 @@ apps/api  plane.package_flow (Django, DRF)
 - **Private data.** DMs are participant-only (admins included). Exports never give admins someone else's DMs. Deleted sources are tombstoned in decisions.
 - **Uploads.** Uploads are MIME-sniffed and scanned before any extraction, and quarantined files never reach AI or search.
 - **Webhooks.** The workspace is taken from the connection row, never from the payload. Secrets are encrypted and never returned.
+- **AI.** The AI has no tools and no write path: it returns labelled statements and proposals. Retrieved and selected sources are re-checked against requester and audience. Embeddings are derived data and are hard-deleted with their source. API keys are stored encrypted and never returned by `W/ai/status`.
 - **Skills.** Product skills are hash-pinned (`skills/manifest.json`). A changed skill is withheld until re-approved.

@@ -1023,6 +1023,108 @@
       "edge": "Edge",
       "ambiguous_short": "Tidak jelas",
       "read_only": "Hanya baca — \"Edit paket\" diperlukan untuk mengubah diagram ini."
+    },
+    "ai": {
+      "status": {
+        "llm": "{provider} · {model}",
+        "rule_based": "Berbasis aturan (tidak ada model yang dikonfigurasi)",
+        "rule_based_hint": "Tidak ada model bahasa yang dikonfigurasi, jadi jawaban berasal dari aturan bawaan. Admin instans dapat mengatur penyedia di aplikasi admin.",
+        "embeddings": "Pencarian semantik: {model}"
+      },
+      "task": {
+        "concretize": "Konkretisasi",
+        "interpret": "Interpretasi",
+        "report": "Laporan status",
+        "answer": "Jawaban"
+      },
+      "result_status": {
+        "ok": "Selesai",
+        "timeout": "Waktu habis",
+        "budget_exceeded": "Anggaran terlampaui",
+        "cancelled": "Dibatalkan",
+        "error": "Kesalahan",
+        "unavailable": "Tidak tersedia"
+      },
+      "result_failed": "AI tidak dapat menyelesaikan: {status}",
+      "needs_clarification": "AI memerlukan informasi lebih lanjut sebelum dapat melanjutkan.",
+      "flags_title": "Temuan",
+      "flag": {
+        "unverified_claim": "Klaim belum terverifikasi",
+        "missing_evidence": "Bukti tidak ada",
+        "contradiction": "Kontradiksi",
+        "unknown_intent": "Tujuan tidak jelas",
+        "scope_change_requires_new_approval": "Perubahan cakupan memerlukan persetujuan baru",
+        "instruction_like_content": "Konten mirip instruksi diabaikan"
+      },
+      "notes_title": "Catatan",
+      "generated_by": "Dibuat oleh {model}",
+      "statement_sources": "{count, plural, one {# sumber} other {# sumber}}",
+      "sources_used": "Sumber yang digunakan",
+      "sources_retrieved": "Ditemukan melalui pencarian semantik",
+      "sources_blocked": "{count, plural, one {# sumber tidak digunakan} other {# sumber tidak digunakan}}",
+      "source_stale": "Kedaluwarsa",
+      "no_sources": "Tidak ada sumber yang digunakan.",
+      "no_statements": "AI tidak mengembalikan pernyataan apa pun.",
+      "block_reason": {
+        "unavailable": "Tidak tersedia",
+        "private_source": "Sumber pribadi",
+        "audience_mismatch": "Tidak terlihat oleh semua audiens",
+        "quarantined": "File dikarantina",
+        "scan_pending": "Menunggu pemindaian virus"
+      },
+      "dismiss": "Abaikan",
+      "patch": {
+        "new": "Baru",
+        "verification": "Verifikasi: {method}"
+      },
+      "assist": {
+        "title": "Asisten AI",
+        "description": "Biarkan AI mengonkretkan, menafsirkan, atau melaporkan brief ini. Hasil muncul di Usulan AI; tidak ada yang berubah sampai Anda menerimanya.",
+        "instruction": "Instruksi",
+        "instruction_placeholder": "mis. Fokus pada kriteria penerimaan untuk API",
+        "concretize": "Konkretkan",
+        "concretize_hint": "Usulkan hasil, tujuan, hal di luar tujuan, dan kriteria penerimaan",
+        "interpret": "Tafsirkan",
+        "interpret_hint": "Jelaskan arti brief ini dan apa yang masih belum jelas",
+        "report": "Laporan",
+        "report_hint": "Ringkas status terkini paket kerja ini",
+        "requested": "Usulan AI sudah siap"
+      },
+      "ask": {
+        "title": "Tanya AI",
+        "description": "Ajukan pertanyaan di semua proyek yang dapat Anda baca. Hanya Anda yang melihat jawabannya.",
+        "label": "Pertanyaan Anda",
+        "placeholder": "mis. Paket kerja mana yang terblokir dan mengapa?",
+        "submit": "Tanya",
+        "clear": "Bersihkan",
+        "shortcut": "Ctrl/⌘ + Enter untuk mengirim",
+        "answer": "Jawaban"
+      },
+      "report": {
+        "title": "Laporan status AI",
+        "description": "Ringkasan status yang dibuat dari data yang dapat dibaca semua anggota proyek.",
+        "empty": "Belum ada laporan status",
+        "generate": "Buat laporan",
+        "regenerate": "Buat ulang",
+        "snapshot": "Fakta yang menjadi dasar laporan"
+      },
+      "usage": {
+        "title": "Penggunaan AI",
+        "description": "Panggilan dan token AI di workspace ini selama {days} hari terakhir.",
+        "calls": "Panggilan",
+        "input_tokens": "Token masukan",
+        "output_tokens": "Token keluaran",
+        "errors": "Kesalahan",
+        "by_feature": "Menurut fitur",
+        "by_model": "Menurut model",
+        "row": "Panggilan: {calls} · Masuk: {input} · Keluar: {output}",
+        "empty": "Tidak ada panggilan AI dalam periode ini.",
+        "reindex": "Indeks semantik",
+        "reindex_action": "Bangun ulang",
+        "reindex_description": "Membuat ulang embedding halaman, paket kerja, dan keputusan dengan {model} agar \"Tanya AI\" dapat menemukannya. Berjalan di latar belakang.",
+        "reindex_unavailable": "Tidak ada model embedding yang dikonfigurasi. \"Tanya AI\" menggunakan pencarian kata kunci.",
+        "reindex_queued": "Pembangunan ulang indeks semantik dimulai"
+      }
     }
   }
 }

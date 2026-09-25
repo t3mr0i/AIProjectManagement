@@ -4,10 +4,8 @@
 
 # Python import
 import os
-from typing import List, Dict, Tuple
 
 # Third party import
-from openai import OpenAI
 import requests
 
 from rest_framework import status
@@ -18,162 +16,58 @@ from plane.app.permissions import ROLE, allow_permission
 from plane.app.serializers import ProjectLiteSerializer, WorkspaceLiteSerializer
 from plane.db.models import Project, Workspace
 from plane.license.utils.instance_value import get_configuration_value
-from plane.utils.exception_logger import log_exception
+from plane.package_flow.ai.config import load_config
+from plane.package_flow.services import ai as ai_service
 
 from ..base import BaseAPIView
 
-
-class LLMProvider:
-    """Base class for LLM provider configurations"""
-
-    name: str = ""
-    models: List[str] = []
-    default_model: str = ""
-
-    @classmethod
-    def get_config(cls) -> Dict[str, str | List[str]]:
-        return {
-            "name": cls.name,
-            "models": cls.models,
-            "default_model": cls.default_model,
-        }
+MAX_PROMPT_CHARS = 40000
 
 
-class OpenAIProvider(LLMProvider):
-    name = "OpenAI"
-    models = ["gpt-3.5-turbo", "gpt-4o-mini", "gpt-4o", "o1-mini", "o1-preview"]
-    default_model = "gpt-4o-mini"
-
-
-class AnthropicProvider(LLMProvider):
-    name = "Anthropic"
-    models = [
-        "claude-3-5-sonnet-20240620",
-        "claude-3-haiku-20240307",
-        "claude-3-opus-20240229",
-        "claude-3-sonnet-20240229",
-        "claude-2.1",
-        "claude-2",
-        "claude-instant-1.2",
-        "claude-instant-1",
-    ]
-    default_model = "claude-3-sonnet-20240229"
-
-
-class GeminiProvider(LLMProvider):
-    name = "Gemini"
-    models = ["gemini-pro", "gemini-1.5-pro-latest", "gemini-pro-vision"]
-    default_model = "gemini-pro"
-
-
-SUPPORTED_PROVIDERS = {
-    "openai": OpenAIProvider,
-    "anthropic": AnthropicProvider,
-    "gemini": GeminiProvider,
-}
-
-
-def get_llm_config() -> Tuple[str | None, str | None, str | None]:
-    """
-    Helper to get LLM configuration values, returns:
-        - api_key, model, provider
-    """
-    api_key, provider_key, model = get_configuration_value(
-        [
-            {
-                "key": "LLM_API_KEY",
-                "default": os.environ.get("LLM_API_KEY", None),
-            },
-            {
-                "key": "LLM_PROVIDER",
-                "default": os.environ.get("LLM_PROVIDER", "openai"),
-            },
-            {
-                "key": "LLM_MODEL",
-                "default": os.environ.get("LLM_MODEL", None),
-            },
-        ]
+def _assist_response(request, slug, *, instruction, text, project_id=None, feature):
+    """Upstream AI assistant endpoints, served by the central AI core (timeout, budget, metering)."""
+    if not load_config().is_configured:
+        return None, Response(
+            {"error": "LLM provider API key and model are required"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    workspace = Workspace.objects.get(slug=slug)
+    result = ai_service.assist(
+        request.user,
+        workspace,
+        instruction=instruction,
+        text=str(text or "")[:MAX_PROMPT_CHARS],
+        project_id=project_id,
+        feature=feature,
     )
-
-    provider = SUPPORTED_PROVIDERS.get(provider_key.lower())
-    if not provider:
-        log_exception(ValueError(f"Unsupported provider: {provider_key}"))
-        return None, None, None
-
-    if not api_key:
-        log_exception(ValueError(f"Missing API key for provider: {provider.name}"))
-        return None, None, None
-
-    # If no model specified, use provider's default
-    if not model:
-        model = provider.default_model
-
-    # Validate model is supported by provider
-    if model not in provider.models:
-        log_exception(
-            ValueError(
-                f"Model {model} not supported by {provider.name}. Supported models: {', '.join(provider.models)}"
-            )
-        )
-        return None, None, None
-
-    return api_key, model, provider_key
-
-
-def get_llm_response(task, prompt, api_key: str, model: str, provider: str) -> Tuple[str | None, str | None]:
-    """Helper to get LLM completion response"""
-    final_text = task + "\n" + prompt
-    try:
-        # For Gemini, prepend provider name to model
-        if provider.lower() == "gemini":
-            model = f"gemini/{model}"
-
-        client = OpenAI(api_key=api_key)
-        chat_completion = client.chat.completions.create(
-            model=model, messages=[{"role": "user", "content": final_text}]
-        )
-        text = chat_completion.choices[0].message.content
-        return text, None
-    except Exception as e:
-        log_exception(e)
-        error_type = e.__class__.__name__
-        if error_type == "AuthenticationError":
-            return None, f"Invalid API key for {provider}"
-        elif error_type == "RateLimitError":
-            return None, f"Rate limit exceeded for {provider}"
-        else:
-            return None, f"Error occurred while generating response from {provider}"
+    if not result.ok or not result.text:
+        code = status.HTTP_504_GATEWAY_TIMEOUT if result.status == "timeout" else status.HTTP_500_INTERNAL_SERVER_ERROR
+        return None, Response({"error": result.error or "An internal error has occurred."}, status=code)
+    return (result, workspace), None
 
 
 class GPTIntegrationEndpoint(BaseAPIView):
     @allow_permission([ROLE.ADMIN, ROLE.MEMBER])
     def post(self, request, slug, project_id):
-        api_key, model, provider = get_llm_config()
-
-        if not api_key or not model or not provider:
-            return Response(
-                {"error": "LLM provider API key and model are required"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
         task = request.data.get("task", False)
         if not task:
             return Response({"error": "Task is required"}, status=status.HTTP_400_BAD_REQUEST)
-
-        text, error = get_llm_response(task, request.data.get("prompt", False), api_key, model, provider)
-        if not text and error:
-            return Response(
-                {"error": "An internal error has occurred."},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
-
-        workspace = Workspace.objects.get(slug=slug)
+        ok, error = _assist_response(
+            request,
+            slug,
+            instruction=str(task),
+            text=request.data.get("prompt") or "",
+            project_id=project_id,
+            feature="gpt_assistant_project",
+        )
+        if error is not None:
+            return error
+        result, workspace = ok
         project = Project.objects.get(pk=project_id)
-
         return Response(
             {
-                "response": text,
-                "response_html": text.replace("\n", "<br/>"),
+                "response": result.text,
+                "response_html": result.text.replace("\n", "<br/>"),
                 "project_detail": ProjectLiteSerializer(project).data,
                 "workspace_detail": WorkspaceLiteSerializer(workspace).data,
             },
@@ -184,32 +78,59 @@ class GPTIntegrationEndpoint(BaseAPIView):
 class WorkspaceGPTIntegrationEndpoint(BaseAPIView):
     @allow_permission(allowed_roles=[ROLE.ADMIN, ROLE.MEMBER], level="WORKSPACE")
     def post(self, request, slug):
-        api_key, model, provider = get_llm_config()
-
-        if not api_key or not model or not provider:
-            return Response(
-                {"error": "LLM provider API key and model are required"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
         task = request.data.get("task", False)
         if not task:
             return Response({"error": "Task is required"}, status=status.HTTP_400_BAD_REQUEST)
-
-        text, error = get_llm_response(task, request.data.get("prompt", False), api_key, model, provider)
-        if not text and error:
-            return Response(
-                {"error": "An internal error has occurred."},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
-
+        ok, error = _assist_response(
+            request,
+            slug,
+            instruction=str(task),
+            text=request.data.get("prompt") or "",
+            feature="gpt_assistant_workspace",
+        )
+        if error is not None:
+            return error
+        result, _workspace = ok
         return Response(
-            {
-                "response": text,
-                "response_html": text.replace("\n", "<br/>"),
-            },
+            {"response": result.text, "response_html": result.text.replace("\n", "<br/>")},
             status=status.HTTP_200_OK,
         )
+
+
+def _tone_instruction(data):
+    """Pages editor tone tasks (``casual_score``/``formal_score`` 0..10)."""
+    try:
+        casual = int(data.get("casual_score") or 0)
+        formal = int(data.get("formal_score") or 0)
+    except (TypeError, ValueError):
+        casual = formal = 0
+    if formal > casual:
+        tone = "formal and professional"
+    elif casual > formal:
+        tone = "casual and friendly"
+    else:
+        tone = "clear and neutral"
+    return (
+        f"Rewrite the text in a {tone} tone and fix grammar and spelling. Keep the meaning, the language and "
+        "any Markdown structure."
+    )
+
+
+class RephraseGrammarEndpoint(BaseAPIView):
+    """``POST workspaces/<slug>/rephrase-grammar/`` — tone/grammar rewrite used by the pages editor."""
+
+    @allow_permission(allowed_roles=[ROLE.ADMIN, ROLE.MEMBER], level="WORKSPACE")
+    def post(self, request, slug):
+        text = request.data.get("text_input") or ""
+        if not str(text).strip():
+            return Response({"error": "text_input is required"}, status=status.HTTP_400_BAD_REQUEST)
+        ok, error = _assist_response(
+            request, slug, instruction=_tone_instruction(request.data), text=text, feature="editor_rephrase"
+        )
+        if error is not None:
+            return error
+        result, _workspace = ok
+        return Response({"response": result.text}, status=status.HTTP_200_OK)
 
 
 class UnsplashEndpoint(BaseAPIView):
