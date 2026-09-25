@@ -187,7 +187,20 @@
       },
       "discussion": "Discussion",
       "open_discussion": "Open discussion",
-      "close_discussion": "Close discussion"
+      "close_discussion": "Close discussion",
+      "sidebar": {
+        "status": "Status",
+        "phase": "Phase",
+        "delivery": "Delivery",
+        "approval": "Approval",
+        "flags": "Flags",
+        "next_step": "Next step",
+        "hint": "Optional: adds a versioned brief, an explicit execution approval and delivery evidence.",
+        "approved_revision": "Revision {number} approved",
+        "pending_revision": "Revision {number} not approved",
+        "no_revision": "No revision yet",
+        "approve": "Approve revision {number}"
+      }
     },
     "brief": {
       "intent": "Goal / why",
@@ -574,7 +587,13 @@
       "ai_answer_hint": "AI answer — not a decision",
       "mark_read": "Mark as read",
       "system": "System",
-      "private_source": "Based on a private source; only the confirmed text is shared."
+      "private_source": "Based on a private source; only the confirmed text is shared.",
+      "blocked_count": "{count, plural, one {# source not used} other {# sources not used}}",
+      "composer_hint": "⌘↵ to send · mention @AI for an answer with sources",
+      "empty_hint": "Be the first to write something.",
+      "hide_replies": "Hide replies",
+      "private_source_short": "Private source",
+      "replying_to": "Replying to {name}"
     },
     "activity": {
       "title": "Activity",
@@ -610,7 +629,16 @@
       "open_questions": "{count, plural, one {# open question} other {# open questions}}",
       "section_empty": "Nothing in this section.",
       "updated": "Updated {time}",
-      "sections_label": "Package sections"
+      "sections_label": "Package sections",
+      "view_all": "All",
+      "view_active": "Active",
+      "view_drafts": "Drafts",
+      "hide_done": "Hide done",
+      "show_done": "Show done",
+      "show_empty_groups": "Show empty phases",
+      "hide_empty_groups": "Hide empty phases",
+      "next": "Next",
+      "filtered_empty": "No work packages in this view."
     },
     "roadmap": {
       "title": "Roadmap",
@@ -666,7 +694,15 @@
       "late_by": "Late by {hours} h (projected {date})",
       "not_late": "Not late",
       "via": "Via {path}",
-      "impact_basis_deps": "Calculated from dependencies and reliable dates only. The plan is not changed."
+      "impact_basis_deps": "Calculated from dependencies and reliable dates only. The plan is not changed.",
+      "dependency": "Dependency",
+      "milestone": "Milestone",
+      "package": "Work package",
+      "empty_hint": "Add a milestone or set target dates on work packages to see them here.",
+      "projects_selected": "{count, plural, one {# project} other {# projects}}",
+      "range_auto": "Auto range",
+      "range_clear": "Clear range",
+      "redacted": "Redacted"
     },
     "knowledge": {
       "title": "Knowledge",
@@ -702,7 +738,8 @@
       "registered": "{name} registered",
       "quarantined_warning": "Quarantined — do not open or share. Content is blocked.",
       "format_blocked": "Blocked (quarantined)",
-      "mime": "MIME type"
+      "mime": "MIME type",
+      "quarantined_count": "{count, plural, one {# quarantined upload} other {# quarantined uploads}}"
     },
     "overview": {
       "title": "Overview",
@@ -713,7 +750,18 @@
       "empty": "No active work.",
       "open_project": "Open project",
       "counts": "{active} active · {review} in review · {ready} ready",
-      "not_enabled": "Not enabled"
+      "not_enabled": "Not enabled",
+      "category": {
+        "decision_needed": "Decision needed",
+        "blocked": "Blocked",
+        "mention": "Mention",
+        "review_request": "Review requested",
+        "technical": "Technical"
+      },
+      "open_decisions_count": "{count, plural, one {# open decision} other {# open decisions}}",
+      "caught_up": "You're all caught up",
+      "caught_up_hint": "No decisions waiting for you and no work in progress.",
+      "no_projects": "You haven't joined a project yet."
     },
     "messages": {
       "title": "Messages",
@@ -731,7 +779,8 @@
       "private_notice": "Private conversation — only participants can read it.",
       "kind": "Type",
       "conversation_title": "Title (optional)",
-      "new_conversation": "New conversation"
+      "new_conversation": "New conversation",
+      "empty_hint": "Start a project channel or a direct message."
     },
     "search": {
       "title": "Search",
@@ -750,7 +799,8 @@
         "event": "Event",
         "upload": "Upload",
         "issue": "Work item"
-      }
+      },
+      "start_title": "Search across packages, decisions, pages and messages"
     },
     "settings": {
       "title": "Project Hub",
@@ -837,7 +887,69 @@
         "ai_outputs": "AI outputs",
         "exports": "Exports"
       },
-      "admin_only": "Only workspace admins can change this."
+      "admin_only": "Only workspace admins can change this.",
+      "admin_only_description": "You can view these settings; changes need the “Administer Project Hub” capability.",
+      "activation_description": "Turn the extension on per workspace and per project. Every change is audited with a reason.",
+      "workspace_enabled_description": "Projects can only be enabled while the workspace is enabled.",
+      "projects_enabled_count": "{count} enabled",
+      "requires_workspace": "Enable the workspace first.",
+      "enable": "Enable",
+      "disable": "Disable",
+      "activation_enable_description": "Members with grants get access to the Project Hub screens and actions.",
+      "activation_disable_description": "Runs, approvals and integrations pause until it is enabled again. No data is deleted.",
+      "grants_description": "Explicit rights per member. Native roles never imply run, review or merge rights.",
+      "grants_empty_title": "No capability grants",
+      "grant_count": "{count} capabilities",
+      "grant_dialog_title": "Grant capability",
+      "grant_capability_hint": "Pick a capability to see what it allows.",
+      "revoke_grant_label": "Revoke {capability}",
+      "revoke_confirm_title": "Revoke capability?",
+      "revoke_confirm_description": "{member} loses “{capability}” for {scope}. Running work is not affected.",
+      "runners_description": "Machines that execute runs. Each runner authenticates with its own token.",
+      "runners_empty_description": "Register a runner to execute runs.",
+      "runner_status": {
+        "online": "Online",
+        "idle": "Idle",
+        "inactive": "Inactive"
+      },
+      "runner_token_once": "Shown only once",
+      "runner_register_hint": "The token is created on registration and shown once.",
+      "runner_deactivate_confirm_title": "Deactivate runner?",
+      "runner_deactivate_confirm_description": "“{name}” can no longer claim runs. Its token stops working immediately.",
+      "integrations_description": "External trackers and Git providers. Degraded connections are never shown as live.",
+      "connections_empty_description": "Connect a provider to sync work packages and code.",
+      "providers_description": "What each provider adapter supports.",
+      "capability_column": "Capability",
+      "support_short": {
+        "supported": "Yes",
+        "partial": "Partial",
+        "unsupported": "No",
+        "requires_configuration": "Config",
+        "unknown": "—"
+      },
+      "health_unavailable": "Health unavailable",
+      "disconnect_confirm_title": "Disconnect connection?",
+      "disconnect_confirm_description": "“{name}” stops syncing. Links are kept as disconnected; no data is deleted.",
+      "retention_description": "How long each category is kept. Empty means keep forever.",
+      "retention_after_days": "Deleted after {count} days",
+      "unsaved_changes": "Unsaved changes",
+      "retention_apply_hint": "Retention runs on a schedule; apply now to run it immediately.",
+      "retention_apply_confirm_title": "Apply retention now?",
+      "retention_apply_confirm_description": "Data older than the saved limits is deleted permanently. Unsaved changes are not applied."
+    },
+    "capability_description": {
+      "project_read": "View the Project Hub screens of a project.",
+      "package_edit": "Create and edit work packages, diagrams and drafts.",
+      "package_approve_execution": "Approve a package for execution by an agent.",
+      "run_start": "Start runs on a runner.",
+      "run_cancel": "Cancel runs that are in progress.",
+      "review_approve_code": "Approve code produced by a run.",
+      "review_accept_outcome": "Accept the outcome of a run as done.",
+      "merge_request": "Request a merge of approved code.",
+      "decision_publish": "Publish decisions to the project knowledge.",
+      "project_plan": "Plan phases, milestones and the roadmap.",
+      "integration_manage": "Manage connections and runners.",
+      "workspace_admin": "Change activation, grants and retention."
     },
     "capability": {
       "project_read": "Read project",
@@ -897,7 +1009,20 @@
       },
       "ambiguous_edge": "Ambiguous: add a type or label and a clear direction.",
       "source": "From",
-      "target": "To"
+      "target": "To",
+      "toolbar_label": "Diagram tools",
+      "zoom_fit": "Zoom to fit",
+      "zoom_reset": "Reset zoom",
+      "properties": "Properties",
+      "inspector_empty": "Select a node or edge to edit it.",
+      "edge_label": "{source} → {target}",
+      "select_edge": "Edge {label}: {source} to {target}",
+      "unsaved": "Unsaved changes",
+      "canvas_empty": "Add a node to start.",
+      "node": "Node",
+      "edge": "Edge",
+      "ambiguous_short": "Unclear",
+      "read_only": "Read only — “Edit packages” is required to change this diagram."
     }
   }
 }

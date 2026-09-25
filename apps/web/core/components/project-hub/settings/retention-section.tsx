@@ -4,23 +4,62 @@
  * See the LICENSE file for details.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { observer } from "mobx-react";
 // plane imports
 import { Button } from "@makeplane/propel/components/button";
+import { Input, InputGroup } from "@makeplane/propel/components/input";
 import { useTranslation } from "@plane/i18n";
 import type { TPHRetentionPolicy } from "@plane/types";
 // hooks
 import { useProjectHub } from "@/hooks/store/use-project-hub";
 import { PH_KEYS } from "@/store/project-hub";
 // local imports
-import { HubTextField } from "../common/field";
-import { HubSection } from "../common/section";
 import { HubResourceBoundary } from "../common/states";
 import { showHubErrorToast, showHubSuccessToast } from "../common/toast";
 import { useHubResource } from "../common/use-hub-resource";
+import { SettingsCard, SettingsConfirmDialog, SettingsRow, SettingsSection } from "./settings-rows";
 
 const CATEGORIES = ["messages", "audit", "run_logs", "raw_events", "ai_outputs", "exports"];
+
+const toDraft = (data: TPHRetentionPolicy[]) =>
+  Object.fromEntries(CATEGORIES.map((c) => [c, String(data.find((p) => p.category === c)?.retain_days ?? "")]));
+
+/** Number input + unit; empty means "keep forever" (shown as the placeholder). */
+function RetentionInput({
+  category,
+  value,
+  onChange,
+}: {
+  category: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const { t } = useTranslation();
+  const id = useId();
+  return (
+    <div className="flex items-center gap-1.5">
+      <label htmlFor={id} className="sr-only">
+        {t(`project_hub.settings.retention_categories.${category}`)}
+      </label>
+      <div className="w-24">
+        <InputGroup size="md">
+          <Input
+            id={id}
+            size="md"
+            type="number"
+            min={1}
+            inputMode="numeric"
+            placeholder="∞"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+          />
+        </InputGroup>
+      </div>
+      <span className="w-9 text-caption-md-regular text-tertiary">{t("project_hub.settings.retention_days")}</span>
+    </div>
+  );
+}
 
 /** Separate retention per category (PRD §15.3). Empty = keep forever. */
 export const RetentionSection = observer(function RetentionSection({ workspaceSlug }: { workspaceSlug: string }) {
@@ -31,14 +70,15 @@ export const RetentionSection = observer(function RetentionSection({ workspaceSl
   );
   const [draft, setDraft] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState<string | null>(null);
+  const [confirmApply, setConfirmApply] = useState(false);
 
   const data = retention.data;
   useEffect(() => {
     if (!data) return;
-    setDraft(
-      Object.fromEntries(CATEGORIES.map((c) => [c, String(data.find((p) => p.category === c)?.retain_days ?? "")]))
-    );
+    setDraft(toDraft(data));
   }, [data]);
+
+  const dirty = data ? CATEGORIES.some((c) => (draft[c] ?? "") !== toDraft(data)[c]) : false;
 
   const save = async () => {
     setBusy("save");
@@ -64,6 +104,7 @@ export const RetentionSection = observer(function RetentionSection({ workspaceSl
     try {
       await store.knowledgeService.applyRetention(workspaceSlug);
       showHubSuccessToast(t("project_hub.settings.retention_applied"));
+      setConfirmApply(false);
     } catch (error) {
       showHubErrorToast(t, error);
     } finally {
@@ -72,7 +113,10 @@ export const RetentionSection = observer(function RetentionSection({ workspaceSl
   };
 
   return (
-    <HubSection title={t("project_hub.settings.retention")} as="h2">
+    <SettingsSection
+      title={t("project_hub.settings.retention")}
+      description={t("project_hub.settings.retention_description")}
+    >
       <HubResourceBoundary resource={retention} loadingRows={2}>
         {() => (
           <form
@@ -82,40 +126,66 @@ export const RetentionSection = observer(function RetentionSection({ workspaceSl
               void save();
             }}
           >
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {CATEGORIES.map((category) => (
-                <HubTextField
-                  key={category}
-                  type="number"
-                  label={`${t(`project_hub.settings.retention_categories.${category}`)} (${t("project_hub.settings.retention_days")})`}
-                  placeholder={t("project_hub.settings.retention_keep")}
-                  hint={!draft[category] ? t("project_hub.settings.retention_keep") : undefined}
-                  value={draft[category] ?? ""}
-                  onChange={(v) => setDraft((d) => ({ ...d, [category]: v }))}
-                />
-              ))}
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Button
-                type="submit"
-                variant="primary"
-                size="sm"
-                stretch="auto"
-                loading={busy === "save"}
-                label={t("project_hub.common.save")}
-              />
-              <Button
-                variant="secondary"
-                size="sm"
-                stretch="auto"
-                loading={busy === "apply"}
-                label={t("project_hub.settings.retention_apply")}
-                onClick={() => void apply()}
-              />
-            </div>
+            <SettingsCard aria-label={t("project_hub.settings.retention")}>
+              {CATEGORIES.map((category) => {
+                const value = draft[category] ?? "";
+                return (
+                  <SettingsRow
+                    key={category}
+                    title={t(`project_hub.settings.retention_categories.${category}`)}
+                    description={
+                      value && Number(value) > 0
+                        ? t("project_hub.settings.retention_after_days", { count: Number(value) })
+                        : t("project_hub.settings.retention_keep")
+                    }
+                    control={
+                      <RetentionInput
+                        category={category}
+                        value={value}
+                        onChange={(v) => setDraft((d) => ({ ...d, [category]: v }))}
+                      />
+                    }
+                  />
+                );
+              })}
+              <div className="flex h-10 items-center justify-between gap-2 border-t border-subtle bg-layer-2 pr-1.5 pl-3">
+                <span className="truncate text-caption-md-regular text-tertiary">
+                  {dirty ? t("project_hub.settings.unsaved_changes") : t("project_hub.settings.retention_apply_hint")}
+                </span>
+                <div className="flex shrink-0 items-center gap-1.5">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    stretch="auto"
+                    disabled={busy === "save"}
+                    label={t("project_hub.settings.retention_apply")}
+                    onClick={() => setConfirmApply(true)}
+                  />
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    size="sm"
+                    stretch="auto"
+                    loading={busy === "save"}
+                    disabled={!dirty}
+                    label={t("project_hub.common.save")}
+                  />
+                </div>
+              </div>
+            </SettingsCard>
           </form>
         )}
       </HubResourceBoundary>
-    </HubSection>
+
+      <SettingsConfirmDialog
+        isOpen={confirmApply}
+        busy={busy === "apply"}
+        title={t("project_hub.settings.retention_apply_confirm_title")}
+        description={t("project_hub.settings.retention_apply_confirm_description")}
+        confirmLabel={t("project_hub.settings.retention_apply")}
+        onConfirm={() => void apply()}
+        onClose={() => setConfirmApply(false)}
+      />
+    </SettingsSection>
   );
 });

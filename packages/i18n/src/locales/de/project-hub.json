@@ -187,7 +187,20 @@
       },
       "discussion": "Diskussion",
       "open_discussion": "Diskussion öffnen",
-      "close_discussion": "Diskussion schließen"
+      "close_discussion": "Diskussion schließen",
+      "sidebar": {
+        "status": "Status",
+        "phase": "Phase",
+        "delivery": "Lieferung",
+        "approval": "Freigabe",
+        "flags": "Hinweise",
+        "next_step": "Nächster Schritt",
+        "hint": "Optional: ergänzt einen versionierten Auftrag, eine ausdrückliche Ausführungsfreigabe und Liefernachweise.",
+        "approved_revision": "Revision {number} freigegeben",
+        "pending_revision": "Revision {number} nicht freigegeben",
+        "no_revision": "Noch keine Revision",
+        "approve": "Revision {number} freigeben"
+      }
     },
     "brief": {
       "intent": "Ziel / Warum",
@@ -574,7 +587,13 @@
       "ai_answer_hint": "KI-Antwort — keine Entscheidung",
       "mark_read": "Als gelesen markieren",
       "system": "System",
-      "private_source": "Beruht auf einer privaten Quelle; geteilt wird nur der bestätigte Text."
+      "private_source": "Beruht auf einer privaten Quelle; geteilt wird nur der bestätigte Text.",
+      "blocked_count": "{count, plural, one {# Quelle nicht verwendet} other {# Quellen nicht verwendet}}",
+      "composer_hint": "⌘↵ zum Senden · @AI erwähnen für eine Antwort mit Quellen",
+      "empty_hint": "Schreiben Sie als Erste oder Erster etwas.",
+      "hide_replies": "Antworten ausblenden",
+      "private_source_short": "Private Quelle",
+      "replying_to": "Antwort an {name}"
     },
     "activity": {
       "title": "Aktivität",
@@ -610,7 +629,16 @@
       "open_questions": "{count, plural, one {# offene Frage} other {# offene Fragen}}",
       "section_empty": "Nichts in diesem Abschnitt.",
       "updated": "Aktualisiert {time}",
-      "sections_label": "Paketabschnitte"
+      "sections_label": "Paketabschnitte",
+      "view_all": "Alle",
+      "view_active": "Aktiv",
+      "view_drafts": "Entwürfe",
+      "hide_done": "Erledigte ausblenden",
+      "show_done": "Erledigte anzeigen",
+      "show_empty_groups": "Leere Phasen anzeigen",
+      "hide_empty_groups": "Leere Phasen ausblenden",
+      "next": "Als Nächstes",
+      "filtered_empty": "Keine Arbeitspakete in dieser Ansicht."
     },
     "roadmap": {
       "title": "Roadmap",
@@ -666,7 +694,15 @@
       "late_by": "{hours} h verspätet (voraussichtlich {date})",
       "not_late": "Nicht verspätet",
       "via": "Über {path}",
-      "impact_basis_deps": "Berechnet nur aus Abhängigkeiten und verlässlichen Terminen. Der Plan wird nicht geändert."
+      "impact_basis_deps": "Berechnet nur aus Abhängigkeiten und verlässlichen Terminen. Der Plan wird nicht geändert.",
+      "dependency": "Abhängigkeit",
+      "milestone": "Meilenstein",
+      "package": "Arbeitspaket",
+      "empty_hint": "Fügen Sie einen Meilenstein hinzu oder setzen Sie Zieldaten an Arbeitspaketen, um sie hier zu sehen.",
+      "projects_selected": "{count, plural, one {# Projekt} other {# Projekte}}",
+      "range_auto": "Automatischer Zeitraum",
+      "range_clear": "Zeitraum zurücksetzen",
+      "redacted": "Verborgen"
     },
     "knowledge": {
       "title": "Wissen",
@@ -702,7 +738,8 @@
       "registered": "{name} registriert",
       "quarantined_warning": "In Quarantäne – nicht öffnen oder teilen. Der Inhalt ist gesperrt.",
       "format_blocked": "Gesperrt (Quarantäne)",
-      "mime": "MIME-Typ"
+      "mime": "MIME-Typ",
+      "quarantined_count": "{count, plural, one {# Upload in Quarantäne} other {# Uploads in Quarantäne}}"
     },
     "overview": {
       "title": "Übersicht",
@@ -713,7 +750,18 @@
       "empty": "Keine aktive Arbeit.",
       "open_project": "Projekt öffnen",
       "counts": "{active} aktiv · {review} im Review · {ready} bereit",
-      "not_enabled": "Nicht aktiviert"
+      "not_enabled": "Nicht aktiviert",
+      "category": {
+        "decision_needed": "Entscheidung nötig",
+        "blocked": "Blockiert",
+        "mention": "Erwähnung",
+        "review_request": "Review angefragt",
+        "technical": "Technisch"
+      },
+      "open_decisions_count": "{count, plural, one {# offene Entscheidung} other {# offene Entscheidungen}}",
+      "caught_up": "Alles erledigt",
+      "caught_up_hint": "Keine Entscheidungen warten auf Sie und keine Arbeit ist in Bearbeitung.",
+      "no_projects": "Sie sind noch keinem Projekt beigetreten."
     },
     "messages": {
       "title": "Nachrichten",
@@ -731,7 +779,8 @@
       "private_notice": "Private Unterhaltung — nur Teilnehmende können sie lesen.",
       "kind": "Art",
       "conversation_title": "Titel (optional)",
-      "new_conversation": "Neue Unterhaltung"
+      "new_conversation": "Neue Unterhaltung",
+      "empty_hint": "Starten Sie einen Projektkanal oder eine Direktnachricht."
     },
     "search": {
       "title": "Suche",
@@ -750,7 +799,8 @@
         "event": "Ereignis",
         "upload": "Upload",
         "issue": "Arbeitselement"
-      }
+      },
+      "start_title": "Pakete, Entscheidungen, Seiten und Nachrichten durchsuchen"
     },
     "settings": {
       "title": "Project Hub",
@@ -837,7 +887,69 @@
         "ai_outputs": "KI-Ausgaben",
         "exports": "Exporte"
       },
-      "admin_only": "Nur Arbeitsbereichs-Admins können dies ändern."
+      "admin_only": "Nur Arbeitsbereichs-Admins können dies ändern.",
+      "admin_only_description": "Du kannst diese Einstellungen ansehen; Änderungen erfordern die Berechtigung „Project Hub administrieren“.",
+      "activation_description": "Die Erweiterung pro Arbeitsbereich und Projekt einschalten. Jede Änderung wird mit Begründung protokolliert.",
+      "workspace_enabled_description": "Projekte lassen sich nur aktivieren, solange der Arbeitsbereich aktiviert ist.",
+      "projects_enabled_count": "{count} aktiviert",
+      "requires_workspace": "Zuerst den Arbeitsbereich aktivieren.",
+      "enable": "Aktivieren",
+      "disable": "Deaktivieren",
+      "activation_enable_description": "Mitglieder mit Berechtigungen erhalten Zugriff auf die Project-Hub-Ansichten und -Aktionen.",
+      "activation_disable_description": "Runs, Freigaben und Integrationen pausieren, bis es wieder aktiviert wird. Es werden keine Daten gelöscht.",
+      "grants_description": "Explizite Rechte pro Mitglied. Native Rollen gewähren nie Run-, Review- oder Merge-Rechte.",
+      "grants_empty_title": "Keine Berechtigungen vergeben",
+      "grant_count": "{count} Berechtigungen",
+      "grant_dialog_title": "Berechtigung vergeben",
+      "grant_capability_hint": "Wähle eine Berechtigung, um zu sehen, was sie erlaubt.",
+      "revoke_grant_label": "{capability} entziehen",
+      "revoke_confirm_title": "Berechtigung entziehen?",
+      "revoke_confirm_description": "{member} verliert „{capability}“ für {scope}. Laufende Arbeit ist nicht betroffen.",
+      "runners_description": "Maschinen, die Runs ausführen. Jeder Runner authentifiziert sich mit einem eigenen Token.",
+      "runners_empty_description": "Registriere einen Runner, um Runs auszuführen.",
+      "runner_status": {
+        "online": "Online",
+        "idle": "Inaktiv",
+        "inactive": "Deaktiviert"
+      },
+      "runner_token_once": "Wird nur einmal angezeigt",
+      "runner_register_hint": "Das Token wird bei der Registrierung erzeugt und einmalig angezeigt.",
+      "runner_deactivate_confirm_title": "Runner deaktivieren?",
+      "runner_deactivate_confirm_description": "„{name}“ kann keine Runs mehr übernehmen. Das Token wird sofort ungültig.",
+      "integrations_description": "Externe Tracker und Git-Anbieter. Gestörte Verbindungen werden nie als live angezeigt.",
+      "connections_empty_description": "Verbinde einen Anbieter, um Arbeitspakete und Code zu synchronisieren.",
+      "providers_description": "Was die einzelnen Anbieter-Adapter unterstützen.",
+      "capability_column": "Fähigkeit",
+      "support_short": {
+        "supported": "Ja",
+        "partial": "Teilweise",
+        "unsupported": "Nein",
+        "requires_configuration": "Konfig.",
+        "unknown": "—"
+      },
+      "health_unavailable": "Zustand nicht verfügbar",
+      "disconnect_confirm_title": "Verbindung trennen?",
+      "disconnect_confirm_description": "„{name}“ synchronisiert nicht mehr. Verknüpfungen bleiben als getrennt erhalten; es werden keine Daten gelöscht.",
+      "retention_description": "Wie lange jede Kategorie aufbewahrt wird. Leer bedeutet dauerhaft aufbewahren.",
+      "retention_after_days": "Gelöscht nach {count} Tagen",
+      "unsaved_changes": "Ungespeicherte Änderungen",
+      "retention_apply_hint": "Die Aufbewahrung läuft nach Zeitplan; jetzt anwenden, um sie sofort auszuführen.",
+      "retention_apply_confirm_title": "Aufbewahrung jetzt anwenden?",
+      "retention_apply_confirm_description": "Daten, die älter als die gespeicherten Grenzen sind, werden dauerhaft gelöscht. Ungespeicherte Änderungen werden nicht angewendet."
+    },
+    "capability_description": {
+      "project_read": "Die Project-Hub-Ansichten eines Projekts ansehen.",
+      "package_edit": "Arbeitspakete, Diagramme und Entwürfe anlegen und bearbeiten.",
+      "package_approve_execution": "Ein Paket zur Ausführung durch einen Agenten freigeben.",
+      "run_start": "Runs auf einem Runner starten.",
+      "run_cancel": "Laufende Runs abbrechen.",
+      "review_approve_code": "Von einem Run erzeugten Code freigeben.",
+      "review_accept_outcome": "Das Ergebnis eines Runs als erledigt abnehmen.",
+      "merge_request": "Einen Merge von freigegebenem Code anfordern.",
+      "decision_publish": "Entscheidungen im Projektwissen veröffentlichen.",
+      "project_plan": "Phasen, Meilensteine und die Roadmap planen.",
+      "integration_manage": "Verbindungen und Runner verwalten.",
+      "workspace_admin": "Aktivierung, Berechtigungen und Aufbewahrung ändern."
     },
     "capability": {
       "project_read": "Projekt lesen",
@@ -897,7 +1009,20 @@
       },
       "ambiguous_edge": "Mehrdeutig: Typ oder Bezeichnung und eine klare Richtung ergänzen.",
       "source": "Von",
-      "target": "Nach"
+      "target": "Nach",
+      "toolbar_label": "Diagrammwerkzeuge",
+      "zoom_fit": "Einpassen",
+      "zoom_reset": "Zoom zurücksetzen",
+      "properties": "Eigenschaften",
+      "inspector_empty": "Wähle einen Knoten oder eine Kante zum Bearbeiten.",
+      "edge_label": "{source} → {target}",
+      "select_edge": "Kante {label}: {source} nach {target}",
+      "unsaved": "Ungespeicherte Änderungen",
+      "canvas_empty": "Füge einen Knoten hinzu, um zu beginnen.",
+      "node": "Knoten",
+      "edge": "Kante",
+      "ambiguous_short": "Unklar",
+      "read_only": "Nur lesen — zum Ändern dieses Diagramms ist „Pakete bearbeiten“ erforderlich."
     }
   }
 }

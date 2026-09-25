@@ -52,3 +52,40 @@ export const diffCounts = (diff: TPHDiagramSemanticDiff | Record<string, never> 
     edges: { added: diff.edges.added.length, removed: diff.edges.removed.length, changed: diff.edges.changed.length },
   };
 };
+
+export const CANVAS_W = 880;
+export const CANVAS_H = 480;
+
+export type TDiagramViewBox = { x: number; y: number; w: number; h: number };
+export type TDiagramSelection = { kind: "node" | "edge"; id: string };
+
+export const DEFAULT_VIEW_BOX: TDiagramViewBox = { x: 0, y: 0, w: CANVAS_W, h: CANVAS_H };
+
+/** View box that frames all nodes with padding (keeps the canvas aspect ratio); default when empty. */
+export const fitViewBox = (layout: TPHDiagramLayout, semantic: TPHDiagramSemantic, padding = 40): TDiagramViewBox => {
+  if (semantic.nodes.length === 0) return DEFAULT_VIEW_BOX;
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  for (const node of semantic.nodes) {
+    const box = nodeBox(layout, semantic, node.id);
+    minX = Math.min(minX, box.x);
+    minY = Math.min(minY, box.y);
+    maxX = Math.max(maxX, box.x + NODE_W);
+    maxY = Math.max(maxY, box.y + NODE_H);
+  }
+  const w = Math.max(maxX - minX + padding * 2, NODE_W * 2);
+  const h = Math.max(maxY - minY + padding * 2, NODE_H * 3);
+  // Match the canvas aspect ratio so `meet` scaling has no dead space.
+  const ratio = CANVAS_W / CANVAS_H;
+  const fitted = w / h > ratio ? { w, h: w / ratio } : { w: h * ratio, h };
+  const cx = (minX + maxX) / 2;
+  const cy = (minY + maxY) / 2;
+  return {
+    x: Math.round(cx - fitted.w / 2),
+    y: Math.round(cy - fitted.h / 2),
+    w: Math.round(fitted.w),
+    h: Math.round(fitted.h),
+  };
+};
