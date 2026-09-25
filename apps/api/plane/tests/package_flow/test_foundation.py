@@ -22,8 +22,13 @@ REPO = pathlib.Path(__file__).resolve().parents[5]
 def test_pf01_fr_b01_build_commit_matches_upstream_lock():
     lock = json.loads((REPO / "docs/project-hub/upstream-lock.json").read_text())
     prd_lock = json.loads((REPO / "docs/project-hub/prd/foundation/upstream-lock.json").read_text())
-    # Implementation baseline equals the analysed commit; any deviation needs an explicit decision.
-    assert lock["implementationCommit"] == prd_lock["analysisCommit"]
+    # Implementation baseline equals the analysed commit, or is reached from it only
+    # through explicitly recorded upstream bumps (PF01: no silent baseline change).
+    chain = prd_lock["analysisCommit"]
+    for bump in lock.get("upstreamBumps", []):
+        assert bump["from"] == chain and bump.get("approvedBy"), bump
+        chain = bump["to"]
+    assert lock["implementationCommit"] == chain
     assert lock["licensePathApproved"] is False  # L01 is not decided by code
     if not (REPO / ".git").exists():
         pytest.skip("no git checkout")
