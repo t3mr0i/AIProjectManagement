@@ -105,7 +105,13 @@
       "open_project_setting": "Een projectinstelling openen",
       "nav_project_settings": "Ga naar projectinstellingen",
       "nav_workspace_active_cycle": "Ga naar alle actieve cycli",
-      "nav_project_overview": "Ga naar projectoverzicht"
+      "nav_project_overview": "Ga naar projectoverzicht",
+      "move_down": "Omlaag in de lijst met werkitems",
+      "move_up": "Omhoog in de lijst met werkitems",
+      "open_work_item": "Het gefocuste werkitem openen",
+      "toggle_selection": "Meervoudige selectie voor het gefocuste werkitem aan- of uitzetten",
+      "open_work_item_new_tab": "Het gefocuste werkitem in een nieuw tabblad openen",
+      "toggle_filters": "Filters voor de huidige werkitemlijst tonen of verbergen"
     },
     "account_actions": {
       "sign_out": "Uitloggen",
