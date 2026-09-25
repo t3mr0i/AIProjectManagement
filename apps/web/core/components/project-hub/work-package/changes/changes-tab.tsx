@@ -14,7 +14,7 @@ import { useProjectHub } from "@/hooks/store/use-project-hub";
 import { PH_KEYS } from "@/store/project-hub";
 // local imports
 import { useProjectHubCapabilities } from "../../common/gate";
-import { HubSection } from "../../common/section";
+import { WpSection } from "../panel";
 import { HubEmpty } from "../../common/states";
 import { ToneBadge } from "../../common/tone-badge";
 import { useHubResource } from "../../common/use-hub-resource";
@@ -43,12 +43,12 @@ export const ChangesTab = observer(function ChangesTab({
   const validApproval = approvals.data?.find((a) => getApprovalValidity(a).kind === "valid");
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex min-w-0 flex-col gap-5">
       <RunsPanel scope={scope} />
       <OpenInIdePanel scope={scope} validApproval={validApproval} />
-      <HubSection title={t("project_hub.changes.repositories")}>
+      <WpSection title={t("project_hub.changes.repositories")}>
         {status?.repositories && status.repositories.length > 0 ? (
-          <ul className="flex flex-col divide-y divide-subtle rounded-md border border-subtle">
+          <ul className="flex flex-col divide-y divide-subtle">
             {status.repositories.map((repo) => (
               <li key={repo.binding_id} className="flex flex-wrap items-center gap-2 px-3 py-2">
                 <span className="text-body-xs-medium text-primary">{repo.name}</span>
@@ -66,9 +66,9 @@ export const ChangesTab = observer(function ChangesTab({
             ))}
           </ul>
         ) : (
-          <HubEmpty title={t("project_hub.changes.repositories_empty")} />
+          <HubEmpty size="sm" title={t("project_hub.changes.repositories_empty")} />
         )}
-      </HubSection>
+      </WpSection>
       <ChangeRecordsPanel scope={scope} canEdit={canEdit} />
       <SpecSyncPanel scope={scope} canEdit={canEdit} />
       <DiagramsPanel

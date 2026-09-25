@@ -24,7 +24,7 @@ import { PH_KEYS } from "@/store/project-hub";
 // local imports
 import { HubDialog } from "../../common/dialog";
 import { HubTextAreaField, HubTextField } from "../../common/field";
-import { HubCard, HubSection } from "../../common/section";
+import { WpEntry, WpSection } from "../panel";
 import { HubSelect } from "../../common/select";
 import { HubEmpty, HubResourceBoundary } from "../../common/states";
 import { showHubErrorToast, showHubSuccessToast } from "../../common/toast";
@@ -111,7 +111,7 @@ export const SpecSyncPanel = observer(function SpecSyncPanel({
 
   return (
     <>
-      <HubSection
+      <WpSection
         title={t("project_hub.changes.spec")}
         actions={
           canEdit && (
@@ -138,10 +138,10 @@ export const SpecSyncPanel = observer(function SpecSyncPanel({
           resource={spec}
           loadingRows={1}
           isEmpty={(d) => d.states.length === 0}
-          empty={<HubEmpty title={t("project_hub.changes.spec_empty")} />}
+          empty={<HubEmpty size="sm" title={t("project_hub.changes.spec_empty")} />}
         >
           {(data) => (
-            <ul className="flex flex-col gap-2">
+            <ul className="flex flex-col divide-y divide-subtle">
               {data.states.map((item) => {
                 const revisionLabel = item.published_revision_id
                   ? item.published_revision_id === data.approved_revision_id
@@ -150,7 +150,7 @@ export const SpecSyncPanel = observer(function SpecSyncPanel({
                   : "—";
                 return (
                   <li key={`${item.repository_binding_id}-${item.spec_path}`}>
-                    <HubCard className="flex flex-col gap-1">
+                    <WpEntry className="flex flex-col gap-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <ToneBadge
                           tone={SPEC_TONE[item.state]}
@@ -203,23 +203,23 @@ export const SpecSyncPanel = observer(function SpecSyncPanel({
                           ))}
                         </div>
                       )}
-                    </HubCard>
+                    </WpEntry>
                   </li>
                 );
               })}
             </ul>
           )}
         </HubResourceBoundary>
-      </HubSection>
+      </WpSection>
 
       {conflicts.data && conflicts.data.filter((c) => c.status === "open").length > 0 && (
-        <HubSection title={t("project_hub.changes.sync_conflicts")}>
-          <ul className="flex flex-col gap-2">
+        <WpSection title={t("project_hub.changes.sync_conflicts")}>
+          <ul className="flex flex-col divide-y divide-subtle">
             {conflicts.data
               .filter((c) => c.status === "open")
               .map((conflict) => (
                 <li key={conflict.id}>
-                  <HubCard className="flex flex-col gap-2">
+                  <WpEntry className="flex flex-col gap-2">
                     <div className="flex items-center gap-2">
                       <ToneBadge tone="danger" size="xs" label={t("project_hub.flag.sync_conflict")} />
                       <span className="text-body-xs-medium text-primary">{conflict.field}</span>
@@ -261,11 +261,11 @@ export const SpecSyncPanel = observer(function SpecSyncPanel({
                         />
                       </div>
                     )}
-                  </HubCard>
+                  </WpEntry>
                 </li>
               ))}
           </ul>
-        </HubSection>
+        </WpSection>
       )}
 
       <HubDialog

@@ -4,33 +4,35 @@
  * See the LICENSE file for details.
  */
 
+import type { ComponentType, SVGProps } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { observer } from "mobx-react";
-import Link from "next/link";
 // plane imports
 import { Button } from "@makeplane/propel/components/button";
+import { ActivityOutline, CalendarOutline, WarningTriangleOutline } from "@makeplane/propel/icons";
 import { useTranslation } from "@plane/i18n";
 import type { TPHActivityFeed } from "@plane/types";
-import { adaptActivityFeed, cn, groupActivityByDay } from "@plane/utils";
+import { adaptActivityFeed, groupActivityByDay } from "@plane/utils";
 // hooks
 import { useProjectHub } from "@/hooks/store/use-project-hub";
 import { PH_KEYS } from "@/store/project-hub";
 // local imports
 import { ActivityGroupItem } from "../common/activity-group";
 import { HubTextField } from "../common/field";
+import { HubList, HubListGroup, HubListRow, useHubListNavigation } from "../common/list";
 import { HubPage } from "../common/page";
-import { HubCard, HubSection } from "../common/section";
-import { HubEmpty, HubResourceBoundary } from "../common/states";
+import { HubEmptyState, HubResourceBoundary } from "../common/states";
 import { showHubErrorToast, showHubSuccessToast } from "../common/toast";
-import { ToneBadge } from "../common/tone-badge";
 import { useHubResource } from "../common/use-hub-resource";
 import { useHubFormatters } from "../common/use-relative-time";
 
+type TGlyph = ComponentType<SVGProps<SVGSVGElement>>;
 type TRange = "last_visit" | "today" | "7d" | "custom";
+const RANGES: TRange[] = ["last_visit", "today", "7d", "custom"];
 
 /**
- * S02 Project activity (J08): "Since my last visit" by default, grouped by package and day with
- * reasons and open decisions; expanding shows raw events and sources.
+ * S02 Project activity (J08): "Since my last visit" by default, grouped by day (sticky group bars)
+ * and package with reasons and open decisions; expanding shows raw events and sources.
  */
 export const ProjectActivityPage = observer(function ProjectActivityPage({
   workspaceSlug,
@@ -42,6 +44,8 @@ export const ProjectActivityPage = observer(function ProjectActivityPage({
   const { t } = useTranslation();
   const store = useProjectHub();
   const { formatDate, formatDateTime } = useHubFormatters();
+  const listRef = useRef<HTMLDivElement>(null);
+  const onKeyDown = useHubListNavigation(listRef);
   const [range, setRange] = useState<TRange>("last_visit");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
@@ -85,19 +89,30 @@ export const ProjectActivityPage = observer(function ProjectActivityPage({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [range, activity.data]);
 
-  const ranges: { key: TRange; label: string }[] = [
-    { key: "last_visit", label: t("project_hub.activity.since_last_visit") },
-    { key: "today", label: t("project_hub.activity.today") },
-    { key: "7d", label: t("project_hub.activity.last_7_days") },
-    { key: "custom", label: t("project_hub.activity.range") },
-  ];
+  const rangeLabel: Record<TRange, string> = {
+    last_visit: t("project_hub.activity.since_last_visit"),
+    today: t("project_hub.activity.today"),
+    "7d": t("project_hub.activity.last_7_days"),
+    custom: t("project_hub.activity.range"),
+  };
 
   return (
     <HubPage
       title={t("project_hub.activity.title")}
+      flush
+      tabs={{
+        "aria-label": t("project_hub.activity.filter_label"),
+        activeKey: range,
+        onTabChange: (key) => setRange(key as TRange),
+        tabs: RANGES.map((key) => ({
+          key,
+          label: rangeLabel[key],
+          icon: key === "custom" ? (CalendarOutline as TGlyph) : undefined,
+        })),
+      }}
       actions={
         <Button
-          variant="secondary"
+          variant="ghost"
           size="sm"
           stretch="auto"
           label={t("project_hub.activity.mark_visit")}
@@ -105,82 +120,71 @@ export const ProjectActivityPage = observer(function ProjectActivityPage({
         />
       }
     >
-      <div className="flex flex-wrap items-end gap-3">
-        <div role="group" aria-label={t("project_hub.activity.filter_label")} className="flex flex-wrap gap-1">
-          {ranges.map((r) => (
-            <button
-              key={r.key}
-              type="button"
-              aria-pressed={range === r.key}
-              onClick={() => setRange(r.key)}
-              className={cn(
-                "focus-visible:outline-accent-primary rounded-md border px-2.5 py-1 text-body-xs-medium focus-visible:outline-2 focus-visible:outline-offset-2",
-                range === r.key
-                  ? "border-accent-strong bg-accent-subtle text-accent-primary"
-                  : "border-subtle text-secondary hover:bg-layer-1"
-              )}
-            >
-              {range === r.key ? "✓ " : ""}
-              {r.label}
-            </button>
-          ))}
+      {range === "custom" && (
+        <div className="flex flex-wrap items-end gap-2 border-b border-subtle px-4 py-2 md:px-6">
+          <HubTextField type="date" label={t("project_hub.activity.from")} value={from} onChange={setFrom} />
+          <HubTextField type="date" label={t("project_hub.activity.to")} value={to} onChange={setTo} />
         </div>
-        {range === "custom" && (
-          <div className="flex flex-wrap gap-2">
-            <HubTextField type="date" label={t("project_hub.activity.from")} value={from} onChange={setFrom} />
-            <HubTextField type="date" label={t("project_hub.activity.to")} value={to} onChange={setTo} />
-          </div>
-        )}
-      </div>
+      )}
 
-      <HubResourceBoundary resource={activity} loadingRows={5}>
-        {(data) => (
-          <div className="flex flex-col gap-5">
-            <p className="text-caption-sm-regular text-tertiary">
-              {t("project_hub.activity.period", { from: formatDateTime(data.since), to: formatDateTime(data.until) })}
-            </p>
-            {data.open_decisions.length > 0 && (
-              <HubSection title={t("project_hub.activity.open_decisions")} as="h2">
-                <HubCard>
-                  <ul className="flex flex-col gap-1">
+      <HubResourceBoundary resource={activity} loadingRows={6}>
+        {(data) => {
+          const days = groupActivityByDay(adaptActivityFeed(data));
+          return (
+            // oxlint-disable-next-line jsx-a11y/no-static-element-interactions -- list navigation (j/k/Enter) on the container
+            <div ref={listRef} onKeyDown={onKeyDown} className="flex min-w-0 flex-col pb-6">
+              <p className="flex h-8 items-center px-4 text-caption-md-regular text-tertiary md:px-6">
+                {t("project_hub.activity.period", { from: formatDateTime(data.since), to: formatDateTime(data.until) })}
+              </p>
+              {data.open_decisions.length > 0 && (
+                <HubListGroup
+                  icon={WarningTriangleOutline as TGlyph}
+                  title={t("project_hub.activity.open_decisions")}
+                  count={data.open_decisions.length}
+                >
+                  <HubList aria-label={t("project_hub.activity.open_decisions")}>
                     {data.open_decisions.map((d) => (
-                      <li key={d.id} className="flex items-center gap-2 text-body-xs-regular text-primary">
-                        <ToneBadge tone="warning" size="xs" label={t("project_hub.activity.decision_needed")} />
-                        {d.issue_id ? (
-                          <Link
-                            href={`/${workspaceSlug}/projects/${projectId}/issues/${d.issue_id}`}
-                            className="focus-visible:outline-accent-primary underline-offset-2 hover:underline focus-visible:outline-2"
-                          >
-                            {d.title}
-                          </Link>
-                        ) : (
-                          <span>{d.title}</span>
-                        )}
-                      </li>
+                      <HubListRow
+                        key={d.id}
+                        href={d.issue_id ? `/${workspaceSlug}/projects/${projectId}/issues/${d.issue_id}` : undefined}
+                        navId={d.id}
+                        icon={WarningTriangleOutline as TGlyph}
+                        title={d.title}
+                        meta={
+                          <span className="text-caption-md-regular text-warning-primary">
+                            {t("project_hub.activity.decision_needed")}
+                          </span>
+                        }
+                      />
                     ))}
-                  </ul>
-                </HubCard>
-              </HubSection>
-            )}
-            {data.groups.length === 0 ? (
-              <HubEmpty title={t("project_hub.activity.empty")} />
-            ) : (
-              groupActivityByDay(adaptActivityFeed(data)).map((section) => (
-                <section key={section.day} className="flex flex-col gap-2" aria-label={formatDate(section.day)}>
-                  <h2 className="text-caption-md-medium text-tertiary">{formatDate(section.day)}</h2>
-                  {section.groups.map((group) => (
-                    <ActivityGroupItem
-                      key={`${group.issue_id}-${group.day}-${group.first_at}`}
-                      group={group}
-                      workspaceSlug={workspaceSlug}
-                      projectId={projectId}
-                    />
-                  ))}
-                </section>
-              ))
-            )}
-          </div>
-        )}
+                  </HubList>
+                </HubListGroup>
+              )}
+              {days.length === 0 ? (
+                <HubEmptyState icon={ActivityOutline as TGlyph} title={t("project_hub.activity.empty")} />
+              ) : (
+                days.map((section) => (
+                  <HubListGroup
+                    key={section.day}
+                    icon={CalendarOutline as TGlyph}
+                    title={formatDate(section.day)}
+                    count={section.groups.reduce((n, g) => n + g.event_count, 0)}
+                  >
+                    {section.groups.map((group) => (
+                      <ActivityGroupItem
+                        key={`${group.issue_id}-${group.day}-${group.first_at}`}
+                        group={group}
+                        workspaceSlug={workspaceSlug}
+                        projectId={projectId}
+                        className="border-b border-subtle last:border-b-0"
+                      />
+                    ))}
+                  </HubListGroup>
+                ))
+              )}
+            </div>
+          );
+        }}
       </HubResourceBoundary>
     </HubPage>
   );

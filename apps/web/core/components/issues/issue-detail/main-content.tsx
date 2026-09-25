@@ -24,7 +24,11 @@ import useSize from "@/hooks/use-window-size";
 // services
 import { WorkItemVersionService } from "@/services/issue";
 // project hub (extension, feature-flagged)
-import { WorkPackageHeaderIndicator, WorkPackageSection } from "@/components/project-hub/work-package";
+import {
+  WorkPackageHeaderIndicator,
+  WorkPackageSection,
+  WorkPackageSidebarCard,
+} from "@/components/project-hub/work-package";
 // local imports
 import { IssueDetailWidgets } from "../issue-detail-widgets";
 import { NameDescriptionUpdateStatus } from "../issue-update-status";
@@ -174,13 +178,21 @@ export const IssueMainContent = observer(function IssueMainContent(props: Props)
       />
 
       {windowSize[0] < 768 && (
-        <PeekOverviewProperties
-          workspaceSlug={workspaceSlug}
-          projectId={projectId}
-          issueId={issueId}
-          issueOperations={issueOperations}
-          disabled={!isEditable || isArchived}
-        />
+        <>
+          <PeekOverviewProperties
+            workspaceSlug={workspaceSlug}
+            projectId={projectId}
+            issueId={issueId}
+            issueOperations={issueOperations}
+            disabled={!isEditable || isArchived}
+          />
+          <WorkPackageSidebarCard
+            workspaceSlug={workspaceSlug}
+            projectId={projectId}
+            issueId={issueId}
+            disabled={!isEditable || isArchived}
+          />
+        </>
       )}
 
       <WorkPackageSection

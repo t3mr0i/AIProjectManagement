@@ -16,7 +16,7 @@ import { PH_KEYS } from "@/store/project-hub";
 // local imports
 import { HubDialog } from "../../common/dialog";
 import { HubTextAreaField, HubTextField } from "../../common/field";
-import { HubSection } from "../../common/section";
+import { WpSection } from "../panel";
 import { HubSelect } from "../../common/select";
 import { HubEmpty, HubResourceBoundary } from "../../common/states";
 import { showHubErrorToast } from "../../common/toast";
@@ -79,7 +79,7 @@ export const ChangeRecordsPanel = observer(function ChangeRecordsPanel({
   };
 
   return (
-    <HubSection
+    <WpSection
       title={t("project_hub.changes.records")}
       actions={
         canEdit && (
@@ -97,10 +97,10 @@ export const ChangeRecordsPanel = observer(function ChangeRecordsPanel({
         resource={records}
         loadingRows={2}
         isEmpty={(d) => d.length === 0}
-        empty={<HubEmpty title={t("project_hub.changes.records_empty")} />}
+        empty={<HubEmpty size="sm" title={t("project_hub.changes.records_empty")} />}
       >
         {(data) => (
-          <ul className="flex flex-col divide-y divide-subtle rounded-md border border-subtle">
+          <ul className="flex flex-col divide-y divide-subtle">
             {data.map((record) => (
               <li key={record.id} className="flex flex-wrap items-start justify-between gap-2 px-3 py-2">
                 <div className="flex min-w-0 flex-col gap-0.5">
@@ -177,6 +177,6 @@ export const ChangeRecordsPanel = observer(function ChangeRecordsPanel({
           onChange={setDescription}
         />
       </HubDialog>
-    </HubSection>
+    </WpSection>
   );
 });

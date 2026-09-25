@@ -181,7 +181,7 @@ export const BriefForm = observer(function BriefForm({ workspaceSlug, projectId,
       <div className="flex flex-wrap items-end gap-4">
         <fieldset className="flex flex-col gap-1">
           <legend className="text-caption-md-medium text-tertiary">{t("project_hub.brief.profile_kind")}</legend>
-          <div className="flex gap-1" role="group">
+          <div className="flex gap-0.5" role="group">
             {kindOptions.map((option) => (
               <button
                 key={option.value}
@@ -190,13 +190,12 @@ export const BriefForm = observer(function BriefForm({ workspaceSlug, projectId,
                 disabled={readOnly}
                 onClick={() => update("profile_kind", option.value)}
                 className={cn(
-                  "focus-visible:outline-accent-primary rounded-md border px-2.5 py-1 text-body-xs-medium focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed",
+                  "flex h-7 items-center rounded-md px-2 text-13 transition-colors duration-100 focus-visible:ring-1 focus-visible:ring-accent-strong focus-visible:outline-none disabled:cursor-not-allowed",
                   draft.profile_kind === option.value
-                    ? "border-accent-strong bg-accent-subtle text-accent-primary"
-                    : "border-subtle text-secondary hover:bg-layer-1"
+                    ? "bg-layer-2 font-medium text-primary"
+                    : "text-secondary hover:bg-layer-transparent-hover hover:text-primary"
                 )}
               >
-                {draft.profile_kind === option.value ? "✓ " : ""}
                 {option.label}
               </button>
             ))}

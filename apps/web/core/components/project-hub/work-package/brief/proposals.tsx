@@ -14,7 +14,7 @@ import type { TPHProposal } from "@plane/types";
 import { useProjectHub } from "@/hooks/store/use-project-hub";
 import { PH_KEYS } from "@/store/project-hub";
 // local imports
-import { HubCard, HubSection } from "../../common/section";
+import { WpEntry, WpSection } from "../panel";
 import { HubEmpty, HubResourceBoundary } from "../../common/states";
 import { showHubErrorToast, showHubSuccessToast } from "../../common/toast";
 import { ToneBadge } from "../../common/tone-badge";
@@ -73,20 +73,20 @@ export const ProposalsPanel = observer(function ProposalsPanel({
   };
 
   return (
-    <HubSection title={t("project_hub.proposals.title")} description={t("project_hub.proposals.hint")}>
+    <WpSection title={t("project_hub.proposals.title")} description={t("project_hub.proposals.hint")}>
       <HubResourceBoundary
         resource={proposals}
         loadingRows={1}
         isEmpty={(d) => d.filter((p) => p.status === "pending").length === 0}
-        empty={<HubEmpty title={t("project_hub.proposals.empty")} />}
+        empty={<HubEmpty size="sm" title={t("project_hub.proposals.empty")} />}
       >
         {(data) => (
-          <ul className="flex flex-col gap-2">
+          <ul className="flex flex-col divide-y divide-subtle">
             {data
               .filter((p) => p.status === "pending")
               .map((proposal) => (
                 <li key={proposal.id}>
-                  <HubCard className="flex flex-col gap-2">
+                  <WpEntry className="flex flex-col gap-2">
                     <div className="flex flex-wrap items-center gap-2">
                       <ToneBadge tone="info" size="xs" label={t(`project_hub.proposals.status.${proposal.status}`)} />
                       <span className="text-caption-sm-regular text-tertiary">{proposal.kind}</span>
@@ -161,12 +161,12 @@ export const ProposalsPanel = observer(function ProposalsPanel({
                         />
                       </div>
                     )}
-                  </HubCard>
+                  </WpEntry>
                 </li>
               ))}
           </ul>
         )}
       </HubResourceBoundary>
-    </HubSection>
+    </WpSection>
   );
 });

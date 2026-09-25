@@ -17,7 +17,7 @@ import { useProjectHub } from "@/hooks/store/use-project-hub";
 import { PH_KEYS } from "@/store/project-hub";
 // local imports
 import { HubTextAreaField } from "../../common/field";
-import { HubCard, HubSection } from "../../common/section";
+import { WpEntry, WpSection } from "../panel";
 import { showHubErrorToast } from "../../common/toast";
 import type { TWorkPackageScope } from "../types";
 
@@ -67,7 +67,7 @@ export const ClarifyPanel = observer(function ClarifyPanel({
   );
 
   return (
-    <HubSection title={t("project_hub.clarify.title")} description={t("project_hub.clarify.description")}>
+    <WpSection title={t("project_hub.clarify.title")} description={t("project_hub.clarify.description")}>
       {!step ? (
         <div>
           <Button
@@ -81,7 +81,7 @@ export const ClarifyPanel = observer(function ClarifyPanel({
           />
         </div>
       ) : (
-        <HubCard className="flex flex-col gap-3">
+        <WpEntry className="flex flex-col gap-3">
           {step.type === "question" ? (
             <>
               <div aria-live="polite" className="flex flex-col gap-2">
@@ -172,8 +172,8 @@ export const ClarifyPanel = observer(function ClarifyPanel({
               </div>
             </>
           )}
-        </HubCard>
+        </WpEntry>
       )}
-    </HubSection>
+    </WpSection>
   );
 });

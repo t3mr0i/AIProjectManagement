@@ -11,7 +11,7 @@ import { CircleDashedOutline, TickCircleOutline } from "@makeplane/propel/icons"
 import { useTranslation } from "@plane/i18n";
 import type { TPackageReadiness } from "@plane/types";
 // local imports
-import { HubSection } from "../../common/section";
+import { WpSection } from "../panel";
 import { HubResourceBoundary } from "../../common/states";
 import { ToneBadge } from "../../common/tone-badge";
 import type { THubResource } from "../../common/use-hub-resource";
@@ -24,7 +24,7 @@ export const ReadinessPanel = observer(function ReadinessPanel({
 }) {
   const { t } = useTranslation();
   return (
-    <HubSection
+    <WpSection
       title={t("project_hub.readiness.title")}
       actions={
         readiness.data && (
@@ -37,19 +37,19 @@ export const ReadinessPanel = observer(function ReadinessPanel({
     >
       <HubResourceBoundary resource={readiness} loadingRows={2}>
         {(data) => (
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2">
             {data.missing.length === 0 && data.policies.length === 0 && (
-              <p className="flex items-center gap-2 text-body-xs-regular text-secondary">
+              <p className="flex items-center gap-2 text-13 text-secondary">
                 <Icon icon={TickCircleOutline} />
                 {t("project_hub.readiness.all_good")}
               </p>
             )}
             {data.missing.length > 0 && (
               <div className="flex flex-col gap-1">
-                <p className="text-caption-md-medium text-tertiary">{t("project_hub.readiness.missing")}</p>
+                <p className="text-caption-md-regular text-tertiary">{t("project_hub.readiness.missing")}</p>
                 <ul className="flex flex-col gap-1">
                   {data.missing.map((item) => (
-                    <li key={item.field} className="flex items-start gap-2 text-body-xs-regular text-secondary">
+                    <li key={item.field} className="flex items-start gap-2 text-13 text-secondary">
                       <Icon icon={CircleDashedOutline} tint="tertiary" />
                       <span>
                         <span className="font-medium text-primary">{item.field}</span> — {item.message}
@@ -61,10 +61,10 @@ export const ReadinessPanel = observer(function ReadinessPanel({
             )}
             {data.policies.length > 0 && (
               <div className="flex flex-col gap-1">
-                <p className="text-caption-md-medium text-tertiary">{t("project_hub.readiness.policies")}</p>
+                <p className="text-caption-md-regular text-tertiary">{t("project_hub.readiness.policies")}</p>
                 <ul className="flex flex-col gap-1">
                   {data.policies.map((policy) => (
-                    <li key={policy.id} className="flex items-start gap-2 text-body-xs-regular text-secondary">
+                    <li key={policy.id} className="flex items-start gap-2 text-13 text-secondary">
                       <Icon icon={CircleDashedOutline} tint="tertiary" />
                       <span>{policy.message}</span>
                     </li>
@@ -75,6 +75,6 @@ export const ReadinessPanel = observer(function ReadinessPanel({
           </div>
         )}
       </HubResourceBoundary>
-    </HubSection>
+    </WpSection>
   );
 });

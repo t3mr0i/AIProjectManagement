@@ -4,8 +4,18 @@
  * See the LICENSE file for details.
  */
 
+import type { ComponentType, SVGProps } from "react";
 import { observer } from "mobx-react";
 // plane imports
+import {
+  BuildOutline,
+  CubeOutline,
+  DeleteArrowOutline,
+  GitMergeOutline,
+  RocketOutline,
+  TickCircleOutline,
+  UpdatesOutline,
+} from "@makeplane/propel/icons";
 import { useTranslation } from "@plane/i18n";
 import type { TDeliveryStage, TPackageDeliveryView, TPHActivityFeed, TPHDecision } from "@plane/types";
 import type { TProjectHubTone } from "@plane/utils";
@@ -14,13 +24,17 @@ import { adaptActivityFeed, getDeliveryLabelKey, groupActivityByDay, shortHash }
 import { useProjectHub } from "@/hooks/store/use-project-hub";
 import { PH_KEYS } from "@/store/project-hub";
 // local imports
-import { ActivityGroupItem } from "../../common/activity-group";
-import { HubCard, HubSection } from "../../common/section";
+import { ActivityGroupItem, HubTimelineRow } from "../../common/activity-group";
+import { HubChip } from "../../common/chip";
+import { HubGroupBar } from "../../common/list";
 import { HubEmpty, HubResourceBoundary } from "../../common/states";
 import { ToneBadge } from "../../common/tone-badge";
 import { useHubResource } from "../../common/use-hub-resource";
 import { useHubFormatters } from "../../common/use-relative-time";
+import { WpEntry, WpEntryList, WpMutedLine, WpSection } from "../panel";
 import type { TWorkPackageScope } from "../types";
+
+type TGlyph = ComponentType<SVGProps<SVGSVGElement>>;
 
 const STAGE_TONE: Record<TDeliveryStage | "unknown", TProjectHubTone> = {
   integrated: "info",
@@ -31,14 +45,23 @@ const STAGE_TONE: Record<TDeliveryStage | "unknown", TProjectHubTone> = {
   unknown: "neutral",
 };
 
+const STAGE_ICON: Record<TDeliveryStage | "unknown", TGlyph> = {
+  integrated: GitMergeOutline as TGlyph,
+  artifact_built: BuildOutline as TGlyph,
+  deployed: RocketOutline as TGlyph,
+  released: TickCircleOutline as TGlyph,
+  rolled_back: DeleteArrowOutline as TGlyph,
+  unknown: CubeOutline as TGlyph,
+};
+
 /** Package history horizon: activity of the last 90 days. */
 const HISTORY_SINCE = () => new Date(Date.now() - 90 * 86_400_000).toISOString();
 
-/** "Verlauf" tab: compacted package activity, linked decisions, delivery chain incl. rollbacks (S07). */
+/** "Verlauf" tab: delivery chain incl. rollbacks, linked decisions, compacted package activity (S07). */
 export const HistoryTab = observer(function HistoryTab({ scope }: { scope: TWorkPackageScope }) {
   const { t } = useTranslation();
   const store = useProjectHub();
-  const { formatDateTime, formatDate } = useHubFormatters();
+  const { formatDateTime, formatDate, formatAge } = useHubFormatters();
   const { workspaceSlug, projectId, issueId } = scope;
 
   const activity = useHubResource<TPHActivityFeed>(
@@ -53,171 +76,197 @@ export const HistoryTab = observer(function HistoryTab({ scope }: { scope: TWork
   );
 
   return (
-    <div className="flex flex-col gap-6">
-      <HubSection title={t("project_hub.history.delivery")}>
+    <div className="flex min-w-0 flex-col gap-5">
+      <WpSection title={t("project_hub.history.delivery")}>
         <HubResourceBoundary
           resource={delivery}
           loadingRows={2}
+          size="sm"
           isEmpty={(d) => d.repositories.length === 0 && d.history.length === 0}
-          empty={<HubEmpty title={t("project_hub.history.delivery_empty")} />}
+          empty={<HubEmpty size="sm" title={t("project_hub.history.delivery_empty")} />}
         >
           {(data) => (
-            <div className="flex flex-col gap-3">
-              <p className="text-caption-sm-regular text-secondary">
-                {t("project_hub.history.aggregate", { state: t(getDeliveryLabelKey(data.delivery)) })} ·{" "}
-                {t("project_hub.history.local_state_unknown")}
-              </p>
-              {data.integrations.length > 0 && (
-                <ul className="flex flex-wrap gap-2">
-                  {data.integrations.map((i) => (
-                    <li key={i.connection_id}>
-                      <ToneBadge
-                        tone="warning"
-                        size="xs"
-                        label={t("project_hub.activity.source_health", {
-                          source: i.provider,
-                          time: formatDateTime(i.last_successful_sync_at),
-                        })}
-                      />
-                    </li>
-                  ))}
-                </ul>
-              )}
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-body-xs-regular">
-                  <caption className="sr-only">{t("project_hub.history.delivery")}</caption>
-                  <thead>
-                    <tr className="border-b border-subtle text-tertiary">
-                      <th scope="col" className="py-1.5 pr-3 font-medium">
-                        {t("project_hub.changes.repository")}
-                      </th>
-                      <th scope="col" className="py-1.5 pr-3 font-medium">
-                        {t("project_hub.history.delivery")}
-                      </th>
-                      <th scope="col" className="py-1.5 pr-3 font-medium">
-                        {t("project_hub.history.environment")}
-                      </th>
-                      <th scope="col" className="py-1.5 font-medium">
-                        {t("project_hub.history.commit")}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.repositories.map((repo) => (
-                      <tr key={repo.binding_id} className="border-b border-subtle align-top">
-                        <th scope="row" className="py-1.5 pr-3 font-medium text-primary">
-                          {repo.name}
-                          {repo.role && <span className="text-tertiary"> · {repo.role}</span>}
-                        </th>
-                        <td className="py-1.5 pr-3">
-                          <ToneBadge
-                            tone={STAGE_TONE[repo.delivery as TDeliveryStage] ?? "neutral"}
-                            size="xs"
-                            label={t(getDeliveryLabelKey(repo.delivery))}
-                          />
-                          {repo.delivery === "deployed" && (
-                            <p className="pt-1 text-caption-sm-regular text-tertiary">
-                              {t("project_hub.history.deployed_not_released")}
-                            </p>
-                          )}
-                        </td>
-                        <td className="py-1.5 pr-3 text-secondary">
-                          {repo.environments.length === 0
-                            ? "—"
-                            : repo.environments.map((env) => (
-                                <span key={env.name} className="block">
-                                  {env.name}: {t(`project_hub.history.stage.${env.state}`)} ({shortHash(env.commit_sha)}
-                                  )
-                                </span>
-                              ))}
-                        </td>
-                        <td className="py-1.5 text-secondary">
-                          {repo.integrated_commit_sha ? (
-                            <code className="font-mono">{shortHash(repo.integrated_commit_sha)}</code>
-                          ) : (
-                            "—"
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            <div className="flex min-w-0 flex-col gap-2">
+              <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+                <HubChip
+                  tone={STAGE_TONE[data.delivery as TDeliveryStage] ?? "neutral"}
+                  label={t("project_hub.history.aggregate", { state: t(getDeliveryLabelKey(data.delivery)) })}
+                />
+                {data.integrations.map((i) => (
+                  <HubChip
+                    key={i.connection_id}
+                    tone="warning"
+                    label={t("project_hub.activity.source_health", {
+                      source: i.provider,
+                      time: formatDateTime(i.last_successful_sync_at),
+                    })}
+                  />
+                ))}
+                <span className="text-caption-md-regular text-tertiary">
+                  {t("project_hub.history.local_state_unknown")}
+                </span>
               </div>
+              {data.repositories.length > 0 && (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-caption-md-regular">
+                    <caption className="sr-only">{t("project_hub.history.delivery")}</caption>
+                    <thead>
+                      <tr className="border-b border-subtle text-tertiary">
+                        <th scope="col" className="py-1 pr-3 font-medium">
+                          {t("project_hub.changes.repository")}
+                        </th>
+                        <th scope="col" className="py-1 pr-3 font-medium">
+                          {t("project_hub.history.delivery")}
+                        </th>
+                        <th scope="col" className="py-1 pr-3 font-medium">
+                          {t("project_hub.history.environment")}
+                        </th>
+                        <th scope="col" className="py-1 font-medium">
+                          {t("project_hub.history.commit")}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {data.repositories.map((repo) => (
+                        <tr key={repo.binding_id} className="border-b border-subtle align-top last:border-b-0">
+                          <th scope="row" className="py-1.5 pr-3 font-medium text-primary">
+                            {repo.name}
+                            {repo.role && <span className="font-normal text-tertiary"> · {repo.role}</span>}
+                          </th>
+                          <td className="py-1.5 pr-3">
+                            <HubChip
+                              tone={STAGE_TONE[repo.delivery as TDeliveryStage] ?? "neutral"}
+                              label={t(getDeliveryLabelKey(repo.delivery))}
+                              title={
+                                repo.delivery === "deployed"
+                                  ? t("project_hub.history.deployed_not_released")
+                                  : undefined
+                              }
+                            />
+                            {repo.delivery === "deployed" && (
+                              <span className="block pt-0.5 text-caption-sm-regular text-tertiary">
+                                {t("project_hub.history.deployed_not_released")}
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-1.5 pr-3 text-secondary">
+                            {repo.environments.length === 0
+                              ? "—"
+                              : repo.environments.map((env) => (
+                                  <span key={env.name} className="block">
+                                    {env.name}: {t(`project_hub.history.stage.${env.state}`)} (
+                                    {shortHash(env.commit_sha)})
+                                  </span>
+                                ))}
+                          </td>
+                          <td className="py-1.5 text-secondary">
+                            {repo.integrated_commit_sha ? (
+                              <code className="font-mono">{shortHash(repo.integrated_commit_sha)}</code>
+                            ) : (
+                              "—"
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
               {data.history.length > 0 && (
-                <div className="flex flex-col gap-1">
-                  <p className="text-caption-md-medium text-tertiary">{t("project_hub.history.history_title")}</p>
-                  <ol className="flex flex-col gap-1 border-l-2 border-subtle pl-3">
-                    {data.history.map((entry) => (
-                      <li key={entry.id} className="text-caption-sm-regular text-secondary">
-                        <ToneBadge
-                          tone={STAGE_TONE[entry.stage] ?? "neutral"}
-                          size="xs"
-                          label={t(`project_hub.history.stage.${entry.stage}`)}
-                        />{" "}
-                        {data.repositories.find((r) => r.binding_id === entry.binding_id)?.name ?? ""}{" "}
-                        {entry.environment && `· ${entry.environment}`}{" "}
-                        {entry.commit_sha && (
-                          <>
-                            · <code className="font-mono">{shortHash(entry.commit_sha)}</code>
-                          </>
-                        )}{" "}
-                        · {entry.source} · {formatDateTime(entry.occurred_at)}
-                        {entry.reverts && ` · ${t("project_hub.history.rollback")}`}
-                      </li>
-                    ))}
+                <div className="flex min-w-0 flex-col">
+                  <HubGroupBar
+                    sticky={false}
+                    icon={UpdatesOutline as TGlyph}
+                    title={t("project_hub.history.history_title")}
+                    count={data.history.length}
+                    className="rounded-sm"
+                  />
+                  <ol className="flex min-w-0 flex-col py-1">
+                    {data.history.map((entry) => {
+                      const Glyph = STAGE_ICON[entry.stage] ?? STAGE_ICON.unknown;
+                      const repoName = data.repositories.find((r) => r.binding_id === entry.binding_id)?.name ?? "";
+                      return (
+                        <li key={entry.id}>
+                          <HubTimelineRow
+                            icon={<Glyph />}
+                            time={formatAge(entry.occurred_at)}
+                            timeTitle={formatDateTime(entry.occurred_at)}
+                            trailing={
+                              entry.reverts ? (
+                                <ToneBadge tone="danger" size="xs" label={t("project_hub.history.rollback")} />
+                              ) : undefined
+                            }
+                          >
+                            <span className="text-primary">{t(`project_hub.history.stage.${entry.stage}`)}</span>
+                            {repoName && <span> · {repoName}</span>}
+                            {entry.environment && <span> · {entry.environment}</span>}
+                            {entry.commit_sha && (
+                              <span>
+                                {" "}
+                                · <code className="font-mono">{shortHash(entry.commit_sha)}</code>
+                              </span>
+                            )}
+                            <span className="text-tertiary"> · {entry.source}</span>
+                          </HubTimelineRow>
+                        </li>
+                      );
+                    })}
                   </ol>
                 </div>
               )}
             </div>
           )}
         </HubResourceBoundary>
-      </HubSection>
+      </WpSection>
 
-      <HubSection title={t("project_hub.history.decisions")}>
+      <WpSection title={t("project_hub.history.decisions")}>
         <HubResourceBoundary
           resource={decisions}
           loadingRows={1}
+          size="sm"
           isEmpty={(d) => d.length === 0}
-          empty={<HubEmpty title={t("project_hub.history.decisions_empty")} />}
+          empty={<HubEmpty size="sm" title={t("project_hub.history.decisions_empty")} />}
         >
           {(data) => (
-            <ul className="flex flex-col gap-2">
+            <WpEntryList>
               {data.map((decision) => (
-                <li key={decision.id}>
-                  <HubCard className="flex flex-col gap-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-body-xs-medium text-primary">{decision.title}</span>
-                      {decision.source_changed_since_decision && (
-                        <ToneBadge tone="warning" size="xs" label={t("project_hub.history.source_changed")} />
-                      )}
-                    </div>
-                    <p className="text-caption-sm-regular whitespace-pre-wrap text-secondary">{decision.text}</p>
-                    {decision.rationale && (
-                      <p className="text-caption-sm-regular text-tertiary">{decision.rationale}</p>
+                <WpEntry key={decision.id}>
+                  <div className="flex min-w-0 items-center gap-2">
+                    <span className="min-w-0 flex-1 truncate text-13 font-medium text-primary">{decision.title}</span>
+                    {decision.source_changed_since_decision && (
+                      <HubChip tone="warning" label={t("project_hub.history.source_changed")} />
                     )}
-                    <p className="text-caption-sm-regular text-tertiary">
+                    <span className="shrink-0 text-caption-md-regular text-tertiary tabular-nums">
                       {formatDate(decision.confirmed_at ?? decision.created_at)}
-                    </p>
-                  </HubCard>
-                </li>
+                    </span>
+                  </div>
+                  <p className="text-caption-md-regular whitespace-pre-wrap text-secondary">{decision.text}</p>
+                  {decision.rationale && <WpMutedLine className="whitespace-normal">{decision.rationale}</WpMutedLine>}
+                </WpEntry>
               ))}
-            </ul>
+            </WpEntryList>
           )}
         </HubResourceBoundary>
-      </HubSection>
+      </WpSection>
 
-      <HubSection title={t("project_hub.history.timeline")}>
+      <WpSection title={t("project_hub.history.timeline")}>
         <HubResourceBoundary
           resource={activity}
           loadingRows={3}
+          size="sm"
           isEmpty={(d) => adaptActivityFeed(d).filter((g) => g.issue_id === issueId).length === 0}
-          empty={<HubEmpty title={t("project_hub.history.timeline_empty")} />}
+          empty={<HubEmpty size="sm" title={t("project_hub.history.timeline_empty")} />}
         >
           {(data) => (
-            <div className="flex flex-col gap-4">
+            <div className="flex min-w-0 flex-col gap-2">
               {groupActivityByDay(adaptActivityFeed(data).filter((g) => g.issue_id === issueId)).map((section) => (
-                <div key={section.day} className="flex flex-col gap-2">
-                  <h4 className="text-caption-md-medium text-tertiary">{formatDate(section.day)}</h4>
+                <section key={section.day} className="flex min-w-0 flex-col" aria-label={formatDate(section.day)}>
+                  <HubGroupBar
+                    sticky={false}
+                    title={formatDate(section.day)}
+                    count={section.groups.reduce((n, g) => n + g.event_count, 0)}
+                    className="rounded-sm"
+                  />
                   {section.groups.map((group) => (
                     <ActivityGroupItem
                       key={`${group.issue_id}-${group.day}-${group.first_at}`}
@@ -227,12 +276,12 @@ export const HistoryTab = observer(function HistoryTab({ scope }: { scope: TWork
                       hidePackage
                     />
                   ))}
-                </div>
+                </section>
               ))}
             </div>
           )}
         </HubResourceBoundary>
-      </HubSection>
+      </WpSection>
     </div>
   );
 });

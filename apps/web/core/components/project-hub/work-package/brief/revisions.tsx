@@ -15,15 +15,16 @@ import { shortHash } from "@plane/utils";
 import { useProjectHub } from "@/hooks/store/use-project-hub";
 import { PH_KEYS } from "@/store/project-hub";
 // local imports
-import { HubSection } from "../../common/section";
+import { HubChip } from "../../common/chip";
+import { HubList, HubListRow } from "../../common/list";
 import { HubSelect } from "../../common/select";
 import { HubEmpty, HubResourceBoundary } from "../../common/states";
-import { showHubErrorToast, showHubSuccessToast } from "../../common/toast";
-import { ToneBadge } from "../../common/tone-badge";
 import { useHubResource } from "../../common/use-hub-resource";
 import type { THubResource } from "../../common/use-hub-resource";
 import { useHubFormatters } from "../../common/use-relative-time";
+import { WpSection } from "../panel";
 import type { TWorkPackageScope } from "../types";
+import { sortRevisions, useCreateRevision } from "../use-work-package";
 
 const renderValue = (value: unknown): string => {
   if (value === null || value === undefined || value === "") return "—";
@@ -53,38 +54,39 @@ const RevisionCompare = observer(function RevisionCompare({
     <HubResourceBoundary
       resource={compare}
       loadingRows={2}
+      size="sm"
       isEmpty={(d) => d.changes.length === 0}
-      empty={<HubEmpty title={t("project_hub.revisions.no_changes")} />}
+      empty={<HubEmpty size="sm" title={t("project_hub.revisions.no_changes")} />}
     >
       {(data) => (
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-body-xs-regular">
+          <table className="w-full text-left text-caption-md-regular">
             <caption className="sr-only">
               {t("project_hub.revisions.compare_title", { from: from.number, to: to.number })}
             </caption>
             <thead>
               <tr className="border-b border-subtle text-tertiary">
-                <th scope="col" className="py-1.5 pr-3 font-medium">
+                <th scope="col" className="py-1 pr-3 font-medium">
                   {t("project_hub.revisions.field")}
                 </th>
-                <th scope="col" className="py-1.5 pr-3 font-medium">
+                <th scope="col" className="py-1 pr-3 font-medium">
                   {t("project_hub.revisions.before")}
                 </th>
-                <th scope="col" className="py-1.5 font-medium">
+                <th scope="col" className="py-1 font-medium">
                   {t("project_hub.revisions.after")}
                 </th>
               </tr>
             </thead>
             <tbody>
               {data.changes.map((change) => (
-                <tr key={change.field} className="border-b border-subtle align-top">
-                  <th scope="row" className="py-1.5 pr-3 font-medium text-primary">
+                <tr key={change.field} className="border-b border-subtle align-top last:border-b-0">
+                  <th scope="row" className="py-1 pr-3 font-medium text-primary">
                     {change.field}
                   </th>
-                  <td className="py-1.5 pr-3 whitespace-pre-wrap text-secondary">
+                  <td className="py-1 pr-3 whitespace-pre-wrap text-secondary">
                     <del className="decoration-danger-primary no-underline">{renderValue(change.from)}</del>
                   </td>
-                  <td className="py-1.5 whitespace-pre-wrap text-primary">
+                  <td className="py-1 whitespace-pre-wrap text-primary">
                     <ins className="no-underline">{renderValue(change.to)}</ins>
                   </td>
                 </tr>
@@ -104,6 +106,7 @@ type Props = {
   canEdit: boolean;
 };
 
+/** Revisions as compact list rows: `#n  title …… chips  hash  created`. */
 export const RevisionsPanel = observer(function RevisionsPanel({
   scope,
   revisions,
@@ -111,35 +114,19 @@ export const RevisionsPanel = observer(function RevisionsPanel({
   canEdit,
 }: Props) {
   const { t } = useTranslation();
-  const store = useProjectHub();
-  const { formatDateTime } = useHubFormatters();
-  const [isCreating, setIsCreating] = useState(false);
+  const { formatDateTime, formatAge } = useHubFormatters();
+  const { create, isCreating } = useCreateRevision(scope);
   const [compareFrom, setCompareFrom] = useState<string | null>(null);
   const [compareTo, setCompareTo] = useState<string | null>(null);
   const [showCompare, setShowCompare] = useState(false);
 
-  // oxlint-disable-next-line unicorn/no-array-sort -- sorts a copy; web targets ES2022
-  const sorted = [...(revisions.data ?? [])].sort((a, b) => b.number - a.number);
-
-  const handleCreate = async () => {
-    setIsCreating(true);
-    try {
-      const revision = await store.packageService.createRevision(scope.workspaceSlug, scope.projectId, scope.issueId);
-      store.invalidateIssue(scope.issueId);
-      showHubSuccessToast(t("project_hub.revisions.created", { number: revision.number }));
-    } catch (error) {
-      showHubErrorToast(t, error);
-    } finally {
-      setIsCreating(false);
-    }
-  };
-
+  const sorted = sortRevisions(revisions.data);
   const fromRev = sorted.find((r) => r.id === (compareFrom ?? sorted[1]?.id));
   const toRev = sorted.find((r) => r.id === (compareTo ?? sorted[0]?.id));
   const options = sorted.map((r) => ({ value: r.id, label: t("project_hub.revisions.number", { number: r.number }) }));
 
   return (
-    <HubSection
+    <WpSection
       title={t("project_hub.revisions.title")}
       actions={
         <>
@@ -160,7 +147,7 @@ export const RevisionsPanel = observer(function RevisionsPanel({
               stretch="auto"
               loading={isCreating}
               label={isCreating ? t("project_hub.revisions.creating") : t("project_hub.revisions.create")}
-              onClick={() => void handleCreate()}
+              onClick={() => void create()}
             />
           )}
         </>
@@ -169,35 +156,46 @@ export const RevisionsPanel = observer(function RevisionsPanel({
       <HubResourceBoundary
         resource={revisions}
         loadingRows={2}
+        size="sm"
         isEmpty={(d) => d.length === 0}
-        empty={<HubEmpty title={t("project_hub.revisions.empty")} />}
+        empty={<HubEmpty size="sm" title={t("project_hub.revisions.empty")} />}
       >
         {() => (
-          <div className="flex flex-col gap-3">
-            <ul className="flex flex-col divide-y divide-subtle rounded-md border border-subtle">
+          <div className="flex min-w-0 flex-col gap-3">
+            <HubList aria-label={t("project_hub.revisions.title")}>
               {sorted.map((revision) => (
-                <li key={revision.id} className="flex flex-wrap items-center gap-2 px-3 py-2">
-                  <span className="text-body-xs-medium text-primary">
-                    {t("project_hub.revisions.number", { number: revision.number })}
-                  </span>
-                  <code className="font-mono text-caption-sm-regular text-tertiary" title={revision.content_hash}>
-                    {t("project_hub.revisions.hash", { hash: shortHash(revision.content_hash) })}
-                  </code>
-                  <span className="text-caption-sm-regular text-tertiary">
-                    {t("project_hub.revisions.created_at", { time: formatDateTime(revision.created_at) })}
-                  </span>
-                  {revision.is_approved && (
-                    <ToneBadge tone="success" size="xs" label={t("project_hub.revisions.approved")} />
-                  )}
-                  {revision.is_stale && <ToneBadge tone="warning" size="xs" label={t("project_hub.revisions.stale")} />}
-                  {workingRevisionId === revision.id && (
-                    <ToneBadge tone="neutral" size="xs" label={t("project_hub.lifecycle.draft")} />
-                  )}
-                </li>
+                <HubListRow
+                  key={revision.id}
+                  identifier={`#${revision.number}`}
+                  title={revision.title || t("project_hub.revisions.number", { number: revision.number })}
+                  meta={
+                    <>
+                      {revision.is_approved && <HubChip tone="success" label={t("project_hub.revisions.approved")} />}
+                      {revision.is_stale && <HubChip tone="warning" label={t("project_hub.revisions.stale")} />}
+                      {workingRevisionId === revision.id && (
+                        <HubChip tone="neutral" label={t("project_hub.lifecycle.draft")} />
+                      )}
+                      <code
+                        className="font-mono text-caption-md-regular text-tertiary"
+                        title={t("project_hub.revisions.hash", { hash: revision.content_hash })}
+                      >
+                        {shortHash(revision.content_hash)}
+                      </code>
+                    </>
+                  }
+                  trailing={
+                    <span
+                      className="text-caption-md-regular text-tertiary tabular-nums"
+                      title={t("project_hub.revisions.created_at", { time: formatDateTime(revision.created_at) })}
+                    >
+                      {formatAge(revision.created_at)}
+                    </span>
+                  }
+                />
               ))}
-            </ul>
+            </HubList>
             {showCompare && fromRev && toRev && (
-              <div className="flex flex-col gap-2 rounded-md border border-subtle p-3">
+              <div className="flex flex-col gap-2 border-t border-subtle pt-3">
                 <div className="flex flex-wrap gap-3">
                   <HubSelect
                     label={t("project_hub.revisions.compare_from")}
@@ -215,13 +213,13 @@ export const RevisionsPanel = observer(function RevisionsPanel({
                 {fromRev.id !== toRev.id ? (
                   <RevisionCompare scope={scope} from={fromRev} to={toRev} />
                 ) : (
-                  <HubEmpty title={t("project_hub.revisions.no_changes")} />
+                  <HubEmpty size="sm" title={t("project_hub.revisions.no_changes")} />
                 )}
               </div>
             )}
           </div>
         )}
       </HubResourceBoundary>
-    </HubSection>
+    </WpSection>
   );
 });

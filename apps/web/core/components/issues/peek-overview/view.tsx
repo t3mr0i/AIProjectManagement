@@ -27,7 +27,7 @@ import { PeekOverviewIssueDetails } from "./issue-detail";
 import { IssuePeekOverviewLoader } from "./loader";
 import { PeekOverviewProperties } from "./properties";
 // project hub (extension, feature-flagged)
-import { WorkPackageSection } from "@/components/project-hub/work-package";
+import { WorkPackageSection, WorkPackageSidebarCard } from "@/components/project-hub/work-package";
 
 interface IIssueView {
   workspaceSlug: string;
@@ -207,6 +207,13 @@ export const IssueView = observer(function IssueView(props: IIssueView) {
                       disabled={disabled || is_archived}
                     />
 
+                    <WorkPackageSidebarCard
+                      workspaceSlug={workspaceSlug}
+                      projectId={projectId}
+                      issueId={issueId}
+                      disabled={disabled || is_archived}
+                    />
+
                     <WorkPackageSection
                       workspaceSlug={workspaceSlug}
                       projectId={projectId}
@@ -273,6 +280,13 @@ export const IssueView = observer(function IssueView(props: IIssueView) {
                         issueId={issueId}
                         issueOperations={issueOperations}
                         disabled={disabled || is_archived}
+                      />
+                      <WorkPackageSidebarCard
+                        workspaceSlug={workspaceSlug}
+                        projectId={projectId}
+                        issueId={issueId}
+                        disabled={disabled || is_archived}
+                        className="mt-4"
                       />
                     </div>
                   </div>

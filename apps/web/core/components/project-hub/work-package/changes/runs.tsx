@@ -20,7 +20,7 @@ import { PH_KEYS } from "@/store/project-hub";
 import { HubDialog } from "../../common/dialog";
 import { useProjectHubCapabilities } from "../../common/gate";
 import { useMemberDisplayName } from "../../common/member-name";
-import { HubCard, HubSection } from "../../common/section";
+import { WpEntry, WpSection } from "../panel";
 import { HubResourceBoundary } from "../../common/states";
 import { showHubErrorToast, showHubSuccessToast } from "../../common/toast";
 import { ToneBadge } from "../../common/tone-badge";
@@ -93,26 +93,26 @@ export const RunsPanel = observer(function RunsPanel({ scope }: { scope: TWorkPa
   };
 
   return (
-    <HubSection title={t("project_hub.changes.runs")}>
+    <WpSection title={t("project_hub.changes.runs")}>
       <HubResourceBoundary resource={runs} loadingRows={2}>
         {(data) => {
           const activeClaims = data.claims.filter((c) => c.status === "active");
           const hasRunnerSignal =
             data.runs.some((r) => !!r.last_heartbeat_at) || data.claims.some((c) => !!c.last_heartbeat_at);
           return (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col divide-y divide-subtle">
               {!hasRunnerSignal && (
-                <HubCard className="flex flex-col gap-1">
+                <WpEntry className="flex flex-col gap-1">
                   <ToneBadge tone="neutral" label={t("project_hub.changes.unknown_local")} />
                   <p className="text-caption-sm-regular text-secondary">
                     {t("project_hub.changes.unknown_local_description")}
                   </p>
-                </HubCard>
+                </WpEntry>
               )}
               {activeClaims.map((claim) => {
                 const hb = getHeartbeatState(claim.last_heartbeat_at, claim.lease_expires_at);
                 return (
-                  <HubCard key={claim.id} className="flex flex-col gap-1">
+                  <WpEntry key={claim.id} className="flex flex-col gap-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <ToneBadge tone="info" size="xs" label={t(`project_hub.changes.claim_status.${claim.status}`)} />
                       <ToneBadge
@@ -134,7 +134,7 @@ export const RunsPanel = observer(function RunsPanel({ scope }: { scope: TWorkPa
                       {t("project_hub.changes.heartbeat", { age: formatAge(claim.last_heartbeat_at) })} ·{" "}
                       {t("project_hub.changes.fencing", { token: claim.fencing_token })}
                     </p>
-                  </HubCard>
+                  </WpEntry>
                 );
               })}
               {data.runs.length === 0 && activeClaims.length === 0 ? (
@@ -144,7 +144,7 @@ export const RunsPanel = observer(function RunsPanel({ scope }: { scope: TWorkPa
                   const isActive = ACTIVE_RUN.has(run.status);
                   const hb = isActive ? getHeartbeatState(run.last_heartbeat_at) : null;
                   return (
-                    <HubCard key={run.id} className="flex flex-col gap-1">
+                    <WpEntry key={run.id} className="flex flex-col gap-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <ToneBadge
                           tone={RUN_TONE[run.status]}
@@ -203,7 +203,7 @@ export const RunsPanel = observer(function RunsPanel({ scope }: { scope: TWorkPa
                           />
                         </div>
                       )}
-                    </HubCard>
+                    </WpEntry>
                   );
                 })
               )}
@@ -239,6 +239,6 @@ export const RunsPanel = observer(function RunsPanel({ scope }: { scope: TWorkPa
       >
         <p className="text-body-xs-regular text-secondary">{t("project_hub.changes.cancel_run_description")}</p>
       </HubDialog>
-    </HubSection>
+    </WpSection>
   );
 });

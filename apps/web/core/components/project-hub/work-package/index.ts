@@ -7,3 +7,4 @@
 export * from "./header-indicator";
 export * from "./list-badge";
 export * from "./root";
+export * from "./sidebar-card";

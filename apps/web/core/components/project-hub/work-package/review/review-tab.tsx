@@ -39,7 +39,7 @@ import { HubDialog } from "../../common/dialog";
 import { HubTextAreaField } from "../../common/field";
 import { useProjectHubCapabilities } from "../../common/gate";
 import { useMemberDisplayName } from "../../common/member-name";
-import { HubCard, HubSection } from "../../common/section";
+import { WpEntry, WpSection } from "../panel";
 import { HubSelect } from "../../common/select";
 import { HubEmpty, HubResourceBoundary } from "../../common/states";
 import { showHubErrorToast, showHubSuccessToast } from "../../common/toast";
@@ -201,11 +201,11 @@ export const ReviewTab = observer(function ReviewTab({ scope }: { scope: TWorkPa
   return (
     <HubResourceBoundary resource={review} loadingRows={4}>
       {(data) => (
-        <div className="flex flex-col gap-6">
+        <div className="flex min-w-0 flex-col gap-5">
           <div className="grid gap-4 @3xl:grid-cols-2">
-            <HubSection title={t("project_hub.review.intent")}>
+            <WpSection title={t("project_hub.review.intent")}>
               {data.revision ? (
-                <HubCard className="flex flex-col gap-2 text-body-xs-regular">
+                <WpEntry className="flex flex-col gap-2 text-body-xs-regular">
                   <p className="text-caption-sm-regular text-tertiary">
                     {t("project_hub.revisions.number", { number: data.revision.number })} ·{" "}
                     <code className="font-mono">{shortHash(data.revision.content_hash)}</code>
@@ -215,14 +215,14 @@ export const ReviewTab = observer(function ReviewTab({ scope }: { scope: TWorkPa
                   {data.revision.outcome && (
                     <p className="whitespace-pre-wrap text-secondary">{data.revision.outcome}</p>
                   )}
-                </HubCard>
+                </WpEntry>
               ) : (
-                <HubEmpty title={t("project_hub.review.no_intent")} />
+                <HubEmpty size="sm" title={t("project_hub.review.no_intent")} />
               )}
-            </HubSection>
-            <HubSection title={t("project_hub.review.current_change")}>
+            </WpSection>
+            <WpSection title={t("project_hub.review.current_change")}>
               {data.change_summary.merge_requests > 0 || data.claims.length > 0 ? (
-                <HubCard className="flex flex-col gap-2 text-body-xs-regular">
+                <WpEntry className="flex flex-col gap-2 text-body-xs-regular">
                   <p className="text-secondary">
                     {t("project_hub.review.change_counts", {
                       mrs: data.change_summary.merge_requests,
@@ -245,23 +245,23 @@ export const ReviewTab = observer(function ReviewTab({ scope }: { scope: TWorkPa
                     </div>
                   )}
                   <p className="text-caption-sm-regular text-tertiary">{data.change_summary.note}</p>
-                </HubCard>
+                </WpEntry>
               ) : (
-                <HubEmpty title={t("project_hub.review.no_change")} />
+                <HubEmpty size="sm" title={t("project_hub.review.no_change")} />
               )}
-            </HubSection>
+            </WpSection>
           </div>
 
-          <HubSection title={t("project_hub.review.criteria")}>
+          <WpSection title={t("project_hub.review.criteria")}>
             {data.criteria.length === 0 ? (
-              <HubEmpty title={t("project_hub.review.criteria_empty")} />
+              <HubEmpty size="sm" title={t("project_hub.review.criteria_empty")} />
             ) : (
-              <ol className="flex flex-col gap-2">
+              <ol className="flex flex-col divide-y divide-subtle">
                 {data.criteria.map((criterion) => {
                   const state = safeCriterionState(criterion.state, criterion.evidence ?? []);
                   return (
                     <li key={criterion.id}>
-                      <HubCard className="flex flex-col gap-2">
+                      <WpEntry className="flex flex-col gap-2">
                         <div className="flex flex-wrap items-start justify-between gap-2">
                           <p className="text-body-xs-medium text-primary">
                             {criterion.id}: {criterion.statement}
@@ -289,35 +289,35 @@ export const ReviewTab = observer(function ReviewTab({ scope }: { scope: TWorkPa
                             ))}
                           </ul>
                         )}
-                      </HubCard>
+                      </WpEntry>
                     </li>
                   );
                 })}
               </ol>
             )}
-          </HubSection>
+          </WpSection>
 
           {data.open_points.length > 0 && (
-            <HubSection title={t("project_hub.review.open_points")}>
+            <WpSection title={t("project_hub.review.open_points")}>
               <ul className="list-inside list-disc text-body-xs-regular text-secondary">
                 {data.open_points.map((p, i) => (
                   // oxlint-disable-next-line react/no-array-index-key -- open points have no id
                   <li key={`${p.kind}-${i}`}>{openPointLabel(p, data.criteria)}</li>
                 ))}
               </ul>
-            </HubSection>
+            </WpSection>
           )}
 
-          <HubSection title={t("project_hub.review.mrs")}>
+          <WpSection title={t("project_hub.review.mrs")}>
             {mergeRequests.length === 0 ? (
-              <HubEmpty title={t("project_hub.review.mrs_empty")} />
+              <HubEmpty size="sm" title={t("project_hub.review.mrs_empty")} />
             ) : (
-              <ul className="flex flex-col gap-2">
+              <ul className="flex flex-col divide-y divide-subtle">
                 {mergeRequests.map((mr) => {
                   const reviewState = getMrReviewState(mr, data.approvals);
                   return (
                     <li key={mr.id}>
-                      <HubCard className="flex flex-col gap-1.5">
+                      <WpEntry className="flex flex-col gap-1.5">
                         <div className="flex flex-wrap items-center gap-2">
                           <a
                             href={mr.url}
@@ -361,7 +361,7 @@ export const ReviewTab = observer(function ReviewTab({ scope }: { scope: TWorkPa
                             />
                           </div>
                         )}
-                      </HubCard>
+                      </WpEntry>
                     </li>
                   );
                 })}
@@ -370,10 +370,10 @@ export const ReviewTab = observer(function ReviewTab({ scope }: { scope: TWorkPa
             {!canMerge && mergeRequests.some((m) => m.state === "open") && (
               <p className="text-caption-sm-regular text-tertiary">{t("project_hub.review.no_capability_merge")}</p>
             )}
-          </HubSection>
+          </WpSection>
 
           <div className="grid gap-4 @3xl:grid-cols-2">
-            <HubSection title={t("project_hub.review.code_review")}>
+            <WpSection title={t("project_hub.review.code_review")}>
               {canReviewCode ? (
                 <div className="flex flex-col gap-2">
                   {openMrs.length > 1 && (
@@ -419,8 +419,8 @@ export const ReviewTab = observer(function ReviewTab({ scope }: { scope: TWorkPa
               ) : (
                 <p className="text-caption-sm-regular text-tertiary">{t("project_hub.review.no_capability_review")}</p>
               )}
-            </HubSection>
-            <HubSection title={t("project_hub.review.outcome_acceptance")}>
+            </WpSection>
+            <WpSection title={t("project_hub.review.outcome_acceptance")}>
               {canAcceptOutcome ? (
                 <div className="flex flex-col gap-2">
                   <HubTextAreaField
@@ -453,14 +453,14 @@ export const ReviewTab = observer(function ReviewTab({ scope }: { scope: TWorkPa
               ) : (
                 <p className="text-caption-sm-regular text-tertiary">{t("project_hub.review.no_capability_review")}</p>
               )}
-            </HubSection>
+            </WpSection>
           </div>
 
-          <HubSection title={t("project_hub.review.approvals")}>
+          <WpSection title={t("project_hub.review.approvals")}>
             {data.approvals.length === 0 ? (
-              <HubEmpty title={t("project_hub.review.approvals_empty")} />
+              <HubEmpty size="sm" title={t("project_hub.review.approvals_empty")} />
             ) : (
-              <ul className="flex flex-col divide-y divide-subtle rounded-md border border-subtle">
+              <ul className="flex flex-col divide-y divide-subtle">
                 {data.approvals.map((approval) => (
                   <li key={approval.id} className="flex flex-col gap-0.5 px-3 py-2">
                     <div className="flex flex-wrap items-center gap-2">
@@ -493,7 +493,7 @@ export const ReviewTab = observer(function ReviewTab({ scope }: { scope: TWorkPa
                 ))}
               </ul>
             )}
-          </HubSection>
+          </WpSection>
 
           <HubDialog
             isOpen={!!mergeTarget}
