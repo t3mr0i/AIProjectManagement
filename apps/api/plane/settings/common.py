@@ -305,7 +305,12 @@ EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 USE_MINIO = int(os.environ.get("USE_MINIO", 0)) == 1
 
 STORAGES = {"staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"}}
-STORAGES["default"] = {"BACKEND": "plane.settings.storage.S3Storage"}
+# "s3" (AWS S3 / MinIO / any S3-compatible service) or "gcs" (Google Cloud Storage / Firebase Storage)
+STORAGE_BACKEND = os.environ.get("STORAGE_BACKEND", "s3").lower()
+if STORAGE_BACKEND in ("gcs", "firebase"):
+    STORAGES["default"] = {"BACKEND": "plane.settings.storage.GCSStorage"}
+else:
+    STORAGES["default"] = {"BACKEND": "plane.settings.storage.S3Storage"}
 AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID", "access-key")
 AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY", "secret-key")
 AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_S3_BUCKET_NAME", "uploads")

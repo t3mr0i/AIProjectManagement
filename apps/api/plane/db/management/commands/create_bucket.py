@@ -8,13 +8,21 @@ import boto3
 from botocore.exceptions import ClientError
 
 # Django imports
-from django.core.management import BaseCommand
+from django.core.management import BaseCommand, call_command
+
+# Module imports
+from plane.settings.storage import is_gcs_backend
 
 
 class Command(BaseCommand):
     help = "Create the default bucket for the instance"
 
     def handle(self, *args, **options):
+        # Firebase / GCS buckets are created in the Firebase console, only check access and CORS
+        if is_gcs_backend():
+            call_command("configure_gcs_bucket")
+            return
+
         # Create a session using the credentials from Django settings
         try:
             s3_client = boto3.client(

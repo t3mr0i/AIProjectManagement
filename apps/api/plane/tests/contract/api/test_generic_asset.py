@@ -86,7 +86,7 @@ class TestGenericAssetCrossWorkspaceIDOR:
         presigned download URL."""
         url = self.detail_url(victim_workspace.slug, victim_asset.id)
 
-        with mock.patch("plane.api.views.asset.S3Storage") as mock_storage:
+        with mock.patch("plane.api.views.asset.get_storage") as mock_storage:
             mock_storage.return_value.generate_presigned_url.return_value = "https://signed.example/download"
             response = api_key_client.get(url)
 
@@ -101,7 +101,7 @@ class TestGenericAssetCrossWorkspaceIDOR:
         url = self.list_url(victim_workspace.slug)
         payload = {"name": "evil.pdf", "type": "application/pdf", "size": 1024}
 
-        with mock.patch("plane.api.views.asset.S3Storage") as mock_storage:
+        with mock.patch("plane.api.views.asset.get_storage") as mock_storage:
             mock_storage.return_value.generate_presigned_post.return_value = {"url": "x", "fields": {}}
             response = api_key_client.post(url, payload, format="json")
 

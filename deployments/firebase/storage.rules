@@ -1,0 +1,12 @@
+rules_version = '2';
+
+// Plane never talks to Firebase Storage through the Firebase client SDK.
+// The API signs upload/download URLs with a service account, and signed URLs
+// are not subject to these rules. Deny everything else.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -17,7 +17,7 @@ from rest_framework.response import Response
 
 from plane.bgtasks.storage_metadata_task import get_asset_object_metadata
 from plane.db.models import DeployBoard, FileAsset
-from plane.settings.storage import S3Storage
+from plane.settings.storage import get_storage
 from plane.utils.path_validator import sanitize_filename
 
 # Module imports
@@ -63,7 +63,7 @@ class EntityAssetEndpoint(BaseAPIView):
         # Get the presigned URL.
         # Force attachment disposition for script-capable MIME types to prevent
         # same-origin XSS when Spaces assets are served on the application's origin.
-        storage = S3Storage(request=request)
+        storage = get_storage(request=request)
         asset_mime_type = (asset.attributes.get("type") or "").split(";")[0].strip().lower()
         disposition = (
             "attachment" if asset_mime_type in settings.SCRIPT_CAPABLE_MIME_TYPES else "inline"
@@ -141,7 +141,7 @@ class EntityAssetEndpoint(BaseAPIView):
         )
 
         # Get the presigned URL
-        storage = S3Storage(request=request)
+        storage = get_storage(request=request)
         # Generate a presigned URL to share an S3 object
         presigned_url = storage.generate_presigned_post(object_name=asset_key, file_type=type, file_size=size_limit)
         # Return the presigned URL
