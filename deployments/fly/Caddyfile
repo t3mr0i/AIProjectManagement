@@ -1,0 +1,41 @@
+{
+	admin off
+	auto_https off
+	servers {
+		max_header_size 25MB
+		trusted_proxies static private_ranges
+		client_ip_headers Fly-Client-IP X-Forwarded-For
+	}
+}
+
+:8080 {
+	request_body {
+		max_size {$FILE_SIZE_LIMIT}
+	}
+
+	handle /api/* {
+		reverse_proxy 127.0.0.1:8000
+	}
+	handle /auth/* {
+		reverse_proxy 127.0.0.1:8000
+	}
+	handle /live/* {
+		reverse_proxy 127.0.0.1:3100
+	}
+	handle /spaces* {
+		reverse_proxy 127.0.0.1:3002
+	}
+
+	redir /god-mode /god-mode/ permanent
+	handle_path /god-mode/* {
+		root * /app/admin
+		try_files {path} {path}/ /index.html
+		file_server
+	}
+
+	handle {
+		root * /app/web
+		try_files {path} {path}/ /index.html
+		file_server
+	}
+}
