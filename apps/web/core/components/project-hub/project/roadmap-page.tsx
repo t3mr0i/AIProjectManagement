@@ -8,7 +8,6 @@ import { observer } from "mobx-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 // local imports
-import { HubPage } from "../common/page";
 import { RoadmapView } from "../planning/roadmap-view";
 
 /** Project roadmap: project milestones and dependencies (same view as the workspace roadmap, scoped). */
@@ -21,8 +20,10 @@ export const ProjectRoadmapPage = observer(function ProjectRoadmapPage({
 }) {
   const { t } = useTranslation();
   return (
-    <HubPage title={t("project_hub.roadmap.project_title")}>
-      <RoadmapView workspaceSlug={workspaceSlug} fixedProjectId={projectId} />
-    </HubPage>
+    <RoadmapView
+      workspaceSlug={workspaceSlug}
+      fixedProjectId={projectId}
+      title={t("project_hub.roadmap.project_title")}
+    />
   );
 });

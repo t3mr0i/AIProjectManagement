@@ -4,10 +4,12 @@
  * See the LICENSE file for details.
  */
 
+import type { ComponentType, SVGProps } from "react";
 import { useState } from "react";
 import { observer } from "mobx-react";
 // plane imports
 import { Button } from "@makeplane/propel/components/button";
+import { AiStarOneOutline, ChatOutline, CubeOutline, LockOutline, ProjectsOutline } from "@makeplane/propel/icons";
 import { useTranslation } from "@plane/i18n";
 import type { TPHDecisionPreview } from "@plane/types";
 // hooks
@@ -15,13 +17,14 @@ import { useProjectHub } from "@/hooks/store/use-project-hub";
 import { createIdempotencyKey } from "@/services/project-hub";
 import { PH_KEYS } from "@/store/project-hub";
 // local imports
+import { HubChip } from "../common/chip";
 import { HubDialog } from "../common/dialog";
 import { HubTextAreaField } from "../common/field";
 import { useProjectHubCapabilities } from "../common/gate";
-import { HubMeta } from "../common/section";
 import { HubSelect } from "../common/select";
 import { showHubErrorToast, showHubSuccessToast } from "../common/toast";
-import { ToneBadge } from "../common/tone-badge";
+
+type TGlyph = ComponentType<SVGProps<SVGSVGElement>>;
 
 type Props = {
   isOpen: boolean;
@@ -139,7 +142,7 @@ export const DecisionFlowDialog = observer(function DecisionFlowDialog({
         </>
       }
     >
-      <p className="text-caption-sm-regular text-tertiary">
+      <p className="text-caption-md-regular text-tertiary">
         {t("project_hub.discussion.selected", { count: messageIds.length })}
       </p>
       {!isPreview && (
@@ -151,7 +154,7 @@ export const DecisionFlowDialog = observer(function DecisionFlowDialog({
       )}
       {preview?.type === "clarification" && (
         <div role="alert" className="flex flex-col gap-2 rounded-md border border-subtle bg-layer-2 px-3 py-2">
-          <p className="text-body-xs-regular text-primary">
+          <p className="text-13 text-primary">
             {t("project_hub.discussion.clarification", { question: preview.question })}
           </p>
           {preview.options && preview.options.length > 0 && (
@@ -166,32 +169,53 @@ export const DecisionFlowDialog = observer(function DecisionFlowDialog({
       )}
       {preview?.type === "preview" && (
         <div className="flex flex-col gap-2">
-          <ToneBadge tone="warning" size="xs" label={t("project_hub.discussion.ai_answer_hint")} />
-          <HubMeta
-            items={[
-              { label: t("project_hub.discussion.decision_title"), value: preview.title },
-              {
-                label: t("project_hub.discussion.decision_text"),
-                value: <span className="whitespace-pre-wrap">{preview.text}</span>,
-              },
-              { label: t("project_hub.discussion.rationale"), value: preview.rationale || "—" },
-              {
-                label: t("project_hub.discussion.target"),
-                value: preview.issue_id ? preview.issue_id : t("project_hub.common.project"),
-              },
-              {
-                label: t("project_hub.common.sources"),
-                value: t("project_hub.discussion.selected", { count: preview.source_message_ids.length }),
-              },
-            ]}
-          />
+          <div className="flex flex-col overflow-hidden rounded-md border border-subtle bg-layer-1">
+            <div className="flex h-8 items-center gap-1.5 bg-layer-2 px-3">
+              <AiStarOneOutline className="size-3.5 shrink-0 text-tertiary" aria-hidden="true" />
+              <span className="truncate text-13 font-medium text-primary">{preview.title}</span>
+              <span className="flex-1" />
+              <HubChip variant="soft" tone="warning" label={t("project_hub.discussion.ai_answer_hint")} />
+            </div>
+            <div className="flex flex-col gap-2 px-3 py-2.5">
+              <p className="text-13 leading-5 whitespace-pre-wrap text-primary">{preview.text}</p>
+              {preview.rationale && (
+                <p className="text-caption-md-regular leading-4 text-tertiary">
+                  <span className="text-placeholder">{t("project_hub.discussion.rationale")}: </span>
+                  {preview.rationale}
+                </p>
+              )}
+              <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                <HubChip
+                  icon={preview.issue_id ? (CubeOutline as TGlyph) : (ProjectsOutline as TGlyph)}
+                  label={
+                    preview.issue_id
+                      ? `${t("project_hub.discussion.target")}: ${preview.issue_id.slice(0, 8)}`
+                      : t("project_hub.common.project")
+                  }
+                />
+                <HubChip
+                  icon={ChatOutline as TGlyph}
+                  label={t("project_hub.discussion.selected", { count: preview.source_message_ids.length })}
+                />
+                {preview.private_source && (
+                  <HubChip
+                    variant="soft"
+                    tone="warning"
+                    icon={LockOutline as TGlyph}
+                    label={t("project_hub.discussion.private_source_short")}
+                    title={t("project_hub.discussion.private_source")}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
           {preview.private_source && (
-            <p role="alert" className="text-body-xs-medium text-primary">
+            <p role="alert" className="text-caption-md-regular text-secondary">
               {t("project_hub.discussion.private_source")}
             </p>
           )}
           {!has("decision.publish") && (
-            <p className="text-caption-sm-regular text-tertiary">{t("project_hub.errors.kind.permission")}</p>
+            <p className="text-caption-md-regular text-tertiary">{t("project_hub.errors.kind.permission")}</p>
           )}
         </div>
       )}

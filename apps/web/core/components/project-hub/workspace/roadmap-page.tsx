@@ -8,19 +8,14 @@ import { observer } from "mobx-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
 // local imports
-import { HubPage } from "../common/page";
 import { RoadmapView } from "../planning/roadmap-view";
 
-/** S10 Multi-project roadmap. */
+/** S10 Multi-project roadmap (the view owns the page header: view tabs, range, actions). */
 export const WorkspaceRoadmapPage = observer(function WorkspaceRoadmapPage({
   workspaceSlug,
 }: {
   workspaceSlug: string;
 }) {
   const { t } = useTranslation();
-  return (
-    <HubPage title={t("project_hub.roadmap.title")} description={t("project_hub.roadmap.scenario_hint")}>
-      <RoadmapView workspaceSlug={workspaceSlug} />
-    </HubPage>
-  );
+  return <RoadmapView workspaceSlug={workspaceSlug} title={t("project_hub.roadmap.title")} />;
 });

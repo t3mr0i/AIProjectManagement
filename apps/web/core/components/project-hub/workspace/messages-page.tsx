@@ -4,11 +4,24 @@
  * See the LICENSE file for details.
  */
 
-import { useState } from "react";
+import type { ComponentType, SVGProps } from "react";
+import { useRef, useState } from "react";
 import { observer } from "mobx-react";
 import { useSearchParams } from "next/navigation";
 // plane imports
 import { Button } from "@makeplane/propel/components/button";
+import { Icon } from "@makeplane/propel/components/icon";
+import { IconButton } from "@makeplane/propel/components/icon-button";
+import {
+  ArrowNarrowLeftOutline,
+  ChatOutline,
+  CubeOutline,
+  HashOutline,
+  NewChatOutline,
+  ProjectsOutline,
+  UserOutline,
+} from "@makeplane/propel/icons";
+import { Logo } from "@plane/blocks/emoji-icon-picker";
 import { useTranslation } from "@plane/i18n";
 import type { TConversationKind, TPHConversation, TPHNotificationItem } from "@plane/types";
 import { cn } from "@plane/utils";
@@ -20,22 +33,98 @@ import { useAppRouter } from "@/hooks/use-app-router";
 import { PH_KEYS } from "@/store/project-hub";
 // local imports
 import { ConversationView } from "../discussion/conversation-view";
+import { HubChip } from "../common/chip";
 import { HubDialog } from "../common/dialog";
 import { HubTextField } from "../common/field";
+import { HubList, HubListGroup, useHubListNavigation } from "../common/list";
 import { useMemberDisplayName } from "../common/member-name";
 import { HubPage } from "../common/page";
 import { HubSelect } from "../common/select";
-import { HubEmpty, HubResourceBoundary } from "../common/states";
+import { HubEmptyState, HubErrorState, HubFreshnessBanner, HubLoading } from "../common/states";
 import { showHubErrorToast } from "../common/toast";
 import { useHubResource } from "../common/use-hub-resource";
+import { useHubFormatters } from "../common/use-relative-time";
 
-const GROUPS: { kind: TConversationKind; i18n: string }[] = [
-  { kind: "project", i18n: "project_hub.messages.project_channels" },
-  { kind: "package", i18n: "project_hub.messages.package_threads" },
-  { kind: "direct", i18n: "project_hub.messages.direct_messages" },
+type TGlyph = ComponentType<SVGProps<SVGSVGElement>>;
+
+const GROUPS: { kind: TConversationKind; i18n: string; icon: TGlyph }[] = [
+  { kind: "project", i18n: "project_hub.messages.project_channels", icon: HashOutline as TGlyph },
+  { kind: "package", i18n: "project_hub.messages.package_threads", icon: CubeOutline as TGlyph },
+  { kind: "direct", i18n: "project_hub.messages.direct_messages", icon: UserOutline as TGlyph },
 ];
 
-/** S09 Messages: project channels, package threads, DMs; the selected conversation opens beside the list. */
+const KIND_ICON: Record<TConversationKind, TGlyph> = {
+  project: HashOutline as TGlyph,
+  package: CubeOutline as TGlyph,
+  direct: UserOutline as TGlyph,
+};
+
+/* -------------------------------------------------------------------------------------------------
+ * Inbox rows (two lines: title + time, muted context — Linear inbox)
+ * -----------------------------------------------------------------------------------------------*/
+
+type TInboxRowProps = {
+  icon: TGlyph;
+  title: string;
+  subtitle?: string;
+  time?: string;
+  timeTitle?: string;
+  unread?: boolean;
+  selected?: boolean;
+  disabled?: boolean;
+  onClick: () => void;
+};
+
+function InboxRow({
+  icon: Glyph,
+  title,
+  subtitle,
+  time,
+  timeTitle,
+  unread,
+  selected,
+  disabled,
+  onClick,
+}: TInboxRowProps) {
+  return (
+    <button
+      type="button"
+      data-hub-row=""
+      aria-current={selected ? "true" : undefined}
+      disabled={disabled}
+      onClick={onClick}
+      className={cn(
+        "relative flex h-12 w-full min-w-0 items-center gap-2 border-b border-subtle pr-3 pl-2 text-left transition-colors duration-100 last:border-b-0 focus-visible:bg-accent-primary/10 focus-visible:ring-1 focus-visible:ring-accent-strong focus-visible:outline-none focus-visible:ring-inset",
+        selected ? "bg-layer-transparent-selected" : "hover:bg-layer-transparent-hover",
+        disabled && "cursor-default opacity-60"
+      )}
+    >
+      <span className="flex w-2 shrink-0 items-center justify-center" aria-hidden="true">
+        {unread && <span className="block size-1.5 rounded-full bg-accent-primary" />}
+      </span>
+      <Glyph className={cn("size-4 shrink-0", unread ? "text-primary" : "text-tertiary")} aria-hidden="true" />
+      <span className="flex min-w-0 flex-1 flex-col">
+        <span className="flex min-w-0 items-center gap-2">
+          <span className={cn("min-w-0 flex-1 truncate text-13 leading-5 text-primary", unread && "font-medium")}>
+            {title}
+          </span>
+          {time && (
+            <span className="shrink-0 text-caption-md-regular text-tertiary tabular-nums" title={timeTitle}>
+              {time}
+            </span>
+          )}
+        </span>
+        {subtitle && <span className="truncate text-caption-md-regular leading-4 text-tertiary">{subtitle}</span>}
+      </span>
+    </button>
+  );
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * Page
+ * -----------------------------------------------------------------------------------------------*/
+
+/** S09 Messages, two-pane: inbox-style list (channels, package threads, DMs) on the left, conversation on the right. */
 export const WorkspaceMessagesPage = observer(function WorkspaceMessagesPage({
   workspaceSlug,
 }: {
@@ -50,6 +139,9 @@ export const WorkspaceMessagesPage = observer(function WorkspaceMessagesPage({
     workspace: { workspaceMemberIds },
   } = useMember();
   const displayName = useMemberDisplayName();
+  const { formatAge, formatDateTime } = useHubFormatters();
+  const listRef = useRef<HTMLElement>(null);
+  const onListKeyDown = useHubListNavigation(listRef);
   const selectedId = searchParams.get("c");
   const conversations = useHubResource<TPHConversation[]>(PH_KEYS.conversations(workspaceSlug), () =>
     store.collaborationService.listConversations(workspaceSlug)
@@ -94,118 +186,184 @@ export const WorkspaceMessagesPage = observer(function WorkspaceMessagesPage({
     return c.id;
   };
 
+  /** Muted second line: project context, participants or the unread count. */
+  const subtitleOf = (c: TPHConversation) => {
+    const parts: string[] = [];
+    if (c.project_id) parts.push(getPartialProjectById(c.project_id)?.name ?? c.project_id);
+    if (c.kind === "direct" && c.participant_ids?.length) parts.push(c.participant_ids.map(displayName).join(", "));
+    if ((c.unread_count ?? 0) > 0) parts.push(t("project_hub.messages.unread", { count: c.unread_count }));
+    return parts.join(" · ");
+  };
+
+  const data = conversations.data;
+  const selected = data?.find((c) => c.id === selectedId);
+  const selectedProject = selected?.project_id ? getPartialProjectById(selected.project_id) : undefined;
+  const SelectedGlyph = selected ? KIND_ICON[selected.kind] : (ChatOutline as TGlyph);
+
+  const newButton = (
+    <IconButton
+      variant="ghost"
+      size="sm"
+      aria-label={t("project_hub.messages.new_conversation")}
+      icon={<Icon icon={NewChatOutline} />}
+      onClick={() => setIsCreateOpen(true)}
+    />
+  );
+
   return (
-    <HubPage
-      title={t("project_hub.messages.title")}
-      className="max-w-none"
-      actions={
-        <Button
-          variant="secondary"
-          size="sm"
-          stretch="auto"
-          label={t("project_hub.common.create")}
-          onClick={() => setIsCreateOpen(true)}
+    <HubPage title={t("project_hub.messages.title")} width="full" flush className="min-h-0 flex-1 overflow-hidden">
+      {data === undefined ? (
+        <div className="p-4 md:p-6">
+          {conversations.error ? (
+            <HubErrorState error={conversations.error} onRetry={() => void conversations.refresh()} />
+          ) : (
+            <HubLoading rows={5} />
+          )}
+        </div>
+      ) : data.length === 0 ? (
+        <HubEmptyState
+          icon={ChatOutline as TGlyph}
+          title={t("project_hub.messages.empty")}
+          description={t("project_hub.messages.empty_hint")}
+          className="my-auto"
+          action={
+            <Button
+              variant="secondary"
+              size="sm"
+              stretch="auto"
+              label={t("project_hub.messages.new_conversation")}
+              onClick={() => setIsCreateOpen(true)}
+            />
+          }
         />
-      }
-    >
-      <HubResourceBoundary
-        resource={conversations}
-        loadingRows={5}
-        isEmpty={(d) => d.length === 0}
-        empty={<HubEmpty title={t("project_hub.messages.empty")} />}
-      >
-        {(data) => {
-          const selected = data.find((c) => c.id === selectedId);
-          return (
-            <div className="flex flex-col gap-4 lg:flex-row">
-              <nav
-                aria-label={t("project_hub.messages.conversations")}
-                className="flex w-full shrink-0 flex-col gap-4 lg:w-72"
-              >
-                {mentions.length > 0 && (
-                  <div className="flex flex-col gap-1">
-                    <h2 className="text-caption-md-medium text-tertiary">{t("project_hub.messages.mentions")}</h2>
-                    <ul className="flex flex-col gap-0.5">
-                      {mentions.map((n) => (
-                        <li key={n.id}>
-                          <button
-                            type="button"
-                            disabled={!n.target.id}
-                            onClick={() => n.target.id && select(n.target.id)}
-                            className="focus-visible:outline-accent-primary flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-body-xs-regular text-secondary hover:bg-layer-transparent-hover focus-visible:outline-2"
-                          >
-                            <span aria-hidden="true">@</span>
-                            <span className="truncate">{n.title}</span>
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {GROUPS.map((group) => {
-                  const items = data.filter((c) => c.kind === group.kind);
-                  if (items.length === 0) return null;
-                  return (
-                    <div key={group.kind} className="flex flex-col gap-1">
-                      <h2 className="text-caption-md-medium text-tertiary">{t(group.i18n)}</h2>
-                      <ul className="flex flex-col gap-0.5">
-                        {items.map((c) => (
-                          <li key={c.id}>
-                            <button
-                              type="button"
-                              aria-current={c.id === selectedId ? "true" : undefined}
-                              onClick={() => select(c.id)}
-                              className={cn(
-                                "focus-visible:outline-accent-primary flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-body-xs-regular focus-visible:outline-2",
-                                c.id === selectedId
-                                  ? "bg-layer-transparent-selected text-primary"
-                                  : "text-secondary hover:bg-layer-transparent-hover"
-                              )}
-                            >
-                              <span className="truncate">{labelOf(c)}</span>
-                              {(c.unread_count ?? 0) > 0 && (
-                                <span className="shrink-0 text-caption-sm-medium text-accent-primary">
-                                  {t("project_hub.messages.unread", { count: c.unread_count })}
-                                </span>
-                              )}
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  );
-                })}
-              </nav>
-              <section
-                aria-label={selected ? labelOf(selected) : t("project_hub.messages.title")}
-                className="min-w-0 flex-1"
-              >
-                {selected ? (
-                  <div className="flex flex-col gap-3">
-                    <div className="flex flex-col gap-0.5 border-b border-subtle pb-2">
-                      <h2 className="text-body-sm-semibold text-primary">{labelOf(selected)}</h2>
-                      {selected.project_id && (
-                        <p className="text-caption-sm-regular text-tertiary">
-                          {t("project_hub.messages.context", {
-                            name: getPartialProjectById(selected.project_id)?.name ?? selected.project_id,
-                          })}
-                        </p>
-                      )}
-                      <p className="text-caption-sm-regular text-tertiary">
-                        {t("project_hub.messages.participants")}:{" "}
-                        {(selected.participant_ids ?? []).map(displayName).join(", ") || "—"}
-                      </p>
-                    </div>
-                    <ConversationView key={selected.id} workspaceSlug={workspaceSlug} conversation={selected} />
-                  </div>
-                ) : (
-                  <HubEmpty title={t("project_hub.messages.select_conversation")} />
-                )}
-              </section>
+      ) : (
+        <div className="flex h-full min-h-0 flex-1">
+          <nav
+            ref={listRef}
+            onKeyDown={onListKeyDown}
+            aria-label={t("project_hub.messages.conversations")}
+            className={cn(
+              "flex w-full shrink-0 flex-col border-subtle lg:w-80 lg:border-r",
+              selected && "hidden lg:flex"
+            )}
+          >
+            <div className="flex h-11 shrink-0 items-center gap-2 border-b border-subtle pr-2 pl-4">
+              <span className="text-13 font-medium text-primary">{t("project_hub.messages.conversations")}</span>
+              <span className="text-13 text-tertiary">{data.length}</span>
+              <span className="flex-1" />
+              {newButton}
             </div>
-          );
-        }}
-      </HubResourceBoundary>
+            <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+              <div className="px-3 pt-2 empty:hidden">
+                <HubFreshnessBanner resource={conversations} />
+              </div>
+              <HubListGroup
+                icon={ChatOutline as TGlyph}
+                title={t("project_hub.messages.mentions")}
+                count={mentions.length}
+              >
+                <HubList>
+                  {mentions.map((n) => (
+                    <InboxRow
+                      key={n.id}
+                      icon={ChatOutline as TGlyph}
+                      title={n.title}
+                      subtitle={n.project_id ? (getPartialProjectById(n.project_id)?.name ?? n.project_id) : undefined}
+                      time={formatAge(n.updated_at)}
+                      timeTitle={formatDateTime(n.updated_at)}
+                      unread
+                      disabled={!n.target.id}
+                      onClick={() => n.target.id && select(n.target.id)}
+                    />
+                  ))}
+                </HubList>
+              </HubListGroup>
+              {GROUPS.map((group) => {
+                const items = data.filter((c) => c.kind === group.kind);
+                return (
+                  <HubListGroup key={group.kind} icon={group.icon} title={t(group.i18n)} count={items.length}>
+                    <HubList>
+                      {items.map((c) => (
+                        <InboxRow
+                          key={c.id}
+                          icon={KIND_ICON[c.kind]}
+                          title={labelOf(c)}
+                          subtitle={subtitleOf(c)}
+                          time={formatAge(c.updated_at)}
+                          timeTitle={formatDateTime(c.updated_at)}
+                          unread={(c.unread_count ?? 0) > 0}
+                          selected={c.id === selectedId}
+                          onClick={() => select(c.id)}
+                        />
+                      ))}
+                    </HubList>
+                  </HubListGroup>
+                );
+              })}
+            </div>
+          </nav>
+
+          <section
+            aria-label={selected ? labelOf(selected) : t("project_hub.messages.title")}
+            className={cn("flex min-w-0 flex-1 flex-col", !selected && "hidden lg:flex")}
+          >
+            {selected ? (
+              <>
+                <div className="flex h-11 shrink-0 items-center gap-2 border-b border-subtle px-3 md:px-4">
+                  <span className="lg:hidden">
+                    <IconButton
+                      variant="ghost"
+                      size="sm"
+                      aria-label={t("project_hub.messages.conversations")}
+                      icon={<Icon icon={ArrowNarrowLeftOutline} />}
+                      onClick={() => router.push(`/${workspaceSlug}/hub/messages`)}
+                    />
+                  </span>
+                  <SelectedGlyph className="size-4 shrink-0 text-tertiary" aria-hidden="true" />
+                  <h2 className="min-w-0 truncate text-13 font-medium text-primary">{labelOf(selected)}</h2>
+                  {selectedProject && (
+                    <HubChip
+                      label={selectedProject.name}
+                      icon={
+                        selectedProject.logo_props?.in_use ? (
+                          <Logo logo={selectedProject.logo_props} size={12} />
+                        ) : (
+                          (ProjectsOutline as TGlyph)
+                        )
+                      }
+                      href={`/${workspaceSlug}/projects/${selectedProject.id}/hub/activity`}
+                      className="hidden sm:inline-flex"
+                    />
+                  )}
+                  <span className="flex-1" />
+                  {selected.kind === "direct" && (
+                    <span
+                      className="hidden max-w-64 truncate text-caption-md-regular text-tertiary md:inline"
+                      title={(selected.participant_ids ?? []).map(displayName).join(", ")}
+                    >
+                      {(selected.participant_ids ?? []).map(displayName).join(", ") || "—"}
+                    </span>
+                  )}
+                  {(selected.unread_count ?? 0) > 0 && (
+                    <HubChip
+                      variant="soft"
+                      tone="info"
+                      label={t("project_hub.messages.unread", { count: selected.unread_count })}
+                    />
+                  )}
+                </div>
+                <ConversationView key={selected.id} workspaceSlug={workspaceSlug} conversation={selected} />
+              </>
+            ) : (
+              <HubEmptyState
+                icon={ChatOutline as TGlyph}
+                title={t("project_hub.messages.select_conversation")}
+                className="my-auto"
+              />
+            )}
+          </section>
+        </div>
+      )}
 
       <HubDialog
         isOpen={isCreateOpen}
