@@ -3,6 +3,7 @@
 # See the LICENSE file for details.
 
 import pytest
+from django.core.cache import cache
 from rest_framework.test import APIClient
 from pytest_django.fixtures import django_db_setup
 
@@ -54,6 +55,11 @@ def api_token(db, create_user):
         label="Test API Token",
         token="test-api-token-12345",
     )
+    # The v1 API key throttle (plane.api.rate_limit.ApiKeyRateThrottle) keeps
+    # its request history in the shared Redis cache keyed by the token value,
+    # which is the same for every test. Reset it so a long test run cannot
+    # exhaust the per-minute budget and turn later tests into 429s.
+    cache.delete(f"api_key:{token.token}")
     return token
 
 

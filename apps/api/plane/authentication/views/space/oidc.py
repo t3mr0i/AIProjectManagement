@@ -70,7 +70,8 @@ class OIDCCallbackSpaceEndpoint(View):
         nonce = request.session.pop("oidc_nonce", None)
         code_verifier = request.session.pop("oidc_code_verifier", None)
 
-        if state != request.session.get("state", ""):
+        # Consume the state so a callback URL cannot be replayed against this session
+        if not state or state != request.session.pop("state", ""):
             exc = AuthenticationException(
                 error_code=AUTHENTICATION_ERROR_CODES["OIDC_OAUTH_PROVIDER_ERROR"],
                 error_message="OIDC_OAUTH_PROVIDER_ERROR",

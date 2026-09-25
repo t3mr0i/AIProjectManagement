@@ -251,7 +251,12 @@ class OIDCOAuthProvider(OauthAdapter):
             raise self._provider_error(f"id_token verification failed: {e.__class__.__name__}")
 
         # Bind the token to this login attempt (OIDC Core §3.1.3.7 step 11).
-        if self.nonce and claims.get("nonce") != self.nonce:
+        # The initiate endpoint always stores a nonce, so a callback without one
+        # is a replay or a request that never went through initiate: fail closed
+        # instead of silently skipping the check.
+        if not self.nonce:
+            raise self._provider_error("missing login nonce")
+        if claims.get("nonce") != self.nonce:
             raise self._provider_error("id_token nonce mismatch")
 
         # When the token carries multiple audiences the authorized party must be us.

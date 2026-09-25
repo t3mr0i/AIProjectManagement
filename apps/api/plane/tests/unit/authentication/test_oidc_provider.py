@@ -245,6 +245,13 @@ class TestOIDCCallback:
             _login(idp, nonce="different-nonce")
         assert exc.value.error_code == AUTHENTICATION_ERROR_CODES["OIDC_OAUTH_PROVIDER_ERROR"]
 
+    def test_missing_nonce_is_rejected(self, idp):
+        # A callback whose session lost its nonce (replay, or no initiate step)
+        # must fail closed rather than skip the nonce binding.
+        with pytest.raises(AuthenticationException) as exc:
+            _login(idp, nonce=None)
+        assert exc.value.error_code == AUTHENTICATION_ERROR_CODES["OIDC_OAUTH_PROVIDER_ERROR"]
+
     def test_forged_signature_is_rejected(self, idp):
         with pytest.raises(AuthenticationException) as exc:
             _login(idp, id_token=_id_token(pem=OTHER_PEM))
