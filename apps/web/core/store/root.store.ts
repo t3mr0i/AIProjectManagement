@@ -50,6 +50,8 @@ import type { IModuleStore } from "./module.store";
 import { ModulesStore } from "./module.store";
 import type { IModuleFilterStore } from "./module_filter.store";
 import { ModuleFilterStore } from "./module_filter.store";
+import type { IKeyboardNavStore } from "./keyboard_nav.store";
+import { KeyboardNavStore } from "./keyboard_nav.store";
 import type { IMultipleSelectStore } from "./multiple_select.store";
 import { MultipleSelectStore } from "./multiple_select.store";
 import type { IWorkspaceNotificationStore } from "./notifications/workspace-notifications.store";
@@ -99,6 +101,7 @@ export class CoreRootStore {
   projectInbox: IProjectInboxStore;
   projectEstimate: IProjectEstimateStore;
   multipleSelect: IMultipleSelectStore;
+  keyboardNav: IKeyboardNavStore;
   workspaceNotification: IWorkspaceNotificationStore;
   favorite: IFavoriteStore;
   stickyStore: IStickyStore;
@@ -128,6 +131,7 @@ export class CoreRootStore {
     this.label = new LabelStore(this);
     this.dashboard = new DashboardStore(this);
     this.multipleSelect = new MultipleSelectStore();
+    this.keyboardNav = new KeyboardNavStore();
     this.projectInbox = new ProjectInboxStore(this);
     this.projectPages = new ProjectPageStore(this);
     this.projectEstimate = new ProjectEstimateStore(this);
@@ -166,6 +170,7 @@ export class CoreRootStore {
     this.projectInbox = new ProjectInboxStore(this);
     this.projectPages = new ProjectPageStore(this);
     this.multipleSelect = new MultipleSelectStore();
+    this.keyboardNav = new KeyboardNavStore();
     this.projectEstimate = new ProjectEstimateStore(this);
     this.workspaceNotification = new WorkspaceNotificationStore(this);
     this.favorite = new FavoriteStore(this);

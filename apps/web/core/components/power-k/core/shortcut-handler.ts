@@ -140,6 +140,12 @@ export function isTypingInInput(target: EventTarget | null): boolean {
   return target.closest(KEYBOARD_OWNING_ANCESTOR) !== null;
 }
 
+/** Focusable controls whose own Enter/Space activation must win over a named-key shortcut */
+const INTERACTIVE_CONTROL = 'button, a[href], summary, [role="button"], [role="link"], [role="tab"], [role="checkbox"]';
+
+const isInteractiveControl = (target: EventTarget | null): boolean =>
+  target instanceof Element && target.closest(INTERACTIVE_CONTROL) !== null;
+
 /** Whether any registered sequence starts with `prefix` (equality included) */
 const hasSequencePrefix = (sequenceMap: ReadonlyMap<string, string>, prefix: string): boolean => {
   for (const sequence of sequenceMap.keys()) {
@@ -238,8 +244,9 @@ export class ShortcutHandler {
    * Handle modifier shortcuts (Cmd+X, Cmd+Shift+X, etc.)
    */
   private handleModifierShortcut(e: KeyboardEvent): void {
+    const ctx = this.getContext();
     const shortcut = formatModifierShortcut(e, this.layoutMap);
-    const command = this.registry.findByModifierShortcut(this.getContext(), shortcut);
+    const command = this.registry.findByModifierShortcut(ctx, shortcut) ?? this.findShiftedGlyphShortcut(e, ctx);
 
     if (command && this.canExecuteCommand(command)) {
       e.preventDefault();
@@ -248,17 +255,41 @@ export class ShortcutHandler {
   }
 
   /**
+   * A glyph that needs Shift on the active layout ("?" on US, Shift+ß on German) may be
+   * registered as a single-key shortcut. Only the character the user actually typed is
+   * looked up, so a layout never fires a shortcut it does not advertise.
+   */
+  private findShiftedGlyphShortcut(e: KeyboardEvent, ctx: TPowerKContext): TPowerKCommandConfig | undefined {
+    if (e.metaKey || e.ctrlKey || e.altKey || !e.shiftKey) return undefined;
+    if (e.key.length !== 1 || !isAsciiPrintable(e.key) || /^[a-z0-9 ]$/i.test(e.key)) return undefined;
+    const commandId = this.registry.getShortcutMap(ctx).get(e.key.toLowerCase());
+    return commandId ? this.registry.getCommand(commandId) : undefined;
+  }
+
+  /**
    * Handle single key shortcuts or build sequences (s, gm, op, etc.)
    */
   private handleKeyOrSequence(e: KeyboardEvent): void {
-    // Non-printable keys (Escape, Tab, Enter, arrows, ...) cancel a pending sequence
+    const key = resolveShortcutKey(e, this.layoutMap);
+    const ctx = this.getContext();
+
+    // Named keys (Enter, Escape, arrows, function keys, ...) can never extend a sequence, so
+    // any pending prefix is dropped. They may still carry a binding of their own - Enter opens
+    // the focused work item - so a registered single-key shortcut is dispatched before the key
+    // is discarded.
     if (e.key.length !== 1) {
       this.resetSequence();
+      // Enter/Space on a focused control activates it; the native behaviour wins
+      if (isInteractiveControl(e.target)) return;
+      const commandId = this.registry.getShortcutMap(ctx).get(key);
+      const command = commandId ? this.registry.getCommand(commandId) : undefined;
+      if (command && this.canExecuteCommand(command)) {
+        e.preventDefault();
+        this.executeCommand(command);
+      }
       return;
     }
 
-    const key = resolveShortcutKey(e, this.layoutMap);
-    const ctx = this.getContext();
     // Visible commands are computed on every call outside a reactive context, so fetch the
     // map once and answer both the exact and the prefix lookup from it
     const sequenceMap = this.registry.getKeySequenceMap(ctx);
