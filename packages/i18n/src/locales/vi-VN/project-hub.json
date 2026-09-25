@@ -187,7 +187,20 @@
       },
       "discussion": "Thảo luận",
       "open_discussion": "Mở thảo luận",
-      "close_discussion": "Đóng thảo luận"
+      "close_discussion": "Đóng thảo luận",
+      "sidebar": {
+        "status": "Trạng thái",
+        "phase": "Giai đoạn",
+        "delivery": "Bàn giao",
+        "approval": "Phê duyệt",
+        "flags": "Cờ đánh dấu",
+        "next_step": "Bước tiếp theo",
+        "hint": "Tùy chọn: thêm bản mô tả có phiên bản, phê duyệt thực thi rõ ràng và bằng chứng bàn giao.",
+        "approved_revision": "Bản sửa đổi {number} đã được phê duyệt",
+        "pending_revision": "Bản sửa đổi {number} chưa được phê duyệt",
+        "no_revision": "Chưa có bản sửa đổi",
+        "approve": "Phê duyệt bản sửa đổi {number}"
+      }
     },
     "brief": {
       "intent": "Mục tiêu / lý do",
@@ -574,7 +587,13 @@
       "ai_answer_hint": "Câu trả lời của AI — không phải quyết định",
       "mark_read": "Đánh dấu đã đọc",
       "system": "Hệ thống",
-      "private_source": "Dựa trên nguồn riêng tư; chỉ văn bản đã xác nhận được chia sẻ."
+      "private_source": "Dựa trên nguồn riêng tư; chỉ văn bản đã xác nhận được chia sẻ.",
+      "blocked_count": "{count, plural, one {# nguồn không được dùng} other {# nguồn không được dùng}}",
+      "composer_hint": "⌘↵ để gửi · nhắc đến @AI để nhận câu trả lời kèm nguồn",
+      "empty_hint": "Hãy là người đầu tiên viết điều gì đó.",
+      "hide_replies": "Ẩn phản hồi",
+      "private_source_short": "Nguồn riêng tư",
+      "replying_to": "Đang trả lời {name}"
     },
     "activity": {
       "title": "Hoạt động",
@@ -610,7 +629,16 @@
       "open_questions": "{count, plural, one {# câu hỏi còn mở} other {# câu hỏi còn mở}}",
       "section_empty": "Không có gì trong phần này.",
       "updated": "Cập nhật {time}",
-      "sections_label": "Các phần của gói"
+      "sections_label": "Các phần của gói",
+      "view_all": "Tất cả",
+      "view_active": "Đang hoạt động",
+      "view_drafts": "Bản nháp",
+      "hide_done": "Ẩn hoàn thành",
+      "show_done": "Hiện hoàn thành",
+      "show_empty_groups": "Hiện giai đoạn trống",
+      "hide_empty_groups": "Ẩn giai đoạn trống",
+      "next": "Tiếp theo",
+      "filtered_empty": "Không có gói công việc nào trong chế độ xem này."
     },
     "roadmap": {
       "title": "Lộ trình",
@@ -666,7 +694,15 @@
       "late_by": "Trễ {hours} giờ (dự kiến {date})",
       "not_late": "Không trễ",
       "via": "Qua {path}",
-      "impact_basis_deps": "Chỉ được tính từ các phụ thuộc và ngày đáng tin cậy. Kế hoạch không bị thay đổi."
+      "impact_basis_deps": "Chỉ được tính từ các phụ thuộc và ngày đáng tin cậy. Kế hoạch không bị thay đổi.",
+      "dependency": "Phụ thuộc",
+      "milestone": "Cột mốc",
+      "package": "Gói công việc",
+      "empty_hint": "Thêm cột mốc hoặc đặt ngày mục tiêu cho các gói công việc để xem chúng tại đây.",
+      "projects_selected": "{count, plural, one {# dự án} other {# dự án}}",
+      "range_auto": "Khoảng tự động",
+      "range_clear": "Xóa khoảng",
+      "redacted": "Đã ẩn"
     },
     "knowledge": {
       "title": "Kiến thức",
@@ -702,7 +738,8 @@
       "registered": "Đã đăng ký {name}",
       "quarantined_warning": "Đã cách ly – không mở hoặc chia sẻ. Nội dung bị chặn.",
       "format_blocked": "Bị chặn (cách ly)",
-      "mime": "Loại MIME"
+      "mime": "Loại MIME",
+      "quarantined_count": "{count, plural, one {# tệp tải lên bị cách ly} other {# tệp tải lên bị cách ly}}"
     },
     "overview": {
       "title": "Tổng quan",
@@ -713,7 +750,18 @@
       "empty": "Không có công việc đang hoạt động.",
       "open_project": "Mở dự án",
       "counts": "{active} đang hoạt động · {review} đang xem xét · {ready} sẵn sàng",
-      "not_enabled": "Chưa bật"
+      "not_enabled": "Chưa bật",
+      "category": {
+        "decision_needed": "Cần quyết định",
+        "blocked": "Bị chặn",
+        "mention": "Được nhắc đến",
+        "review_request": "Yêu cầu xem xét",
+        "technical": "Kỹ thuật"
+      },
+      "open_decisions_count": "{count, plural, one {# quyết định đang chờ} other {# quyết định đang chờ}}",
+      "caught_up": "Bạn đã theo kịp mọi thứ",
+      "caught_up_hint": "Không có quyết định nào đang chờ bạn và không có công việc nào đang thực hiện.",
+      "no_projects": "Bạn chưa tham gia dự án nào."
     },
     "messages": {
       "title": "Tin nhắn",
@@ -731,7 +779,8 @@
       "private_notice": "Cuộc trò chuyện riêng tư — chỉ người tham gia mới có thể đọc.",
       "kind": "Loại",
       "conversation_title": "Tiêu đề (tùy chọn)",
-      "new_conversation": "Cuộc trò chuyện mới"
+      "new_conversation": "Cuộc trò chuyện mới",
+      "empty_hint": "Bắt đầu một kênh dự án hoặc một tin nhắn trực tiếp."
     },
     "search": {
       "title": "Tìm kiếm",
@@ -750,7 +799,8 @@
         "event": "Sự kiện",
         "upload": "Tệp tải lên",
         "issue": "Mục công việc"
-      }
+      },
+      "start_title": "Tìm kiếm trong các gói, quyết định, trang và tin nhắn"
     },
     "settings": {
       "title": "Project Hub",
@@ -837,7 +887,69 @@
         "ai_outputs": "Kết quả AI",
         "exports": "Bản xuất"
       },
-      "admin_only": "Chỉ quản trị viên không gian làm việc mới có thể thay đổi mục này."
+      "admin_only": "Chỉ quản trị viên không gian làm việc mới có thể thay đổi mục này.",
+      "admin_only_description": "Bạn có thể xem các cài đặt này; các thay đổi cần quyền chức năng \"Quản trị Project Hub\".",
+      "activation_description": "Bật tiện ích mở rộng theo từng không gian làm việc và dự án. Mọi thay đổi đều được kiểm toán kèm lý do.",
+      "workspace_enabled_description": "Dự án chỉ có thể được bật khi không gian làm việc đang được bật.",
+      "projects_enabled_count": "{count} đã bật",
+      "requires_workspace": "Hãy bật không gian làm việc trước.",
+      "enable": "Bật",
+      "disable": "Tắt",
+      "activation_enable_description": "Thành viên được cấp quyền sẽ có quyền truy cập vào màn hình và hành động của Project Hub.",
+      "activation_disable_description": "Lượt chạy, phê duyệt và tích hợp sẽ tạm dừng cho đến khi được bật lại. Không có dữ liệu nào bị xóa.",
+      "grants_description": "Quyền rõ ràng theo từng thành viên. Vai trò gốc không bao giờ ngụ ý quyền thực thi, xem xét hoặc hợp nhất.",
+      "grants_empty_title": "Không có quyền chức năng nào được cấp",
+      "grant_count": "{count} quyền chức năng",
+      "grant_dialog_title": "Cấp quyền chức năng",
+      "grant_capability_hint": "Chọn một quyền chức năng để xem quyền đó cho phép làm gì.",
+      "revoke_grant_label": "Thu hồi {capability}",
+      "revoke_confirm_title": "Thu hồi quyền chức năng?",
+      "revoke_confirm_description": "{member} sẽ mất \"{capability}\" đối với {scope}. Công việc đang thực hiện không bị ảnh hưởng.",
+      "runners_description": "Các máy thực thi lượt chạy. Mỗi runner xác thực bằng token riêng.",
+      "runners_empty_description": "Đăng ký một runner để thực thi lượt chạy.",
+      "runner_status": {
+        "online": "Trực tuyến",
+        "idle": "Nhàn rỗi",
+        "inactive": "Không hoạt động"
+      },
+      "runner_token_once": "Chỉ hiển thị một lần",
+      "runner_register_hint": "Token được tạo khi đăng ký và chỉ hiển thị một lần.",
+      "runner_deactivate_confirm_title": "Vô hiệu hóa runner?",
+      "runner_deactivate_confirm_description": "\"{name}\" sẽ không thể nhận lượt chạy nữa. Token của nó sẽ ngừng hoạt động ngay lập tức.",
+      "integrations_description": "Các công cụ theo dõi bên ngoài và nhà cung cấp Git. Các kết nối bị suy giảm không bao giờ được hiển thị là đang hoạt động.",
+      "connections_empty_description": "Kết nối một nhà cung cấp để đồng bộ gói công việc và mã nguồn.",
+      "providers_description": "Những gì mỗi bộ chuyển đổi nhà cung cấp hỗ trợ.",
+      "capability_column": "Quyền chức năng",
+      "support_short": {
+        "supported": "Có",
+        "partial": "Một phần",
+        "unsupported": "Không",
+        "requires_configuration": "Cấu hình",
+        "unknown": "—"
+      },
+      "health_unavailable": "Không có tình trạng",
+      "disconnect_confirm_title": "Ngắt kết nối?",
+      "disconnect_confirm_description": "\"{name}\" sẽ ngừng đồng bộ. Các liên kết được giữ ở trạng thái đã ngắt kết nối; không có dữ liệu nào bị xóa.",
+      "retention_description": "Mỗi danh mục được lưu giữ trong bao lâu. Để trống nghĩa là lưu giữ vĩnh viễn.",
+      "retention_after_days": "Đã xóa sau {count} ngày",
+      "unsaved_changes": "Thay đổi chưa lưu",
+      "retention_apply_hint": "Việc lưu giữ chạy theo lịch trình; hãy áp dụng ngay để chạy ngay lập tức.",
+      "retention_apply_confirm_title": "Áp dụng lưu giữ ngay bây giờ?",
+      "retention_apply_confirm_description": "Dữ liệu cũ hơn giới hạn đã lưu sẽ bị xóa vĩnh viễn. Các thay đổi chưa lưu sẽ không được áp dụng."
+    },
+    "capability_description": {
+      "project_read": "Xem các màn hình Project Hub của một dự án.",
+      "package_edit": "Tạo và chỉnh sửa gói công việc, sơ đồ và bản nháp.",
+      "package_approve_execution": "Phê duyệt một gói để tác tử thực thi.",
+      "run_start": "Bắt đầu lượt chạy trên một runner.",
+      "run_cancel": "Hủy các lượt chạy đang diễn ra.",
+      "review_approve_code": "Phê duyệt mã do một lượt chạy tạo ra.",
+      "review_accept_outcome": "Chấp nhận kết quả của một lượt chạy là đã hoàn thành.",
+      "merge_request": "Yêu cầu hợp nhất mã đã được phê duyệt.",
+      "decision_publish": "Xuất bản quyết định vào kiến thức của dự án.",
+      "project_plan": "Lập kế hoạch giai đoạn, cột mốc và lộ trình.",
+      "integration_manage": "Quản lý kết nối và runner.",
+      "workspace_admin": "Thay đổi kích hoạt, cấp quyền và lưu giữ dữ liệu."
     },
     "capability": {
       "project_read": "Đọc dự án",
@@ -897,7 +1009,20 @@
       },
       "ambiguous_edge": "Không rõ ràng: thêm loại hoặc nhãn và một hướng rõ ràng.",
       "source": "Từ",
-      "target": "Đến"
+      "target": "Đến",
+      "toolbar_label": "Công cụ sơ đồ",
+      "zoom_fit": "Thu phóng vừa khít",
+      "zoom_reset": "Đặt lại thu phóng",
+      "properties": "Thuộc tính",
+      "inspector_empty": "Chọn một nút hoặc cạnh để chỉnh sửa.",
+      "edge_label": "{source} → {target}",
+      "select_edge": "Cạnh {label}: {source} đến {target}",
+      "unsaved": "Thay đổi chưa lưu",
+      "canvas_empty": "Thêm một nút để bắt đầu.",
+      "node": "Nút",
+      "edge": "Cạnh",
+      "ambiguous_short": "Không rõ",
+      "read_only": "Chỉ đọc — cần có \"Chỉnh sửa gói\" để thay đổi sơ đồ này."
     }
   }
 }

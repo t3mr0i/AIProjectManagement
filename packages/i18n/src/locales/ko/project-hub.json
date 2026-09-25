@@ -187,7 +187,20 @@
       },
       "discussion": "토론",
       "open_discussion": "토론 열기",
-      "close_discussion": "토론 닫기"
+      "close_discussion": "토론 닫기",
+      "sidebar": {
+        "status": "상태",
+        "phase": "단계",
+        "delivery": "딜리버리",
+        "approval": "승인",
+        "flags": "플래그",
+        "next_step": "다음 단계",
+        "hint": "선택 사항: 버전 관리되는 브리프, 명시적인 실행 승인 및 딜리버리 증거를 추가합니다.",
+        "approved_revision": "리비전 {number} 승인됨",
+        "pending_revision": "리비전 {number} 미승인",
+        "no_revision": "아직 리비전 없음",
+        "approve": "리비전 {number} 승인"
+      }
     },
     "brief": {
       "intent": "목표 / 이유",
@@ -574,7 +587,13 @@
       "ai_answer_hint": "AI 답변 - 결정이 아님",
       "mark_read": "읽음으로 표시",
       "system": "시스템",
-      "private_source": "비공개 출처를 기반으로 합니다. 확인된 텍스트만 공유됩니다."
+      "private_source": "비공개 출처를 기반으로 합니다. 확인된 텍스트만 공유됩니다.",
+      "blocked_count": "{count, plural, one {사용되지 않은 출처 #개} other {사용되지 않은 출처 #개}}",
+      "composer_hint": "⌘↵ 보내기 · 출처가 포함된 답변을 받으려면 @AI를 멘션하세요",
+      "empty_hint": "가장 먼저 글을 남겨 보세요.",
+      "hide_replies": "답글 숨기기",
+      "private_source_short": "비공개 출처",
+      "replying_to": "{name}님에게 답글"
     },
     "activity": {
       "title": "활동",
@@ -610,7 +629,16 @@
       "open_questions": "{count, plural, one {미해결 질문 #개} other {미해결 질문 #개}}",
       "section_empty": "이 섹션에 항목이 없습니다.",
       "updated": "업데이트: {time}",
-      "sections_label": "패키지 섹션"
+      "sections_label": "패키지 섹션",
+      "view_all": "전체",
+      "view_active": "활성",
+      "view_drafts": "초안",
+      "hide_done": "완료 숨기기",
+      "show_done": "완료 표시",
+      "show_empty_groups": "빈 단계 표시",
+      "hide_empty_groups": "빈 단계 숨기기",
+      "next": "다음",
+      "filtered_empty": "이 보기에는 작업 패키지가 없습니다."
     },
     "roadmap": {
       "title": "로드맵",
@@ -666,7 +694,15 @@
       "late_by": "{hours}시간 지연(예상 {date})",
       "not_late": "지연 없음",
       "via": "경유: {path}",
-      "impact_basis_deps": "종속성과 신뢰할 수 있는 날짜만으로 계산되었습니다. 계획은 변경되지 않습니다."
+      "impact_basis_deps": "종속성과 신뢰할 수 있는 날짜만으로 계산되었습니다. 계획은 변경되지 않습니다.",
+      "dependency": "종속성",
+      "milestone": "마일스톤",
+      "package": "작업 패키지",
+      "empty_hint": "마일스톤을 추가하거나 작업 패키지에 목표 날짜를 설정하면 여기에 표시됩니다.",
+      "projects_selected": "{count, plural, one {프로젝트 #개} other {프로젝트 #개}}",
+      "range_auto": "자동 범위",
+      "range_clear": "범위 지우기",
+      "redacted": "가려짐"
     },
     "knowledge": {
       "title": "지식",
@@ -702,7 +738,8 @@
       "registered": "{name} 등록됨",
       "quarantined_warning": "격리됨 – 열거나 공유하지 마십시오. 콘텐츠가 차단되었습니다.",
       "format_blocked": "차단됨(격리)",
-      "mime": "MIME 형식"
+      "mime": "MIME 형식",
+      "quarantined_count": "{count, plural, one {격리된 업로드 #개} other {격리된 업로드 #개}}"
     },
     "overview": {
       "title": "개요",
@@ -713,7 +750,18 @@
       "empty": "활성 작업이 없습니다.",
       "open_project": "프로젝트 열기",
       "counts": "활성 {active} · 검토 중 {review} · 준비됨 {ready}",
-      "not_enabled": "활성화되지 않음"
+      "not_enabled": "활성화되지 않음",
+      "category": {
+        "decision_needed": "결정 필요",
+        "blocked": "차단됨",
+        "mention": "멘션",
+        "review_request": "검토 요청됨",
+        "technical": "기술"
+      },
+      "open_decisions_count": "{count, plural, one {미결 결정 #개} other {미결 결정 #개}}",
+      "caught_up": "모두 처리되었습니다",
+      "caught_up_hint": "나를 기다리는 결정도, 진행 중인 작업도 없습니다.",
+      "no_projects": "아직 참여한 프로젝트가 없습니다."
     },
     "messages": {
       "title": "메시지",
@@ -731,7 +779,8 @@
       "private_notice": "비공개 대화입니다. 참여자만 읽을 수 있습니다.",
       "kind": "유형",
       "conversation_title": "제목(선택 사항)",
-      "new_conversation": "새 대화"
+      "new_conversation": "새 대화",
+      "empty_hint": "프로젝트 채널이나 다이렉트 메시지를 시작하세요."
     },
     "search": {
       "title": "검색",
@@ -750,7 +799,8 @@
         "event": "이벤트",
         "upload": "업로드",
         "issue": "작업 항목"
-      }
+      },
+      "start_title": "패키지, 결정, 페이지, 메시지를 한 번에 검색"
     },
     "settings": {
       "title": "Project Hub",
@@ -837,7 +887,69 @@
         "ai_outputs": "AI 출력",
         "exports": "내보내기"
       },
-      "admin_only": "작업 공간 관리자만 이 항목을 변경할 수 있습니다."
+      "admin_only": "작업 공간 관리자만 이 항목을 변경할 수 있습니다.",
+      "admin_only_description": "이 설정은 볼 수 있지만 변경하려면 \"Project Hub 관리\" 기능 권한이 필요합니다.",
+      "activation_description": "작업 공간 및 프로젝트별로 확장 기능을 켭니다. 모든 변경 사항은 사유와 함께 감사 기록됩니다.",
+      "workspace_enabled_description": "프로젝트는 작업 공간이 활성화되어 있는 동안에만 활성화할 수 있습니다.",
+      "projects_enabled_count": "{count}개 활성화됨",
+      "requires_workspace": "먼저 작업 공간을 활성화하십시오.",
+      "enable": "활성화",
+      "disable": "비활성화",
+      "activation_enable_description": "권한이 부여된 멤버는 Project Hub 화면과 작업에 액세스할 수 있습니다.",
+      "activation_disable_description": "다시 활성화될 때까지 실행, 승인 및 연동이 일시 중지됩니다. 데이터는 삭제되지 않습니다.",
+      "grants_description": "멤버별 명시적 권한입니다. 기본 역할은 실행, 검토 또는 병합 권한을 의미하지 않습니다.",
+      "grants_empty_title": "부여된 기능 권한 없음",
+      "grant_count": "{count}개 기능",
+      "grant_dialog_title": "기능 권한 부여",
+      "grant_capability_hint": "기능 권한을 선택하면 허용되는 내용을 확인할 수 있습니다.",
+      "revoke_grant_label": "{capability} 취소",
+      "revoke_confirm_title": "기능 권한을 취소하시겠습니까?",
+      "revoke_confirm_description": "{member}님이 {scope}에 대한 \"{capability}\" 권한을 잃습니다. 진행 중인 작업에는 영향을 주지 않습니다.",
+      "runners_description": "실행을 수행하는 머신입니다. 각 러너는 고유한 토큰으로 인증합니다.",
+      "runners_empty_description": "실행을 수행하려면 러너를 등록하십시오.",
+      "runner_status": {
+        "online": "온라인",
+        "idle": "유휴",
+        "inactive": "비활성"
+      },
+      "runner_token_once": "한 번만 표시됨",
+      "runner_register_hint": "토큰은 등록 시 생성되며 한 번만 표시됩니다.",
+      "runner_deactivate_confirm_title": "러너를 비활성화하시겠습니까?",
+      "runner_deactivate_confirm_description": "\"{name}\"은(는) 더 이상 실행을 점유할 수 없습니다. 해당 토큰은 즉시 작동을 멈춥니다.",
+      "integrations_description": "외부 트래커와 Git 제공자입니다. 성능이 저하된 연결은 절대 실시간으로 표시되지 않습니다.",
+      "connections_empty_description": "작업 패키지와 코드를 동기화하려면 제공자를 연결하십시오.",
+      "providers_description": "각 제공자 어댑터가 지원하는 내용입니다.",
+      "capability_column": "기능 권한",
+      "support_short": {
+        "supported": "예",
+        "partial": "부분",
+        "unsupported": "아니요",
+        "requires_configuration": "설정",
+        "unknown": "—"
+      },
+      "health_unavailable": "상태 확인 불가",
+      "disconnect_confirm_title": "연결을 끊으시겠습니까?",
+      "disconnect_confirm_description": "\"{name}\"의 동기화가 중지됩니다. 연결은 끊긴 상태로 유지되며 데이터는 삭제되지 않습니다.",
+      "retention_description": "각 범주를 보존하는 기간입니다. 비워 두면 영구 보존을 의미합니다.",
+      "retention_after_days": "{count}일 후 삭제됨",
+      "unsaved_changes": "저장되지 않은 변경 사항",
+      "retention_apply_hint": "보존은 일정에 따라 실행됩니다. 지금 바로 실행하려면 적용하십시오.",
+      "retention_apply_confirm_title": "지금 보존 정책을 적용하시겠습니까?",
+      "retention_apply_confirm_description": "저장된 한도보다 오래된 데이터가 영구적으로 삭제됩니다. 저장되지 않은 변경 사항은 적용되지 않습니다."
+    },
+    "capability_description": {
+      "project_read": "프로젝트의 Project Hub 화면을 봅니다.",
+      "package_edit": "작업 패키지, 다이어그램, 초안을 생성하고 편집합니다.",
+      "package_approve_execution": "에이전트가 실행할 수 있도록 패키지를 승인합니다.",
+      "run_start": "러너에서 실행을 시작합니다.",
+      "run_cancel": "진행 중인 실행을 취소합니다.",
+      "review_approve_code": "실행으로 생성된 코드를 승인합니다.",
+      "review_accept_outcome": "실행 결과를 완료로 수락합니다.",
+      "merge_request": "승인된 코드의 병합을 요청합니다.",
+      "decision_publish": "결정을 프로젝트 지식으로 게시합니다.",
+      "project_plan": "단계, 마일스톤, 로드맵을 계획합니다.",
+      "integration_manage": "연결과 러너를 관리합니다.",
+      "workspace_admin": "활성화, 권한 부여, 보존을 변경합니다."
     },
     "capability": {
       "project_read": "프로젝트 읽기",
@@ -897,7 +1009,20 @@
       },
       "ambiguous_edge": "모호함: 유형 또는 레이블과 명확한 방향을 추가하십시오.",
       "source": "시작",
-      "target": "끝"
+      "target": "끝",
+      "toolbar_label": "다이어그램 도구",
+      "zoom_fit": "화면에 맞추기",
+      "zoom_reset": "확대/축소 재설정",
+      "properties": "속성",
+      "inspector_empty": "편집할 노드나 에지를 선택하세요.",
+      "edge_label": "{source} → {target}",
+      "select_edge": "에지 {label}: {source}에서 {target}",
+      "unsaved": "저장되지 않은 변경 사항",
+      "canvas_empty": "시작하려면 노드를 추가하세요.",
+      "node": "노드",
+      "edge": "에지",
+      "ambiguous_short": "불분명",
+      "read_only": "읽기 전용 — 이 다이어그램을 변경하려면 \"패키지 편집\" 권한이 필요합니다."
     }
   }
 }

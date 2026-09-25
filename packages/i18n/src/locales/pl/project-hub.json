@@ -187,7 +187,20 @@
       },
       "discussion": "Dyskusja",
       "open_discussion": "Otwórz dyskusję",
-      "close_discussion": "Zamknij dyskusję"
+      "close_discussion": "Zamknij dyskusję",
+      "sidebar": {
+        "status": "Status",
+        "phase": "Faza",
+        "delivery": "Dostarczenie",
+        "approval": "Zatwierdzenie",
+        "flags": "Flagi",
+        "next_step": "Następny krok",
+        "hint": "Opcjonalnie: dodaje wersjonowane założenia, jawne zatwierdzenie wykonania i dowody dostarczenia.",
+        "approved_revision": "Rewizja {number} zatwierdzona",
+        "pending_revision": "Rewizja {number} niezatwierdzona",
+        "no_revision": "Jeszcze brak rewizji",
+        "approve": "Zatwierdź rewizję {number}"
+      }
     },
     "brief": {
       "intent": "Cel / dlaczego",
@@ -574,7 +587,13 @@
       "ai_answer_hint": "Odpowiedź AI — nie jest decyzją",
       "mark_read": "Oznacz jako przeczytane",
       "system": "System",
-      "private_source": "Oparte na prywatnym źródle; udostępniany jest tylko potwierdzony tekst."
+      "private_source": "Oparte na prywatnym źródle; udostępniany jest tylko potwierdzony tekst.",
+      "blocked_count": "{count, plural, one {# źródło nieużyte} few {# źródła nieużyte} many {# źródeł nieużytych} other {# źródła nieużytego}}",
+      "composer_hint": "⌘↵ aby wysłać · wspomnij @AI, aby uzyskać odpowiedź ze źródłami",
+      "empty_hint": "Napisz coś jako pierwszy.",
+      "hide_replies": "Ukryj odpowiedzi",
+      "private_source_short": "Prywatne źródło",
+      "replying_to": "Odpowiedź dla {name}"
     },
     "activity": {
       "title": "Aktywność",
@@ -610,7 +629,16 @@
       "open_questions": "{count, plural, one {# otwarte pytanie} few {# otwarte pytania} many {# otwartych pytań} other {# otwartego pytania}}",
       "section_empty": "Brak elementów w tej sekcji.",
       "updated": "Zaktualizowano {time}",
-      "sections_label": "Sekcje pakietów"
+      "sections_label": "Sekcje pakietów",
+      "view_all": "Wszystkie",
+      "view_active": "Aktywne",
+      "view_drafts": "Wersje robocze",
+      "hide_done": "Ukryj gotowe",
+      "show_done": "Pokaż gotowe",
+      "show_empty_groups": "Pokaż puste fazy",
+      "hide_empty_groups": "Ukryj puste fazy",
+      "next": "Następny",
+      "filtered_empty": "Brak pakietów roboczych w tym widoku."
     },
     "roadmap": {
       "title": "Roadmapa",
@@ -666,7 +694,15 @@
       "late_by": "Opóźnienie {hours} h (prognoza {date})",
       "not_late": "Bez opóźnienia",
       "via": "Przez {path}",
-      "impact_basis_deps": "Obliczone wyłącznie na podstawie zależności i wiarygodnych dat. Plan nie jest zmieniany."
+      "impact_basis_deps": "Obliczone wyłącznie na podstawie zależności i wiarygodnych dat. Plan nie jest zmieniany.",
+      "dependency": "Zależność",
+      "milestone": "Kamień milowy",
+      "package": "Pakiet roboczy",
+      "empty_hint": "Dodaj kamień milowy lub ustaw daty docelowe na pakietach roboczych, aby zobaczyć je tutaj.",
+      "projects_selected": "{count, plural, one {# projekt} few {# projekty} many {# projektów} other {# projektu}}",
+      "range_auto": "Zakres automatyczny",
+      "range_clear": "Wyczyść zakres",
+      "redacted": "Ukryto"
     },
     "knowledge": {
       "title": "Wiedza",
@@ -702,7 +738,8 @@
       "registered": "Zarejestrowano {name}",
       "quarantined_warning": "W kwarantannie – nie otwieraj ani nie udostępniaj. Zawartość jest zablokowana.",
       "format_blocked": "Zablokowane (kwarantanna)",
-      "mime": "Typ MIME"
+      "mime": "Typ MIME",
+      "quarantined_count": "{count, plural, one {# przesłany plik w kwarantannie} few {# przesłane pliki w kwarantannie} many {# przesłanych plików w kwarantannie} other {# przesłanego pliku w kwarantannie}}"
     },
     "overview": {
       "title": "Przegląd",
@@ -713,7 +750,18 @@
       "empty": "Brak aktywnej pracy.",
       "open_project": "Otwórz projekt",
       "counts": "Aktywne: {active} · w przeglądzie: {review} · gotowe: {ready}",
-      "not_enabled": "Niewłączony"
+      "not_enabled": "Niewłączony",
+      "category": {
+        "decision_needed": "Potrzebna decyzja",
+        "blocked": "Zablokowane",
+        "mention": "Wzmianka",
+        "review_request": "Poproszono o review",
+        "technical": "Techniczne"
+      },
+      "open_decisions_count": "{count, plural, one {# otwarta decyzja} few {# otwarte decyzje} many {# otwartych decyzji} other {# otwartej decyzji}}",
+      "caught_up": "Wszystko masz na bieżąco",
+      "caught_up_hint": "Żadne decyzje nie czekają, a żadna praca nie jest w toku.",
+      "no_projects": "Nie dołączono jeszcze do żadnego projektu."
     },
     "messages": {
       "title": "Wiadomości",
@@ -731,7 +779,8 @@
       "private_notice": "Rozmowa prywatna — mogą ją czytać tylko uczestnicy.",
       "kind": "Typ",
       "conversation_title": "Tytuł (opcjonalnie)",
-      "new_conversation": "Nowa rozmowa"
+      "new_conversation": "Nowa rozmowa",
+      "empty_hint": "Rozpocznij kanał projektu lub wiadomość bezpośrednią."
     },
     "search": {
       "title": "Wyszukiwanie",
@@ -750,7 +799,8 @@
         "event": "Zdarzenie",
         "upload": "Przesłany plik",
         "issue": "Element pracy"
-      }
+      },
+      "start_title": "Szukaj wśród pakietów, decyzji, stron i wiadomości"
     },
     "settings": {
       "title": "Project Hub",
@@ -837,7 +887,69 @@
         "ai_outputs": "Wyniki AI",
         "exports": "Eksporty"
       },
-      "admin_only": "Tylko administratorzy przestrzeni roboczej mogą to zmienić."
+      "admin_only": "Tylko administratorzy przestrzeni roboczej mogą to zmienić.",
+      "admin_only_description": "Możesz przeglądać te ustawienia; zmiany wymagają uprawnienia „Administrowanie Project Hub”.",
+      "activation_description": "Włącz rozszerzenie dla poszczególnych przestrzeni roboczych i projektów. Każda zmiana jest rejestrowana z powodem.",
+      "workspace_enabled_description": "Projekty można włączyć tylko wtedy, gdy włączona jest przestrzeń robocza.",
+      "projects_enabled_count": "{count} włączonych",
+      "requires_workspace": "Najpierw włącz przestrzeń roboczą.",
+      "enable": "Włącz",
+      "disable": "Wyłącz",
+      "activation_enable_description": "Członkowie z nadanymi uprawnieniami uzyskują dostęp do ekranów i akcji Project Hub.",
+      "activation_disable_description": "Uruchomienia, zatwierdzenia i integracje wstrzymują się do czasu ponownego włączenia. Żadne dane nie są usuwane.",
+      "grants_description": "Jawne prawa dla poszczególnych członków. Role natywne nigdy nie implikują praw do wykonania, review ani scalania.",
+      "grants_empty_title": "Brak nadanych uprawnień",
+      "grant_count": "{count} uprawnień",
+      "grant_dialog_title": "Nadaj uprawnienie",
+      "grant_capability_hint": "Wybierz uprawnienie, aby zobaczyć, co umożliwia.",
+      "revoke_grant_label": "Cofnij {capability}",
+      "revoke_confirm_title": "Cofnąć uprawnienie?",
+      "revoke_confirm_description": "{member} straci „{capability}” dla {scope}. Trwająca praca nie zostanie dotknięta.",
+      "runners_description": "Maszyny wykonujące uruchomienia. Każdy runner uwierzytelnia się własnym tokenem.",
+      "runners_empty_description": "Zarejestruj runnera, aby wykonywać uruchomienia.",
+      "runner_status": {
+        "online": "Online",
+        "idle": "Bezczynny",
+        "inactive": "Nieaktywny"
+      },
+      "runner_token_once": "Pokazywany tylko raz",
+      "runner_register_hint": "Token jest tworzony przy rejestracji i pokazywany jednorazowo.",
+      "runner_deactivate_confirm_title": "Dezaktywować runnera?",
+      "runner_deactivate_confirm_description": "„{name}” nie będzie mógł już przejmować uruchomień. Jego token przestaje działać natychmiast.",
+      "integrations_description": "Zewnętrzne trackery i dostawcy Git. Zdegradowane połączenia nigdy nie są pokazywane jako aktywne.",
+      "connections_empty_description": "Połącz dostawcę, aby synchronizować pakiety robocze i kod.",
+      "providers_description": "Co obsługuje adapter każdego dostawcy.",
+      "capability_column": "Uprawnienie",
+      "support_short": {
+        "supported": "Tak",
+        "partial": "Częściowo",
+        "unsupported": "Nie",
+        "requires_configuration": "Konfig.",
+        "unknown": "—"
+      },
+      "health_unavailable": "Kondycja niedostępna",
+      "disconnect_confirm_title": "Rozłączyć połączenie?",
+      "disconnect_confirm_description": "„{name}” przestaje się synchronizować. Powiązania są zachowywane jako rozłączone; żadne dane nie są usuwane.",
+      "retention_description": "Jak długo przechowywana jest każda kategoria. Puste oznacza przechowywanie bezterminowo.",
+      "retention_after_days": "Usunięto po {count} dniach",
+      "unsaved_changes": "Niezapisane zmiany",
+      "retention_apply_hint": "Retencja działa według harmonogramu; zastosuj teraz, aby uruchomić ją natychmiast.",
+      "retention_apply_confirm_title": "Zastosować retencję teraz?",
+      "retention_apply_confirm_description": "Dane starsze niż zapisane limity zostaną trwale usunięte. Niezapisane zmiany nie zostaną zastosowane."
+    },
+    "capability_description": {
+      "project_read": "Wyświetlanie ekranów Project Hub danego projektu.",
+      "package_edit": "Tworzenie i edytowanie pakietów roboczych, diagramów i wersji roboczych.",
+      "package_approve_execution": "Zatwierdzanie pakietu do wykonania przez agenta.",
+      "run_start": "Uruchamianie na runnerze.",
+      "run_cancel": "Anulowanie trwających uruchomień.",
+      "review_approve_code": "Zatwierdzanie kodu wytworzonego podczas uruchomienia.",
+      "review_accept_outcome": "Przyjmowanie wyniku uruchomienia jako gotowego.",
+      "merge_request": "Żądanie scalenia zatwierdzonego kodu.",
+      "decision_publish": "Publikowanie decyzji w wiedzy projektu.",
+      "project_plan": "Planowanie faz, kamieni milowych i roadmapy.",
+      "integration_manage": "Zarządzanie połączeniami i runnerami.",
+      "workspace_admin": "Zmiana aktywacji, uprawnień i retencji."
     },
     "capability": {
       "project_read": "Odczyt projektu",
@@ -897,7 +1009,20 @@
       },
       "ambiguous_edge": "Niejednoznaczna: dodaj typ lub etykietę oraz jasny kierunek.",
       "source": "Od",
-      "target": "Do"
+      "target": "Do",
+      "toolbar_label": "Narzędzia diagramu",
+      "zoom_fit": "Dopasuj powiększenie",
+      "zoom_reset": "Zresetuj powiększenie",
+      "properties": "Właściwości",
+      "inspector_empty": "Wybierz węzeł lub krawędź, aby edytować.",
+      "edge_label": "{source} → {target}",
+      "select_edge": "Krawędź {label}: {source} do {target}",
+      "unsaved": "Niezapisane zmiany",
+      "canvas_empty": "Dodaj węzeł, aby zacząć.",
+      "node": "Węzeł",
+      "edge": "Krawędź",
+      "ambiguous_short": "Niejasne",
+      "read_only": "Tylko do odczytu — do zmiany tego diagramu wymagane jest uprawnienie „Edycja pakietów”."
     }
   }
 }

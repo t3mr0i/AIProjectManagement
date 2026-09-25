@@ -187,7 +187,20 @@
       },
       "discussion": "討論",
       "open_discussion": "開啟討論",
-      "close_discussion": "關閉討論"
+      "close_discussion": "關閉討論",
+      "sidebar": {
+        "status": "狀態",
+        "phase": "階段",
+        "delivery": "交付",
+        "approval": "核准",
+        "flags": "標記",
+        "next_step": "下一步",
+        "hint": "選填：新增具版本的任務說明、明確的執行核准和交付證據。",
+        "approved_revision": "修訂版{number}已核准",
+        "pending_revision": "修訂版{number}未核准",
+        "no_revision": "尚無修訂版",
+        "approve": "核准修訂版{number}"
+      }
     },
     "brief": {
       "intent": "目標／原因",
@@ -574,7 +587,13 @@
       "ai_answer_hint": "AI 回答，並非決策",
       "mark_read": "標示為已讀",
       "system": "系統",
-      "private_source": "基於私人來源；僅分享已確認的文字。"
+      "private_source": "基於私人來源；僅分享已確認的文字。",
+      "blocked_count": "{count, plural, one {# 個未使用的來源} other {# 個未使用的來源}}",
+      "composer_hint": "⌘↵ 傳送 · 提及 @AI 即可取得附來源的回答",
+      "empty_hint": "搶先寫下第一則訊息。",
+      "hide_replies": "隱藏回覆",
+      "private_source_short": "私人來源",
+      "replying_to": "回覆{name}"
     },
     "activity": {
       "title": "動態",
@@ -610,7 +629,16 @@
       "open_questions": "{count, plural, one {# 個未解決的問題} other {# 個未解決的問題}}",
       "section_empty": "此區段沒有內容。",
       "updated": "更新於{time}",
-      "sections_label": "工作包區段"
+      "sections_label": "工作包區段",
+      "view_all": "全部",
+      "view_active": "進行中",
+      "view_drafts": "草稿",
+      "hide_done": "隱藏已完成",
+      "show_done": "顯示已完成",
+      "show_empty_groups": "顯示空白階段",
+      "hide_empty_groups": "隱藏空白階段",
+      "next": "下一個",
+      "filtered_empty": "此檢視中沒有工作包。"
     },
     "roadmap": {
       "title": "路線圖",
@@ -666,7 +694,15 @@
       "late_by": "延遲 {hours} 小時（預計 {date}）",
       "not_late": "未延遲",
       "via": "經由 {path}",
-      "impact_basis_deps": "僅根據相依性和可靠日期計算。計畫不會變更。"
+      "impact_basis_deps": "僅根據相依性和可靠日期計算。計畫不會變更。",
+      "dependency": "相依性",
+      "milestone": "里程碑",
+      "package": "工作包",
+      "empty_hint": "新增里程碑或在工作包上設定目標日期，即可在此處看到它們。",
+      "projects_selected": "{count, plural, one {# 個專案} other {# 個專案}}",
+      "range_auto": "自動範圍",
+      "range_clear": "清除範圍",
+      "redacted": "已隱藏"
     },
     "knowledge": {
       "title": "知識",
@@ -702,7 +738,8 @@
       "registered": "已登錄 {name}",
       "quarantined_warning": "已隔離——請勿開啟或分享。內容已遭封鎖。",
       "format_blocked": "已封鎖（已隔離）",
-      "mime": "MIME 類型"
+      "mime": "MIME 類型",
+      "quarantined_count": "{count, plural, one {# 個已隔離的上傳檔案} other {# 個已隔離的上傳檔案}}"
     },
     "overview": {
       "title": "總覽",
@@ -713,7 +750,18 @@
       "empty": "沒有進行中的工作。",
       "open_project": "開啟專案",
       "counts": "{active} 個進行中 · {review} 個審查中 · {ready} 個就緒",
-      "not_enabled": "未啟用"
+      "not_enabled": "未啟用",
+      "category": {
+        "decision_needed": "需要決策",
+        "blocked": "已封鎖",
+        "mention": "提及",
+        "review_request": "已要求審查",
+        "technical": "技術"
+      },
+      "open_decisions_count": "{count, plural, one {# 個待決決策} other {# 個待決決策}}",
+      "caught_up": "您已全部處理完畢",
+      "caught_up_hint": "沒有等待您處理的決策，也沒有進行中的工作。",
+      "no_projects": "您尚未加入任何專案。"
     },
     "messages": {
       "title": "訊息",
@@ -731,7 +779,8 @@
       "private_notice": "私人對話，僅參與者可閱讀。",
       "kind": "類型",
       "conversation_title": "標題（選填）",
-      "new_conversation": "新增對話"
+      "new_conversation": "新增對話",
+      "empty_hint": "開始一個專案頻道或私人訊息。"
     },
     "search": {
       "title": "搜尋",
@@ -750,7 +799,8 @@
         "event": "事件",
         "upload": "上傳",
         "issue": "工作事項"
-      }
+      },
+      "start_title": "在工作包、決策、頁面和訊息中搜尋"
     },
     "settings": {
       "title": "Project Hub",
@@ -837,7 +887,69 @@
         "ai_outputs": "AI 輸出",
         "exports": "匯出"
       },
-      "admin_only": "只有工作區管理員可以變更此項目。"
+      "admin_only": "只有工作區管理員可以變更此項目。",
+      "admin_only_description": "您可以檢視這些設定；變更需要「管理 Project Hub」功能權限。",
+      "activation_description": "依工作區和專案啟用擴充功能。每次變更都會記錄原因以供稽核。",
+      "workspace_enabled_description": "只有在工作區已啟用的情況下，才能啟用專案。",
+      "projects_enabled_count": "已啟用 {count} 個",
+      "requires_workspace": "請先啟用工作區。",
+      "enable": "啟用",
+      "disable": "停用",
+      "activation_enable_description": "獲授予權限的成員將可存取 Project Hub 的畫面和動作。",
+      "activation_disable_description": "執行、核准和整合將暫停，直到重新啟用為止。不會刪除任何資料。",
+      "grants_description": "依成員明確設定的權限。原生角色永遠不隱含執行、審查或合併權限。",
+      "grants_empty_title": "沒有已授予的功能權限",
+      "grant_count": "{count} 項功能權限",
+      "grant_dialog_title": "授予功能權限",
+      "grant_capability_hint": "選擇一項功能權限以檢視其允許的內容。",
+      "revoke_grant_label": "撤銷{capability}",
+      "revoke_confirm_title": "撤銷功能權限？",
+      "revoke_confirm_description": "{member}將失去針對{scope}的「{capability}」權限。進行中的工作不受影響。",
+      "runners_description": "執行運作的機器。每個執行器都使用自己的權杖進行驗證。",
+      "runners_empty_description": "註冊執行器以執行運作。",
+      "runner_status": {
+        "online": "上線",
+        "idle": "閒置",
+        "inactive": "未啟用"
+      },
+      "runner_token_once": "僅顯示一次",
+      "runner_register_hint": "權杖於註冊時建立，僅顯示一次。",
+      "runner_deactivate_confirm_title": "停用執行器？",
+      "runner_deactivate_confirm_description": "「{name}」將無法再認領執行。其權杖將立即失效。",
+      "integrations_description": "外部追蹤器和 Git 提供者。降級的連線永遠不會顯示為使用中。",
+      "connections_empty_description": "連線至提供者以同步工作包和程式碼。",
+      "providers_description": "每個提供者轉接器支援的內容。",
+      "capability_column": "功能權限",
+      "support_short": {
+        "supported": "是",
+        "partial": "部分",
+        "unsupported": "否",
+        "requires_configuration": "需設定",
+        "unknown": "—"
+      },
+      "health_unavailable": "健康狀態無法使用",
+      "disconnect_confirm_title": "中斷連線？",
+      "disconnect_confirm_description": "「{name}」將停止同步。連結將保留為已中斷狀態；不會刪除任何資料。",
+      "retention_description": "每個類別的保留時間。留空表示永久保留。",
+      "retention_after_days": "{count} 天後刪除",
+      "unsaved_changes": "未儲存的變更",
+      "retention_apply_hint": "資料保留依排程執行；立即套用即可馬上執行。",
+      "retention_apply_confirm_title": "立即套用資料保留？",
+      "retention_apply_confirm_description": "早於已儲存限制的資料將被永久刪除。未儲存的變更不會被套用。"
+    },
+    "capability_description": {
+      "project_read": "檢視某個專案的 Project Hub 畫面。",
+      "package_edit": "建立和編輯工作包、圖表和草稿。",
+      "package_approve_execution": "核准某個工作包由代理程式執行。",
+      "run_start": "在執行器上啟動執行。",
+      "run_cancel": "取消進行中的執行。",
+      "review_approve_code": "核准某次執行產生的程式碼。",
+      "review_accept_outcome": "將某次執行的結果接受為已完成。",
+      "merge_request": "要求合併已核准的程式碼。",
+      "decision_publish": "將決策發布至專案知識庫。",
+      "project_plan": "規劃階段、里程碑和路線圖。",
+      "integration_manage": "管理連線和執行器。",
+      "workspace_admin": "變更啟用狀態、權限授予和資料保留。"
     },
     "capability": {
       "project_read": "檢視專案",
@@ -897,7 +1009,20 @@
       },
       "ambiguous_edge": "意義不明確：請新增類型或標籤以及明確的方向。",
       "source": "起點",
-      "target": "終點"
+      "target": "終點",
+      "toolbar_label": "圖表工具",
+      "zoom_fit": "縮放至符合",
+      "zoom_reset": "重設縮放",
+      "properties": "屬性",
+      "inspector_empty": "選取一個節點或連線以進行編輯。",
+      "edge_label": "{source} → {target}",
+      "select_edge": "連線{label}：{source} 到 {target}",
+      "unsaved": "未儲存的變更",
+      "canvas_empty": "新增一個節點開始。",
+      "node": "節點",
+      "edge": "連線",
+      "ambiguous_short": "不明確",
+      "read_only": "唯讀 — 變更此圖表需要「編輯工作包」權限。"
     }
   }
 }

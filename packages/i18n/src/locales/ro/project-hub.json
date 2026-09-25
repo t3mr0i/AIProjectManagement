@@ -187,7 +187,20 @@
       },
       "discussion": "Discuție",
       "open_discussion": "Deschideți discuția",
-      "close_discussion": "Închideți discuția"
+      "close_discussion": "Închideți discuția",
+      "sidebar": {
+        "status": "Stare",
+        "phase": "Fază",
+        "delivery": "Livrare",
+        "approval": "Aprobare",
+        "flags": "Marcaje",
+        "next_step": "Pasul următor",
+        "hint": "Opțional: adaugă un brief versionat, o aprobare explicită a execuției și dovezi de livrare.",
+        "approved_revision": "Revizia {number} aprobată",
+        "pending_revision": "Revizia {number} neaprobată",
+        "no_revision": "Nicio revizie încă",
+        "approve": "Aprobați revizia {number}"
+      }
     },
     "brief": {
       "intent": "Obiectiv / de ce",
@@ -574,7 +587,13 @@
       "ai_answer_hint": "Răspuns AI — nu este o decizie",
       "mark_read": "Marcați ca citit",
       "system": "Sistem",
-      "private_source": "Bazat pe o sursă privată; se partajează doar textul confirmat."
+      "private_source": "Bazat pe o sursă privată; se partajează doar textul confirmat.",
+      "blocked_count": "{count, plural, one {# sursă neutilizată} few {# surse neutilizate} other {# de surse neutilizate}}",
+      "composer_hint": "⌘↵ pentru trimitere · menționați @AI pentru un răspuns cu surse",
+      "empty_hint": "Fiți primul care scrie ceva.",
+      "hide_replies": "Ascundeți răspunsurile",
+      "private_source_short": "Sursă privată",
+      "replying_to": "Răspuns către {name}"
     },
     "activity": {
       "title": "Activitate",
@@ -610,7 +629,16 @@
       "open_questions": "{count, plural, one {# întrebare deschisă} few {# întrebări deschise} other {# de întrebări deschise}}",
       "section_empty": "Nimic în această secțiune.",
       "updated": "Actualizat {time}",
-      "sections_label": "Secțiunile pachetelor"
+      "sections_label": "Secțiunile pachetelor",
+      "view_all": "Toate",
+      "view_active": "Active",
+      "view_drafts": "Ciorne",
+      "hide_done": "Ascundeți finalizate",
+      "show_done": "Afișați finalizate",
+      "show_empty_groups": "Afișați fazele goale",
+      "hide_empty_groups": "Ascundeți fazele goale",
+      "next": "Următorul",
+      "filtered_empty": "Niciun pachet de lucru în această vizualizare."
     },
     "roadmap": {
       "title": "Foaie de parcurs",
@@ -666,7 +694,15 @@
       "late_by": "Întârziere de {hours} h (estimat {date})",
       "not_late": "Fără întârziere",
       "via": "Prin {path}",
-      "impact_basis_deps": "Calculat doar pe baza dependențelor și a datelor sigure. Planul nu se modifică."
+      "impact_basis_deps": "Calculat doar pe baza dependențelor și a datelor sigure. Planul nu se modifică.",
+      "dependency": "Dependență",
+      "milestone": "Etapă",
+      "package": "Pachet de lucru",
+      "empty_hint": "Adăugați o etapă sau stabiliți date țintă la pachetele de lucru pentru a le vedea aici.",
+      "projects_selected": "{count, plural, one {# proiect} few {# proiecte} other {# de proiecte}}",
+      "range_auto": "Interval automat",
+      "range_clear": "Ștergeți intervalul",
+      "redacted": "Ascuns"
     },
     "knowledge": {
       "title": "Cunoștințe",
@@ -702,7 +738,8 @@
       "registered": "{name} a fost înregistrat",
       "quarantined_warning": "În carantină – nu deschideți și nu partajați. Conținutul este blocat.",
       "format_blocked": "Blocat (carantină)",
-      "mime": "Tip MIME"
+      "mime": "Tip MIME",
+      "quarantined_count": "{count, plural, one {# încărcare în carantină} few {# încărcări în carantină} other {# de încărcări în carantină}}"
     },
     "overview": {
       "title": "Prezentare generală",
@@ -713,7 +750,18 @@
       "empty": "Niciun lucru activ.",
       "open_project": "Deschideți proiectul",
       "counts": "Active: {active} · În revizuire: {review} · Pregătite: {ready}",
-      "not_enabled": "Neactivat"
+      "not_enabled": "Neactivat",
+      "category": {
+        "decision_needed": "Este necesară o decizie",
+        "blocked": "Blocat",
+        "mention": "Mențiune",
+        "review_request": "Revizuire solicitată",
+        "technical": "Tehnic"
+      },
+      "open_decisions_count": "{count, plural, one {# decizie deschisă} few {# decizii deschise} other {# de decizii deschise}}",
+      "caught_up": "Sunteți la zi cu tot",
+      "caught_up_hint": "Nicio decizie nu vă așteaptă și niciun lucru nu este în desfășurare.",
+      "no_projects": "Nu ați aderat încă la niciun proiect."
     },
     "messages": {
       "title": "Mesaje",
@@ -731,7 +779,8 @@
       "private_notice": "Conversație privată — doar participanții o pot citi.",
       "kind": "Tip",
       "conversation_title": "Titlu (opțional)",
-      "new_conversation": "Conversație nouă"
+      "new_conversation": "Conversație nouă",
+      "empty_hint": "Porniți un canal de proiect sau un mesaj direct."
     },
     "search": {
       "title": "Căutare",
@@ -750,7 +799,8 @@
         "event": "Eveniment",
         "upload": "Încărcare",
         "issue": "Element de lucru"
-      }
+      },
+      "start_title": "Căutați printre pachete, decizii, pagini și mesaje"
     },
     "settings": {
       "title": "Project Hub",
@@ -837,7 +887,69 @@
         "ai_outputs": "Rezultate AI",
         "exports": "Exporturi"
       },
-      "admin_only": "Doar administratorii spațiului de lucru pot modifica acest lucru."
+      "admin_only": "Doar administratorii spațiului de lucru pot modifica acest lucru.",
+      "admin_only_description": "Puteți vizualiza aceste setări; modificările necesită capabilitatea „Administrarea Project Hub”.",
+      "activation_description": "Activați extensia pe spațiu de lucru și pe proiect. Fiecare modificare este auditată cu un motiv.",
+      "workspace_enabled_description": "Proiectele pot fi activate doar cât timp spațiul de lucru este activat.",
+      "projects_enabled_count": "{count} activate",
+      "requires_workspace": "Activați mai întâi spațiul de lucru.",
+      "enable": "Activați",
+      "disable": "Dezactivați",
+      "activation_enable_description": "Membrii cu acordări primesc acces la ecranele și acțiunile Project Hub.",
+      "activation_disable_description": "Rulările, aprobările și integrările se întrerup temporar până la reactivare. Nu se șterge niciun date.",
+      "grants_description": "Drepturi explicite per membru. Rolurile native nu implică niciodată drepturi de execuție, revizuire sau îmbinare.",
+      "grants_empty_title": "Nicio capabilitate acordată",
+      "grant_count": "{count} capabilități",
+      "grant_dialog_title": "Acordați capabilitate",
+      "grant_capability_hint": "Alegeți o capabilitate pentru a vedea ce permite.",
+      "revoke_grant_label": "Revocați {capability}",
+      "revoke_confirm_title": "Revocați capabilitatea?",
+      "revoke_confirm_description": "{member} pierde „{capability}” pentru {scope}. Lucrul în desfășurare nu este afectat.",
+      "runners_description": "Mașini care execută rulările. Fiecare runner se autentifică cu propriul token.",
+      "runners_empty_description": "Înregistrați un runner pentru a executa rulările.",
+      "runner_status": {
+        "online": "Online",
+        "idle": "Inactiv",
+        "inactive": "Dezactivat"
+      },
+      "runner_token_once": "Afișat o singură dată",
+      "runner_register_hint": "Tokenul este creat la înregistrare și afișat o singură dată.",
+      "runner_deactivate_confirm_title": "Dezactivați runner-ul?",
+      "runner_deactivate_confirm_description": "„{name}” nu va mai putea prelua rulări. Tokenul său încetează imediat să funcționeze.",
+      "integrations_description": "Sisteme externe de urmărire și furnizori Git. Conexiunile degradate nu sunt niciodată afișate ca active.",
+      "connections_empty_description": "Conectați un furnizor pentru a sincroniza pachetele de lucru și codul.",
+      "providers_description": "Ce acceptă adaptorul fiecărui furnizor.",
+      "capability_column": "Capabilitate",
+      "support_short": {
+        "supported": "Da",
+        "partial": "Parțial",
+        "unsupported": "Nu",
+        "requires_configuration": "Config.",
+        "unknown": "—"
+      },
+      "health_unavailable": "Stare indisponibilă",
+      "disconnect_confirm_title": "Deconectați conexiunea?",
+      "disconnect_confirm_description": "„{name}” nu se mai sincronizează. Legăturile sunt păstrate ca deconectate; nu se șterge niciun date.",
+      "retention_description": "Cât timp este păstrată fiecare categorie. Gol înseamnă păstrare pentru totdeauna.",
+      "retention_after_days": "Șters după {count} zile",
+      "unsaved_changes": "Modificări nesalvate",
+      "retention_apply_hint": "Retenția rulează după un program; aplicați acum pentru a o rula imediat.",
+      "retention_apply_confirm_title": "Aplicați retenția acum?",
+      "retention_apply_confirm_description": "Datele mai vechi decât limitele salvate sunt șterse definitiv. Modificările nesalvate nu sunt aplicate."
+    },
+    "capability_description": {
+      "project_read": "Vizualizarea ecranelor Project Hub ale unui proiect.",
+      "package_edit": "Crearea și editarea pachetelor de lucru, diagramelor și ciornelor.",
+      "package_approve_execution": "Aprobarea unui pachet pentru execuție de către un agent.",
+      "run_start": "Pornirea rulărilor pe un runner.",
+      "run_cancel": "Anularea rulărilor în curs.",
+      "review_approve_code": "Aprobarea codului produs de o rulare.",
+      "review_accept_outcome": "Acceptarea rezultatului unei rulări ca finalizat.",
+      "merge_request": "Solicitarea unei îmbinări de cod aprobat.",
+      "decision_publish": "Publicarea deciziilor în cunoștințele proiectului.",
+      "project_plan": "Planificarea fazelor, etapelor și foii de parcurs.",
+      "integration_manage": "Gestionarea conexiunilor și a runner-elor.",
+      "workspace_admin": "Modificarea activării, acordărilor și retenției."
     },
     "capability": {
       "project_read": "Citirea proiectului",
@@ -897,7 +1009,20 @@
       },
       "ambiguous_edge": "Ambiguă: adăugați un tip sau o etichetă și o direcție clară.",
       "source": "De la",
-      "target": "Către"
+      "target": "Către",
+      "toolbar_label": "Instrumente pentru diagramă",
+      "zoom_fit": "Potriviți zoomul",
+      "zoom_reset": "Resetați zoomul",
+      "properties": "Proprietăți",
+      "inspector_empty": "Selectați un nod sau o muchie pentru a-l edita.",
+      "edge_label": "{source} → {target}",
+      "select_edge": "Muchia {label}: de la {source} la {target}",
+      "unsaved": "Modificări nesalvate",
+      "canvas_empty": "Adăugați un nod pentru a începe.",
+      "node": "Nod",
+      "edge": "Muchie",
+      "ambiguous_short": "Neclar",
+      "read_only": "Doar citire — este necesară capabilitatea „Editați pachetele” pentru a modifica această diagramă."
     }
   }
 }

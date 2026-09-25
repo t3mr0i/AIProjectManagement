@@ -187,7 +187,20 @@
       },
       "discussion": "讨论",
       "open_discussion": "打开讨论",
-      "close_discussion": "关闭讨论"
+      "close_discussion": "关闭讨论",
+      "sidebar": {
+        "status": "状态",
+        "phase": "阶段",
+        "delivery": "交付",
+        "approval": "审批",
+        "flags": "标记",
+        "next_step": "下一步",
+        "hint": "可选：添加带版本的任务说明、明确的执行审批和交付证据。",
+        "approved_revision": "修订版{number}已批准",
+        "pending_revision": "修订版{number}未批准",
+        "no_revision": "暂无修订版",
+        "approve": "批准修订版{number}"
+      }
     },
     "brief": {
       "intent": "目标 / 原因",
@@ -574,7 +587,13 @@
       "ai_answer_hint": "AI 回答，并非决策",
       "mark_read": "标记为已读",
       "system": "系统",
-      "private_source": "基于私有来源；仅共享已确认的文本。"
+      "private_source": "基于私有来源；仅共享已确认的文本。",
+      "blocked_count": "{count, plural, one {# 个未使用的来源} other {# 个未使用的来源}}",
+      "composer_hint": "⌘↵ 发送 · 提及 @AI 可获取附带来源的回答",
+      "empty_hint": "抢先写下第一条消息。",
+      "hide_replies": "隐藏回复",
+      "private_source_short": "私有来源",
+      "replying_to": "回复{name}"
     },
     "activity": {
       "title": "动态",
@@ -610,7 +629,16 @@
       "open_questions": "{count, plural, one {# 个未解决的问题} other {# 个未解决的问题}}",
       "section_empty": "此部分没有内容。",
       "updated": "更新于{time}",
-      "sections_label": "工作包分区"
+      "sections_label": "工作包分区",
+      "view_all": "全部",
+      "view_active": "活跃",
+      "view_drafts": "草稿",
+      "hide_done": "隐藏已完成",
+      "show_done": "显示已完成",
+      "show_empty_groups": "显示空阶段",
+      "hide_empty_groups": "隐藏空阶段",
+      "next": "下一个",
+      "filtered_empty": "此视图中没有工作包。"
     },
     "roadmap": {
       "title": "路线图",
@@ -666,7 +694,15 @@
       "late_by": "延迟 {hours} 小时（预计 {date}）",
       "not_late": "未延迟",
       "via": "经由 {path}",
-      "impact_basis_deps": "仅根据依赖关系和可靠日期计算。计划不会被更改。"
+      "impact_basis_deps": "仅根据依赖关系和可靠日期计算。计划不会被更改。",
+      "dependency": "依赖关系",
+      "milestone": "里程碑",
+      "package": "工作包",
+      "empty_hint": "添加里程碑或在工作包上设置目标日期，即可在此处看到它们。",
+      "projects_selected": "{count, plural, one {# 个项目} other {# 个项目}}",
+      "range_auto": "自动范围",
+      "range_clear": "清除范围",
+      "redacted": "已隐藏"
     },
     "knowledge": {
       "title": "知识",
@@ -702,7 +738,8 @@
       "registered": "已登记 {name}",
       "quarantined_warning": "已隔离——请勿打开或共享。内容已被阻止。",
       "format_blocked": "已阻止（已隔离）",
-      "mime": "MIME 类型"
+      "mime": "MIME 类型",
+      "quarantined_count": "{count, plural, one {# 个已隔离的上传文件} other {# 个已隔离的上传文件}}"
     },
     "overview": {
       "title": "概览",
@@ -713,7 +750,18 @@
       "empty": "没有进行中的工作。",
       "open_project": "打开项目",
       "counts": "{active} 个活跃 · {review} 个审查中 · {ready} 个就绪",
-      "not_enabled": "未启用"
+      "not_enabled": "未启用",
+      "category": {
+        "decision_needed": "需要决策",
+        "blocked": "已阻塞",
+        "mention": "提及",
+        "review_request": "已请求审查",
+        "technical": "技术"
+      },
+      "open_decisions_count": "{count, plural, one {# 个待定决策} other {# 个待定决策}}",
+      "caught_up": "您已全部处理完毕",
+      "caught_up_hint": "没有等待您处理的决策，也没有正在进行的工作。",
+      "no_projects": "您尚未加入任何项目。"
     },
     "messages": {
       "title": "消息",
@@ -731,7 +779,8 @@
       "private_notice": "私密会话，仅参与者可查看。",
       "kind": "类型",
       "conversation_title": "标题（可选）",
-      "new_conversation": "新建会话"
+      "new_conversation": "新建会话",
+      "empty_hint": "开始一个项目频道或私信。"
     },
     "search": {
       "title": "搜索",
@@ -750,7 +799,8 @@
         "event": "事件",
         "upload": "上传",
         "issue": "工作项"
-      }
+      },
+      "start_title": "在工作包、决策、页面和消息中搜索"
     },
     "settings": {
       "title": "Project Hub",
@@ -837,7 +887,69 @@
         "ai_outputs": "AI 输出",
         "exports": "导出"
       },
-      "admin_only": "只有工作区管理员可以更改此项。"
+      "admin_only": "只有工作区管理员可以更改此项。",
+      "admin_only_description": "您可以查看这些设置；更改需要“管理 Project Hub”功能权限。",
+      "activation_description": "按工作区和项目启用扩展。每次更改都会记录原因以供审计。",
+      "workspace_enabled_description": "只有在工作区启用的情况下，项目才能启用。",
+      "projects_enabled_count": "已启用 {count} 个",
+      "requires_workspace": "请先启用工作区。",
+      "enable": "启用",
+      "disable": "停用",
+      "activation_enable_description": "获得授权的成员将可访问 Project Hub 的屏幕和操作。",
+      "activation_disable_description": "运行、审批和集成将暂停，直到重新启用为止。不会删除任何数据。",
+      "grants_description": "按成员明确设定的权限。原生角色永远不隐含执行、审查或合并权限。",
+      "grants_empty_title": "没有已授予的功能权限",
+      "grant_count": "{count} 项功能权限",
+      "grant_dialog_title": "授予功能权限",
+      "grant_capability_hint": "选择一项功能权限以查看其允许的内容。",
+      "revoke_grant_label": "撤销{capability}",
+      "revoke_confirm_title": "撤销功能权限？",
+      "revoke_confirm_description": "{member}将失去针对{scope}的“{capability}”权限。进行中的工作不受影响。",
+      "runners_description": "执行运行的机器。每个运行器都使用自己的令牌进行身份验证。",
+      "runners_empty_description": "注册运行器以执行运行。",
+      "runner_status": {
+        "online": "在线",
+        "idle": "空闲",
+        "inactive": "未激活"
+      },
+      "runner_token_once": "仅显示一次",
+      "runner_register_hint": "令牌在注册时创建，仅显示一次。",
+      "runner_deactivate_confirm_title": "停用运行器？",
+      "runner_deactivate_confirm_description": "“{name}”将无法再认领运行。其令牌将立即失效。",
+      "integrations_description": "外部跟踪器和 Git 提供方。降级的连接永远不会显示为活跃状态。",
+      "connections_empty_description": "连接一个提供方以同步工作包和代码。",
+      "providers_description": "每个提供方适配器支持的内容。",
+      "capability_column": "功能权限",
+      "support_short": {
+        "supported": "是",
+        "partial": "部分",
+        "unsupported": "否",
+        "requires_configuration": "需配置",
+        "unknown": "—"
+      },
+      "health_unavailable": "健康状况不可用",
+      "disconnect_confirm_title": "断开连接？",
+      "disconnect_confirm_description": "“{name}”将停止同步。链接将保留为已断开状态；不会删除任何数据。",
+      "retention_description": "每个类别的保留时长。留空表示永久保留。",
+      "retention_after_days": "{count} 天后删除",
+      "unsaved_changes": "未保存的更改",
+      "retention_apply_hint": "数据保留按计划运行；立即应用即可马上运行。",
+      "retention_apply_confirm_title": "立即应用数据保留？",
+      "retention_apply_confirm_description": "早于已保存限制的数据将被永久删除。未保存的更改不会被应用。"
+    },
+    "capability_description": {
+      "project_read": "查看某个项目的 Project Hub 屏幕。",
+      "package_edit": "创建和编辑工作包、图表和草稿。",
+      "package_approve_execution": "批准某个工作包由代理执行。",
+      "run_start": "在运行器上启动运行。",
+      "run_cancel": "取消正在进行的运行。",
+      "review_approve_code": "批准某次运行生成的代码。",
+      "review_accept_outcome": "将某次运行的结果接受为已完成。",
+      "merge_request": "请求合并已批准的代码。",
+      "decision_publish": "将决策发布到项目知识库。",
+      "project_plan": "规划阶段、里程碑和路线图。",
+      "integration_manage": "管理连接和运行器。",
+      "workspace_admin": "更改启用状态、权限授予和数据保留。"
     },
     "capability": {
       "project_read": "查看项目",
@@ -897,7 +1009,20 @@
       },
       "ambiguous_edge": "含义不明确：请添加类型或标签以及明确的方向。",
       "source": "起点",
-      "target": "终点"
+      "target": "终点",
+      "toolbar_label": "图表工具",
+      "zoom_fit": "缩放至适配",
+      "zoom_reset": "重置缩放",
+      "properties": "属性",
+      "inspector_empty": "选择一个节点或连线以进行编辑。",
+      "edge_label": "{source} → {target}",
+      "select_edge": "连线{label}：{source} 到 {target}",
+      "unsaved": "未保存的更改",
+      "canvas_empty": "添加一个节点开始。",
+      "node": "节点",
+      "edge": "连线",
+      "ambiguous_short": "不明确",
+      "read_only": "只读 — 更改此图表需要“编辑工作包”权限。"
     }
   }
 }

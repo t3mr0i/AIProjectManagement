@@ -187,7 +187,20 @@
       },
       "discussion": "Diskusia",
       "open_discussion": "Otvoriť diskusiu",
-      "close_discussion": "Zavrieť diskusiu"
+      "close_discussion": "Zavrieť diskusiu",
+      "sidebar": {
+        "status": "Stav",
+        "phase": "Fáza",
+        "delivery": "Dodanie",
+        "approval": "Schválenie",
+        "flags": "Príznaky",
+        "next_step": "Ďalší krok",
+        "hint": "Voliteľné: pridá verziované zadanie, výslovné schválenie vykonania a dôkazy o dodaní.",
+        "approved_revision": "Revízia {number} schválená",
+        "pending_revision": "Revízia {number} neschválená",
+        "no_revision": "Zatiaľ žiadna revízia",
+        "approve": "Schváliť revíziu {number}"
+      }
     },
     "brief": {
       "intent": "Cieľ / prečo",
@@ -574,7 +587,13 @@
       "ai_answer_hint": "Odpoveď AI — nie je to rozhodnutie",
       "mark_read": "Označiť ako prečítané",
       "system": "Systém",
-      "private_source": "Vychádza zo súkromného zdroja; zdieľa sa iba potvrdený text."
+      "private_source": "Vychádza zo súkromného zdroja; zdieľa sa iba potvrdený text.",
+      "blocked_count": "{count, plural, one {# zdroj nepoužitý} few {# zdroje nepoužité} many {# zdroja nepoužitého} other {# zdrojov nepoužitých}}",
+      "composer_hint": "⌘↵ na odoslanie · spomeňte @AI pre odpoveď so zdrojmi",
+      "empty_hint": "Napíšte niečo ako prvý.",
+      "hide_replies": "Skryť odpovede",
+      "private_source_short": "Súkromný zdroj",
+      "replying_to": "Odpoveď pre {name}"
     },
     "activity": {
       "title": "Aktivita",
@@ -610,7 +629,16 @@
       "open_questions": "{count, plural, one {# otvorená otázka} few {# otvorené otázky} many {# otvorenej otázky} other {# otvorených otázok}}",
       "section_empty": "V tejto sekcii nič nie je.",
       "updated": "Aktualizované {time}",
-      "sections_label": "Sekcie balíkov"
+      "sections_label": "Sekcie balíkov",
+      "view_all": "Všetky",
+      "view_active": "Aktívne",
+      "view_drafts": "Koncepty",
+      "hide_done": "Skryť hotové",
+      "show_done": "Zobraziť hotové",
+      "show_empty_groups": "Zobraziť prázdne fázy",
+      "hide_empty_groups": "Skryť prázdne fázy",
+      "next": "Ďalšie",
+      "filtered_empty": "V tomto zobrazení nie sú žiadne pracovné balíky."
     },
     "roadmap": {
       "title": "Plán",
@@ -666,7 +694,15 @@
       "late_by": "Oneskorenie {hours} h (predpoklad {date})",
       "not_late": "Bez oneskorenia",
       "via": "Cez {path}",
-      "impact_basis_deps": "Vypočítané iba zo závislostí a spoľahlivých termínov. Plán sa nemení."
+      "impact_basis_deps": "Vypočítané iba zo závislostí a spoľahlivých termínov. Plán sa nemení.",
+      "dependency": "Závislosť",
+      "milestone": "Míľnik",
+      "package": "Pracovný balík",
+      "empty_hint": "Pridajte míľnik alebo nastavte cieľové dátumy na pracovných balíkoch, aby ste ich videli tu.",
+      "projects_selected": "{count, plural, one {# projekt} few {# projekty} many {# projektu} other {# projektov}}",
+      "range_auto": "Automatický rozsah",
+      "range_clear": "Vymazať rozsah",
+      "redacted": "Skryté"
     },
     "knowledge": {
       "title": "Znalosti",
@@ -702,7 +738,8 @@
       "registered": "{name} zaregistrované",
       "quarantined_warning": "V karanténe – neotvárajte ani nezdieľajte. Obsah je zablokovaný.",
       "format_blocked": "Zablokované (karanténa)",
-      "mime": "Typ MIME"
+      "mime": "Typ MIME",
+      "quarantined_count": "{count, plural, one {# nahraný súbor v karanténe} few {# nahrané súbory v karanténe} many {# nahraného súboru v karanténe} other {# nahraných súborov v karanténe}}"
     },
     "overview": {
       "title": "Prehľad",
@@ -713,7 +750,18 @@
       "empty": "Žiadna aktívna práca.",
       "open_project": "Otvoriť projekt",
       "counts": "Aktívne: {active} · V kontrole: {review} · Pripravené: {ready}",
-      "not_enabled": "Nezapnuté"
+      "not_enabled": "Nezapnuté",
+      "category": {
+        "decision_needed": "Je potrebné rozhodnutie",
+        "blocked": "Blokované",
+        "mention": "Zmienka",
+        "review_request": "Vyžiadaná kontrola",
+        "technical": "Technické"
+      },
+      "open_decisions_count": "{count, plural, one {# otvorené rozhodnutie} few {# otvorené rozhodnutia} many {# otvoreného rozhodnutia} other {# otvorených rozhodnutí}}",
+      "caught_up": "Máte všetko vybavené",
+      "caught_up_hint": "Nečakajú na Vás žiadne rozhodnutia a neprebieha žiadna práca.",
+      "no_projects": "Zatiaľ ste sa nepripojili k žiadnemu projektu."
     },
     "messages": {
       "title": "Správy",
@@ -731,7 +779,8 @@
       "private_notice": "Súkromná konverzácia — čítať ju môžu iba účastníci.",
       "kind": "Typ",
       "conversation_title": "Názov (voliteľné)",
-      "new_conversation": "Nová konverzácia"
+      "new_conversation": "Nová konverzácia",
+      "empty_hint": "Založte projektový kanál alebo priamu správu."
     },
     "search": {
       "title": "Hľadať",
@@ -750,7 +799,8 @@
         "event": "Udalosť",
         "upload": "Nahraný súbor",
         "issue": "Pracovná položka"
-      }
+      },
+      "start_title": "Hľadať naprieč balíkmi, rozhodnutiami, stránkami a správami"
     },
     "settings": {
       "title": "Project Hub",
@@ -837,7 +887,69 @@
         "ai_outputs": "Výstupy AI",
         "exports": "Exporty"
       },
-      "admin_only": "Toto môžu meniť iba administrátori pracovného priestoru."
+      "admin_only": "Toto môžu meniť iba administrátori pracovného priestoru.",
+      "admin_only_description": "Toto nastavenie môžete zobraziť; zmeny vyžadujú schopnosť „Spravovať Project Hub“.",
+      "activation_description": "Zapnite rozšírenie pre jednotlivé pracovné priestory a projekty. Každá zmena sa zaznamenáva s dôvodom.",
+      "workspace_enabled_description": "Projekty je možné povoliť len vtedy, keď je povolený pracovný priestor.",
+      "projects_enabled_count": "{count} povolených",
+      "requires_workspace": "Najprv povoľte pracovný priestor.",
+      "enable": "Povoliť",
+      "disable": "Zakázať",
+      "activation_enable_description": "Členovia s udelenými schopnosťami získajú prístup k obrazovkám a akciám Project Hub.",
+      "activation_disable_description": "Behy, schválenia a integrácie sa pozastavia, kým sa znova nepovolí. Žiadne údaje sa neodstránia.",
+      "grants_description": "Explicitné práva pre jednotlivých členov. Natívne roly nikdy neudeľujú práva na vykonanie, kontrolu ani zlúčenie.",
+      "grants_empty_title": "Žiadne udelené schopnosti",
+      "grant_count": "{count} schopností",
+      "grant_dialog_title": "Udeliť schopnosť",
+      "grant_capability_hint": "Vyberte schopnosť a zobrazí sa, čo umožňuje.",
+      "revoke_grant_label": "Odvolať {capability}",
+      "revoke_confirm_title": "Odvolať schopnosť?",
+      "revoke_confirm_description": "{member} stratí „{capability}“ pre {scope}. Prebiehajúca práca nie je dotknutá.",
+      "runners_description": "Stroje, ktoré vykonávajú behy. Každý runner sa overuje vlastným tokenom.",
+      "runners_empty_description": "Zaregistrujte runner, aby mohol vykonávať behy.",
+      "runner_status": {
+        "online": "Online",
+        "idle": "Nečinný",
+        "inactive": "Neaktívny"
+      },
+      "runner_token_once": "Zobrazené iba raz",
+      "runner_register_hint": "Token sa vytvorí pri registrácii a zobrazí sa raz.",
+      "runner_deactivate_confirm_title": "Deaktivovať runner?",
+      "runner_deactivate_confirm_description": "„{name}“ už nemôže preberať behy. Jeho token okamžite prestane fungovať.",
+      "integrations_description": "Externé trackery a poskytovatelia Git. Obmedzené pripojenia sa nikdy nezobrazujú ako aktívne.",
+      "connections_empty_description": "Pripojte poskytovateľa na synchronizáciu pracovných balíkov a kódu.",
+      "providers_description": "Čo podporuje adaptér jednotlivých poskytovateľov.",
+      "capability_column": "Schopnosť",
+      "support_short": {
+        "supported": "Áno",
+        "partial": "Čiastočne",
+        "unsupported": "Nie",
+        "requires_configuration": "Konfig.",
+        "unknown": "—"
+      },
+      "health_unavailable": "Stav nedostupný",
+      "disconnect_confirm_title": "Odpojiť pripojenie?",
+      "disconnect_confirm_description": "„{name}“ prestane synchronizovať. Prepojenia zostanú zachované ako odpojené; žiadne údaje sa neodstránia.",
+      "retention_description": "Ako dlho sa uchováva každá kategória. Prázdne znamená uchovávať navždy.",
+      "retention_after_days": "Odstránené po {count} dňoch",
+      "unsaved_changes": "Neuložené zmeny",
+      "retention_apply_hint": "Uchovávanie beží podľa plánu; použite teraz, ak ho chcete spustiť okamžite.",
+      "retention_apply_confirm_title": "Použiť uchovávanie teraz?",
+      "retention_apply_confirm_description": "Údaje staršie ako uložené limity sa natrvalo odstránia. Neuložené zmeny sa nepoužijú."
+    },
+    "capability_description": {
+      "project_read": "Zobraziť obrazovky Project Hub daného projektu.",
+      "package_edit": "Vytvárať a upravovať pracovné balíky, diagramy a koncepty.",
+      "package_approve_execution": "Schváliť balík na vykonanie agentom.",
+      "run_start": "Spúšťať behy na runneri.",
+      "run_cancel": "Rušiť prebiehajúce behy.",
+      "review_approve_code": "Schváliť kód vytvorený počas behu.",
+      "review_accept_outcome": "Prevziať výsledok behu ako hotový.",
+      "merge_request": "Vyžiadať zlúčenie schváleného kódu.",
+      "decision_publish": "Publikovať rozhodnutia do znalostí projektu.",
+      "project_plan": "Plánovať fázy, míľniky a plán projektu.",
+      "integration_manage": "Spravovať pripojenia a runnery.",
+      "workspace_admin": "Meniť aktiváciu, udelené schopnosti a uchovávanie."
     },
     "capability": {
       "project_read": "Čítať projekt",
@@ -897,7 +1009,20 @@
       },
       "ambiguous_edge": "Nejednoznačné: doplňte typ alebo označenie a jasný smer.",
       "source": "Z",
-      "target": "Do"
+      "target": "Do",
+      "toolbar_label": "Nástroje diagramu",
+      "zoom_fit": "Prispôsobiť",
+      "zoom_reset": "Obnoviť priblíženie",
+      "properties": "Vlastnosti",
+      "inspector_empty": "Vyberte uzol alebo hranu na úpravu.",
+      "edge_label": "{source} → {target}",
+      "select_edge": "Hrana {label}: {source} do {target}",
+      "unsaved": "Neuložené zmeny",
+      "canvas_empty": "Pridajte uzol na začatie.",
+      "node": "Uzol",
+      "edge": "Hrana",
+      "ambiguous_short": "Nejasné",
+      "read_only": "Iba na čítanie — na zmenu tohto diagramu je potrebná schopnosť „Upravovať balíky“."
     }
   }
 }

@@ -187,7 +187,20 @@
       },
       "discussion": "Diskusi",
       "open_discussion": "Buka diskusi",
-      "close_discussion": "Tutup diskusi"
+      "close_discussion": "Tutup diskusi",
+      "sidebar": {
+        "status": "Status",
+        "phase": "Fase",
+        "delivery": "Pengiriman",
+        "approval": "Persetujuan",
+        "flags": "Tanda",
+        "next_step": "Langkah berikutnya",
+        "hint": "Opsional: menambahkan brief berversi, persetujuan eksekusi yang eksplisit, dan bukti pengiriman.",
+        "approved_revision": "Revisi {number} disetujui",
+        "pending_revision": "Revisi {number} belum disetujui",
+        "no_revision": "Belum ada revisi",
+        "approve": "Setujui revisi {number}"
+      }
     },
     "brief": {
       "intent": "Tujuan / alasan",
@@ -574,7 +587,13 @@
       "ai_answer_hint": "Jawaban AI — bukan keputusan",
       "mark_read": "Tandai sudah dibaca",
       "system": "Sistem",
-      "private_source": "Berdasarkan sumber pribadi; hanya teks yang dikonfirmasi yang dibagikan."
+      "private_source": "Berdasarkan sumber pribadi; hanya teks yang dikonfirmasi yang dibagikan.",
+      "blocked_count": "{count, plural, one {# sumber tidak digunakan} other {# sumber tidak digunakan}}",
+      "composer_hint": "⌘↵ untuk mengirim · sebut @AI untuk jawaban dengan sumber",
+      "empty_hint": "Jadilah yang pertama menulis sesuatu.",
+      "hide_replies": "Sembunyikan balasan",
+      "private_source_short": "Sumber pribadi",
+      "replying_to": "Membalas {name}"
     },
     "activity": {
       "title": "Aktivitas",
@@ -610,7 +629,16 @@
       "open_questions": "{count, plural, one {# pertanyaan terbuka} other {# pertanyaan terbuka}}",
       "section_empty": "Tidak ada apa pun di bagian ini.",
       "updated": "Diperbarui {time}",
-      "sections_label": "Bagian paket"
+      "sections_label": "Bagian paket",
+      "view_all": "Semua",
+      "view_active": "Aktif",
+      "view_drafts": "Draf",
+      "hide_done": "Sembunyikan yang selesai",
+      "show_done": "Tampilkan yang selesai",
+      "show_empty_groups": "Tampilkan fase kosong",
+      "hide_empty_groups": "Sembunyikan fase kosong",
+      "next": "Berikutnya",
+      "filtered_empty": "Tidak ada paket kerja dalam tampilan ini."
     },
     "roadmap": {
       "title": "Peta jalan",
@@ -666,7 +694,15 @@
       "late_by": "Terlambat {hours} jam (perkiraan {date})",
       "not_late": "Tidak terlambat",
       "via": "Melalui {path}",
-      "impact_basis_deps": "Dihitung hanya dari dependensi dan tanggal yang dapat diandalkan. Rencana tidak diubah."
+      "impact_basis_deps": "Dihitung hanya dari dependensi dan tanggal yang dapat diandalkan. Rencana tidak diubah.",
+      "dependency": "Dependensi",
+      "milestone": "Milestone",
+      "package": "Paket kerja",
+      "empty_hint": "Tambahkan milestone atau tetapkan tanggal target pada paket kerja untuk melihatnya di sini.",
+      "projects_selected": "{count, plural, one {# proyek} other {# proyek}}",
+      "range_auto": "Rentang otomatis",
+      "range_clear": "Hapus rentang",
+      "redacted": "Disamarkan"
     },
     "knowledge": {
       "title": "Pengetahuan",
@@ -702,7 +738,8 @@
       "registered": "{name} terdaftar",
       "quarantined_warning": "Dikarantina – jangan buka atau bagikan. Konten diblokir.",
       "format_blocked": "Diblokir (dikarantina)",
-      "mime": "Tipe MIME"
+      "mime": "Tipe MIME",
+      "quarantined_count": "{count, plural, one {# unggahan dikarantina} other {# unggahan dikarantina}}"
     },
     "overview": {
       "title": "Ringkasan",
@@ -713,7 +750,18 @@
       "empty": "Tidak ada pekerjaan aktif.",
       "open_project": "Buka proyek",
       "counts": "{active} aktif · {review} dalam tinjauan · {ready} siap",
-      "not_enabled": "Tidak diaktifkan"
+      "not_enabled": "Tidak diaktifkan",
+      "category": {
+        "decision_needed": "Keputusan diperlukan",
+        "blocked": "Terblokir",
+        "mention": "Sebutan",
+        "review_request": "Tinjauan diminta",
+        "technical": "Teknis"
+      },
+      "open_decisions_count": "{count, plural, one {# keputusan terbuka} other {# keputusan terbuka}}",
+      "caught_up": "Anda sudah mengejar semuanya",
+      "caught_up_hint": "Tidak ada keputusan yang menunggu Anda dan tidak ada pekerjaan yang sedang berjalan.",
+      "no_projects": "Anda belum bergabung dengan proyek apa pun."
     },
     "messages": {
       "title": "Pesan",
@@ -731,7 +779,8 @@
       "private_notice": "Percakapan pribadi — hanya peserta yang dapat membacanya.",
       "kind": "Jenis",
       "conversation_title": "Judul (opsional)",
-      "new_conversation": "Percakapan baru"
+      "new_conversation": "Percakapan baru",
+      "empty_hint": "Mulai kanal proyek atau pesan langsung."
     },
     "search": {
       "title": "Cari",
@@ -750,7 +799,8 @@
         "event": "Peristiwa",
         "upload": "Unggahan",
         "issue": "Item kerja"
-      }
+      },
+      "start_title": "Cari di paket, keputusan, halaman, dan pesan"
     },
     "settings": {
       "title": "Project Hub",
@@ -837,7 +887,69 @@
         "ai_outputs": "Keluaran AI",
         "exports": "Ekspor"
       },
-      "admin_only": "Hanya admin ruang kerja yang dapat mengubah ini."
+      "admin_only": "Hanya admin ruang kerja yang dapat mengubah ini.",
+      "admin_only_description": "Anda dapat melihat pengaturan ini; perubahan memerlukan kapabilitas \"Kelola Project Hub\".",
+      "activation_description": "Aktifkan ekstensi per ruang kerja dan per proyek. Setiap perubahan diaudit dengan alasan.",
+      "workspace_enabled_description": "Proyek hanya dapat diaktifkan selama ruang kerja diaktifkan.",
+      "projects_enabled_count": "{count} diaktifkan",
+      "requires_workspace": "Aktifkan ruang kerja terlebih dahulu.",
+      "enable": "Aktifkan",
+      "disable": "Nonaktifkan",
+      "activation_enable_description": "Anggota dengan pemberian akses mendapatkan akses ke layar dan tindakan Project Hub.",
+      "activation_disable_description": "Proses, persetujuan, dan integrasi dijeda hingga diaktifkan kembali. Tidak ada data yang dihapus.",
+      "grants_description": "Hak eksplisit per anggota. Peran bawaan tidak pernah menyiratkan hak eksekusi, tinjauan, atau merge.",
+      "grants_empty_title": "Tidak ada pemberian kapabilitas",
+      "grant_count": "{count} kapabilitas",
+      "grant_dialog_title": "Berikan kapabilitas",
+      "grant_capability_hint": "Pilih kapabilitas untuk melihat apa yang diizinkannya.",
+      "revoke_grant_label": "Cabut {capability}",
+      "revoke_confirm_title": "Cabut kapabilitas?",
+      "revoke_confirm_description": "{member} kehilangan \"{capability}\" untuk {scope}. Pekerjaan yang sedang berjalan tidak terpengaruh.",
+      "runners_description": "Mesin yang menjalankan proses. Setiap runner mengautentikasi dengan tokennya sendiri.",
+      "runners_empty_description": "Daftarkan runner untuk menjalankan proses.",
+      "runner_status": {
+        "online": "Online",
+        "idle": "Menganggur",
+        "inactive": "Tidak aktif"
+      },
+      "runner_token_once": "Hanya ditampilkan sekali",
+      "runner_register_hint": "Token dibuat saat registrasi dan ditampilkan sekali.",
+      "runner_deactivate_confirm_title": "Nonaktifkan runner?",
+      "runner_deactivate_confirm_description": "\"{name}\" tidak dapat lagi mengklaim proses. Tokennya langsung berhenti berfungsi.",
+      "integrations_description": "Pelacak eksternal dan penyedia Git. Koneksi yang menurun tidak pernah ditampilkan sebagai live.",
+      "connections_empty_description": "Hubungkan penyedia untuk menyinkronkan paket kerja dan kode.",
+      "providers_description": "Apa yang didukung oleh setiap adapter penyedia.",
+      "capability_column": "Kapabilitas",
+      "support_short": {
+        "supported": "Ya",
+        "partial": "Sebagian",
+        "unsupported": "Tidak",
+        "requires_configuration": "Konfig",
+        "unknown": "—"
+      },
+      "health_unavailable": "Kesehatan tidak tersedia",
+      "disconnect_confirm_title": "Putuskan koneksi?",
+      "disconnect_confirm_description": "\"{name}\" berhenti menyinkronkan. Tautan disimpan sebagai terputus; tidak ada data yang dihapus.",
+      "retention_description": "Berapa lama setiap kategori disimpan. Kosong berarti disimpan selamanya.",
+      "retention_after_days": "Dihapus setelah {count} hari",
+      "unsaved_changes": "Perubahan belum disimpan",
+      "retention_apply_hint": "Retensi berjalan sesuai jadwal; terapkan sekarang untuk menjalankannya segera.",
+      "retention_apply_confirm_title": "Terapkan retensi sekarang?",
+      "retention_apply_confirm_description": "Data yang lebih lama dari batas yang disimpan akan dihapus secara permanen. Perubahan yang belum disimpan tidak diterapkan."
+    },
+    "capability_description": {
+      "project_read": "Melihat layar Project Hub suatu proyek.",
+      "package_edit": "Membuat dan mengedit paket kerja, diagram, dan draf.",
+      "package_approve_execution": "Menyetujui paket untuk dieksekusi oleh agen.",
+      "run_start": "Memulai proses pada runner.",
+      "run_cancel": "Membatalkan proses yang sedang berjalan.",
+      "review_approve_code": "Menyetujui kode yang dihasilkan oleh proses.",
+      "review_accept_outcome": "Menerima hasil proses sebagai selesai.",
+      "merge_request": "Meminta merge kode yang disetujui.",
+      "decision_publish": "Menerbitkan keputusan ke pengetahuan proyek.",
+      "project_plan": "Merencanakan fase, milestone, dan peta jalan.",
+      "integration_manage": "Mengelola koneksi dan runner.",
+      "workspace_admin": "Mengubah aktivasi, pemberian akses, dan retensi."
     },
     "capability": {
       "project_read": "Baca proyek",
@@ -897,7 +1009,20 @@
       },
       "ambiguous_edge": "Ambigu: tambahkan tipe atau label dan arah yang jelas.",
       "source": "Dari",
-      "target": "Ke"
+      "target": "Ke",
+      "toolbar_label": "Alat diagram",
+      "zoom_fit": "Sesuaikan zoom",
+      "zoom_reset": "Atur ulang zoom",
+      "properties": "Properti",
+      "inspector_empty": "Pilih node atau edge untuk mengeditnya.",
+      "edge_label": "{source} → {target}",
+      "select_edge": "Edge {label}: {source} ke {target}",
+      "unsaved": "Perubahan belum disimpan",
+      "canvas_empty": "Tambahkan node untuk memulai.",
+      "node": "Node",
+      "edge": "Edge",
+      "ambiguous_short": "Tidak jelas",
+      "read_only": "Hanya baca — \"Edit paket\" diperlukan untuk mengubah diagram ini."
     }
   }
 }

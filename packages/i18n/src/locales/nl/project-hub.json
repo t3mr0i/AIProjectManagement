@@ -187,7 +187,20 @@
       },
       "discussion": "Discussie",
       "open_discussion": "Discussie openen",
-      "close_discussion": "Discussie sluiten"
+      "close_discussion": "Discussie sluiten",
+      "sidebar": {
+        "status": "Status",
+        "phase": "Fase",
+        "delivery": "Levering",
+        "approval": "Goedkeuring",
+        "flags": "Markeringen",
+        "next_step": "Volgende stap",
+        "hint": "Optioneel: voegt een opdracht met versiebeheer, een expliciete goedkeuring voor uitvoering en leveringsbewijs toe.",
+        "approved_revision": "Revisie {number} goedgekeurd",
+        "pending_revision": "Revisie {number} niet goedgekeurd",
+        "no_revision": "Nog geen revisie",
+        "approve": "Revisie {number} goedkeuren"
+      }
     },
     "brief": {
       "intent": "Doel / waarom",
@@ -574,7 +587,13 @@
       "ai_answer_hint": "AI-antwoord: geen besluit",
       "mark_read": "Markeren als gelezen",
       "system": "Systeem",
-      "private_source": "Gebaseerd op een privébron; alleen de bevestigde tekst wordt gedeeld."
+      "private_source": "Gebaseerd op een privébron; alleen de bevestigde tekst wordt gedeeld.",
+      "blocked_count": "{count, plural, one {# bron niet gebruikt} other {# bronnen niet gebruikt}}",
+      "composer_hint": "⌘↵ om te versturen · vermeld @AI voor een antwoord met bronnen",
+      "empty_hint": "Wees de eerste die iets schrijft.",
+      "hide_replies": "Reacties verbergen",
+      "private_source_short": "Privébron",
+      "replying_to": "Reageren op {name}"
     },
     "activity": {
       "title": "Activiteit",
@@ -610,7 +629,16 @@
       "open_questions": "{count, plural, one {# open vraag} other {# open vragen}}",
       "section_empty": "Niets in deze sectie.",
       "updated": "Bijgewerkt {time}",
-      "sections_label": "Pakketsecties"
+      "sections_label": "Pakketsecties",
+      "view_all": "Alle",
+      "view_active": "Actief",
+      "view_drafts": "Concepten",
+      "hide_done": "Klaar verbergen",
+      "show_done": "Klaar tonen",
+      "show_empty_groups": "Lege fasen tonen",
+      "hide_empty_groups": "Lege fasen verbergen",
+      "next": "Volgende",
+      "filtered_empty": "Geen werkpakketten in deze weergave."
     },
     "roadmap": {
       "title": "Roadmap",
@@ -666,7 +694,15 @@
       "late_by": "{hours} u te laat (verwacht {date})",
       "not_late": "Niet te laat",
       "via": "Via {path}",
-      "impact_basis_deps": "Alleen berekend op basis van afhankelijkheden en betrouwbare datums. Het plan wordt niet gewijzigd."
+      "impact_basis_deps": "Alleen berekend op basis van afhankelijkheden en betrouwbare datums. Het plan wordt niet gewijzigd.",
+      "dependency": "Afhankelijkheid",
+      "milestone": "Mijlpaal",
+      "package": "Werkpakket",
+      "empty_hint": "Voeg een mijlpaal toe of stel streefdata in op werkpakketten om ze hier te zien.",
+      "projects_selected": "{count, plural, one {# project} other {# projecten}}",
+      "range_auto": "Automatisch bereik",
+      "range_clear": "Bereik wissen",
+      "redacted": "Verborgen"
     },
     "knowledge": {
       "title": "Kennis",
@@ -702,7 +738,8 @@
       "registered": "{name} geregistreerd",
       "quarantined_warning": "In quarantaine – niet openen of delen. De inhoud is geblokkeerd.",
       "format_blocked": "Geblokkeerd (quarantaine)",
-      "mime": "MIME-type"
+      "mime": "MIME-type",
+      "quarantined_count": "{count, plural, one {# upload in quarantaine} other {# uploads in quarantaine}}"
     },
     "overview": {
       "title": "Overzicht",
@@ -713,7 +750,18 @@
       "empty": "Geen actief werk.",
       "open_project": "Project openen",
       "counts": "{active} actief · {review} in review · {ready} gereed",
-      "not_enabled": "Niet ingeschakeld"
+      "not_enabled": "Niet ingeschakeld",
+      "category": {
+        "decision_needed": "Besluit nodig",
+        "blocked": "Geblokkeerd",
+        "mention": "Vermelding",
+        "review_request": "Review gevraagd",
+        "technical": "Technisch"
+      },
+      "open_decisions_count": "{count, plural, one {# openstaand besluit} other {# openstaande besluiten}}",
+      "caught_up": "Je bent helemaal bij",
+      "caught_up_hint": "Er wachten geen besluiten op je en er is geen werk in uitvoering.",
+      "no_projects": "Je hebt je nog bij geen enkel project aangesloten."
     },
     "messages": {
       "title": "Berichten",
@@ -731,7 +779,8 @@
       "private_notice": "Privégesprek: alleen deelnemers kunnen het lezen.",
       "kind": "Type",
       "conversation_title": "Titel (optioneel)",
-      "new_conversation": "Nieuw gesprek"
+      "new_conversation": "Nieuw gesprek",
+      "empty_hint": "Start een projectkanaal of een direct bericht."
     },
     "search": {
       "title": "Zoeken",
@@ -750,7 +799,8 @@
         "event": "Gebeurtenis",
         "upload": "Upload",
         "issue": "Werkitem"
-      }
+      },
+      "start_title": "Doorzoek pakketten, besluiten, pagina's en berichten"
     },
     "settings": {
       "title": "Project Hub",
@@ -837,7 +887,69 @@
         "ai_outputs": "AI-uitvoer",
         "exports": "Exports"
       },
-      "admin_only": "Alleen werkruimtebeheerders kunnen dit wijzigen."
+      "admin_only": "Alleen werkruimtebeheerders kunnen dit wijzigen.",
+      "admin_only_description": "Je kunt deze instellingen bekijken; wijzigingen vereisen de bevoegdheid ‘Project Hub beheren’.",
+      "activation_description": "Schakel de extensie per werkruimte en per project in. Elke wijziging wordt met een reden geaudit.",
+      "workspace_enabled_description": "Projecten kunnen alleen worden ingeschakeld zolang de werkruimte is ingeschakeld.",
+      "projects_enabled_count": "{count} ingeschakeld",
+      "requires_workspace": "Schakel eerst de werkruimte in.",
+      "enable": "Inschakelen",
+      "disable": "Uitschakelen",
+      "activation_enable_description": "Leden met toekenningen krijgen toegang tot de schermen en acties van Project Hub.",
+      "activation_disable_description": "Runs, goedkeuringen en integraties pauzeren tot het weer wordt ingeschakeld. Er worden geen gegevens verwijderd.",
+      "grants_description": "Expliciete rechten per lid. Standaardrollen impliceren nooit rechten voor uitvoering, review of merge.",
+      "grants_empty_title": "Geen bevoegdheden toegekend",
+      "grant_count": "{count} bevoegdheden",
+      "grant_dialog_title": "Bevoegdheid toekennen",
+      "grant_capability_hint": "Kies een bevoegdheid om te zien wat deze toestaat.",
+      "revoke_grant_label": "{capability} intrekken",
+      "revoke_confirm_title": "Bevoegdheid intrekken?",
+      "revoke_confirm_description": "{member} verliest ‘{capability}’ voor {scope}. Lopend werk wordt niet beïnvloed.",
+      "runners_description": "Machines die runs uitvoeren. Elke runner authenticeert met een eigen token.",
+      "runners_empty_description": "Registreer een runner om runs uit te voeren.",
+      "runner_status": {
+        "online": "Online",
+        "idle": "Inactief",
+        "inactive": "Gedeactiveerd"
+      },
+      "runner_token_once": "Wordt maar één keer getoond",
+      "runner_register_hint": "Het token wordt bij registratie aangemaakt en eenmalig getoond.",
+      "runner_deactivate_confirm_title": "Runner deactiveren?",
+      "runner_deactivate_confirm_description": "‘{name}’ kan geen runs meer claimen. Het token stopt onmiddellijk met werken.",
+      "integrations_description": "Externe trackers en Git-providers. Verminderde verbindingen worden nooit als live getoond.",
+      "connections_empty_description": "Verbind een provider om werkpakketten en code te synchroniseren.",
+      "providers_description": "Wat elke provideradapter ondersteunt.",
+      "capability_column": "Bevoegdheid",
+      "support_short": {
+        "supported": "Ja",
+        "partial": "Gedeeltelijk",
+        "unsupported": "Nee",
+        "requires_configuration": "Config.",
+        "unknown": "—"
+      },
+      "health_unavailable": "Status niet beschikbaar",
+      "disconnect_confirm_title": "Verbinding verbreken?",
+      "disconnect_confirm_description": "‘{name}’ stopt met synchroniseren. Koppelingen blijven bewaard als verbroken; er worden geen gegevens verwijderd.",
+      "retention_description": "Hoe lang elke categorie wordt bewaard. Leeg betekent voor altijd bewaren.",
+      "retention_after_days": "Verwijderd na {count} dagen",
+      "unsaved_changes": "Niet-opgeslagen wijzigingen",
+      "retention_apply_hint": "Bewaartermijnen worden volgens een schema uitgevoerd; pas nu toe om het direct uit te voeren.",
+      "retention_apply_confirm_title": "Bewaartermijn nu toepassen?",
+      "retention_apply_confirm_description": "Gegevens ouder dan de opgeslagen limieten worden definitief verwijderd. Niet-opgeslagen wijzigingen worden niet toegepast."
+    },
+    "capability_description": {
+      "project_read": "De Project Hub-schermen van een project bekijken.",
+      "package_edit": "Werkpakketten, diagrammen en concepten aanmaken en bewerken.",
+      "package_approve_execution": "Een pakket goedkeuren voor uitvoering door een agent.",
+      "run_start": "Runs starten op een runner.",
+      "run_cancel": "Lopende runs annuleren.",
+      "review_approve_code": "Code goedkeuren die door een run is geproduceerd.",
+      "review_accept_outcome": "Het resultaat van een run als klaar accepteren.",
+      "merge_request": "Een merge van goedgekeurde code aanvragen.",
+      "decision_publish": "Besluiten publiceren naar de projectkennis.",
+      "project_plan": "Fasen, mijlpalen en de roadmap plannen.",
+      "integration_manage": "Verbindingen en runners beheren.",
+      "workspace_admin": "Activering, toekenningen en bewaartermijnen wijzigen."
     },
     "capability": {
       "project_read": "Project lezen",
@@ -897,7 +1009,20 @@
       },
       "ambiguous_edge": "Dubbelzinnig: voeg een type of label en een duidelijke richting toe.",
       "source": "Van",
-      "target": "Naar"
+      "target": "Naar",
+      "toolbar_label": "Diagramgereedschap",
+      "zoom_fit": "Zoom passend maken",
+      "zoom_reset": "Zoom resetten",
+      "properties": "Eigenschappen",
+      "inspector_empty": "Selecteer een knooppunt of verbinding om te bewerken.",
+      "edge_label": "{source} → {target}",
+      "select_edge": "Verbinding {label}: {source} naar {target}",
+      "unsaved": "Niet-opgeslagen wijzigingen",
+      "canvas_empty": "Voeg een knooppunt toe om te beginnen.",
+      "node": "Knooppunt",
+      "edge": "Verbinding",
+      "ambiguous_short": "Onduidelijk",
+      "read_only": "Alleen-lezen — ‘Pakketten bewerken’ is vereist om dit diagram te wijzigen."
     }
   }
 }

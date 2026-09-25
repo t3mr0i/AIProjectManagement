@@ -187,7 +187,20 @@
       },
       "discussion": "ディスカッション",
       "open_discussion": "ディスカッションを開く",
-      "close_discussion": "ディスカッションを閉じる"
+      "close_discussion": "ディスカッションを閉じる",
+      "sidebar": {
+        "status": "ステータス",
+        "phase": "フェーズ",
+        "delivery": "デリバリー",
+        "approval": "承認",
+        "flags": "フラグ",
+        "next_step": "次のステップ",
+        "hint": "任意：バージョン管理されたブリーフ、明示的な実行承認、デリバリーのエビデンスを追加します。",
+        "approved_revision": "リビジョン{number}を承認済み",
+        "pending_revision": "リビジョン{number}は未承認",
+        "no_revision": "リビジョンはまだありません",
+        "approve": "リビジョン{number}を承認"
+      }
     },
     "brief": {
       "intent": "目的／理由",
@@ -574,7 +587,13 @@
       "ai_answer_hint": "AI の回答：意思決定ではありません",
       "mark_read": "既読にする",
       "system": "システム",
-      "private_source": "非公開のソースに基づいています。共有されるのは確認済みのテキストのみです。"
+      "private_source": "非公開のソースに基づいています。共有されるのは確認済みのテキストのみです。",
+      "blocked_count": "{count, plural, one {未使用のソース #件} other {未使用のソース #件}}",
+      "composer_hint": "⌘↵ で送信 · @AI をメンションするとソース付きの回答が得られます",
+      "empty_hint": "最初のメッセージを書いてみましょう。",
+      "hide_replies": "返信を非表示",
+      "private_source_short": "非公開のソース",
+      "replying_to": "{name}への返信"
     },
     "activity": {
       "title": "アクティビティ",
@@ -610,7 +629,16 @@
       "open_questions": "{count, plural, one {#件の未解決の質問} other {#件の未解決の質問}}",
       "section_empty": "このセクションには何もありません。",
       "updated": "更新：{time}",
-      "sections_label": "パッケージのセクション"
+      "sections_label": "パッケージのセクション",
+      "view_all": "すべて",
+      "view_active": "アクティブ",
+      "view_drafts": "下書き",
+      "hide_done": "完了を非表示",
+      "show_done": "完了を表示",
+      "show_empty_groups": "空のフェーズを表示",
+      "hide_empty_groups": "空のフェーズを非表示",
+      "next": "次",
+      "filtered_empty": "このビューには作業パッケージがありません。"
     },
     "roadmap": {
       "title": "ロードマップ",
@@ -666,7 +694,15 @@
       "late_by": "{hours} 時間の遅延（見込み {date}）",
       "not_late": "遅延なし",
       "via": "経由：{path}",
-      "impact_basis_deps": "依存関係と信頼できる日付のみから算出しています。計画は変更されません。"
+      "impact_basis_deps": "依存関係と信頼できる日付のみから算出しています。計画は変更されません。",
+      "dependency": "依存関係",
+      "milestone": "マイルストーン",
+      "package": "作業パッケージ",
+      "empty_hint": "マイルストーンを追加するか、作業パッケージに目標日を設定すると、ここに表示されます。",
+      "projects_selected": "{count, plural, one {プロジェクト #件} other {プロジェクト #件}}",
+      "range_auto": "自動範囲",
+      "range_clear": "範囲をクリア",
+      "redacted": "非表示"
     },
     "knowledge": {
       "title": "ナレッジ",
@@ -702,7 +738,8 @@
       "registered": "{name}を登録しました",
       "quarantined_warning": "隔離済みです。開いたり共有したりしないでください。コンテンツはブロックされています。",
       "format_blocked": "ブロック済み（隔離）",
-      "mime": "MIME タイプ"
+      "mime": "MIME タイプ",
+      "quarantined_count": "{count, plural, one {隔離中のアップロード #件} other {隔離中のアップロード #件}}"
     },
     "overview": {
       "title": "概要",
@@ -713,7 +750,18 @@
       "empty": "アクティブな作業はありません。",
       "open_project": "プロジェクトを開く",
       "counts": "アクティブ {active} · レビュー中 {review} · 準備完了 {ready}",
-      "not_enabled": "有効化されていません"
+      "not_enabled": "有効化されていません",
+      "category": {
+        "decision_needed": "意思決定が必要",
+        "blocked": "ブロック中",
+        "mention": "メンション",
+        "review_request": "レビュー依頼あり",
+        "technical": "技術的"
+      },
+      "open_decisions_count": "{count, plural, one {未決の意思決定 #件} other {未決の意思決定 #件}}",
+      "caught_up": "対応すべきことはすべて完了しています",
+      "caught_up_hint": "あなたを待っている意思決定はなく、進行中の作業もありません。",
+      "no_projects": "まだどのプロジェクトにも参加していません。"
     },
     "messages": {
       "title": "メッセージ",
@@ -731,7 +779,8 @@
       "private_notice": "プライベートな会話です。参加者のみが閲覧できます。",
       "kind": "種類",
       "conversation_title": "タイトル（任意）",
-      "new_conversation": "新しい会話"
+      "new_conversation": "新しい会話",
+      "empty_hint": "プロジェクトチャンネルまたはダイレクトメッセージを開始してください。"
     },
     "search": {
       "title": "検索",
@@ -750,7 +799,8 @@
         "event": "イベント",
         "upload": "アップロード",
         "issue": "作業項目"
-      }
+      },
+      "start_title": "パッケージ、意思決定、ページ、メッセージを横断して検索"
     },
     "settings": {
       "title": "Project Hub",
@@ -837,7 +887,69 @@
         "ai_outputs": "AI の出力",
         "exports": "エクスポート"
       },
-      "admin_only": "これを変更できるのはワークスペース管理者のみです。"
+      "admin_only": "これを変更できるのはワークスペース管理者のみです。",
+      "admin_only_description": "この設定は閲覧できますが、変更するには「Project Hub の管理」の機能権限が必要です。",
+      "activation_description": "ワークスペースおよびプロジェクトごとに拡張機能を有効にします。変更はすべて理由とともに監査記録されます。",
+      "workspace_enabled_description": "プロジェクトは、ワークスペースが有効になっている場合にのみ有効化できます。",
+      "projects_enabled_count": "{count}件有効",
+      "requires_workspace": "先にワークスペースを有効にしてください。",
+      "enable": "有効化",
+      "disable": "無効化",
+      "activation_enable_description": "機能権限が付与されたメンバーは、Project Hub の画面とアクションにアクセスできるようになります。",
+      "activation_disable_description": "再度有効化されるまで、実行、承認、連携は一時停止します。データは削除されません。",
+      "grants_description": "メンバーごとの明示的な権限です。標準のロールが実行、レビュー、マージの権限を意味することはありません。",
+      "grants_empty_title": "機能権限の付与はありません",
+      "grant_count": "{count}件の機能権限",
+      "grant_dialog_title": "機能権限を付与",
+      "grant_capability_hint": "機能権限を選択すると、許可される内容が表示されます。",
+      "revoke_grant_label": "{capability}を取り消す",
+      "revoke_confirm_title": "機能権限を取り消しますか？",
+      "revoke_confirm_description": "{member}は{scope}の「{capability}」を失います。実行中の作業には影響しません。",
+      "runners_description": "実行を行うマシンです。各ランナーは固有のトークンで認証します。",
+      "runners_empty_description": "実行を行うにはランナーを登録してください。",
+      "runner_status": {
+        "online": "オンライン",
+        "idle": "アイドル",
+        "inactive": "非アクティブ"
+      },
+      "runner_token_once": "表示は一度のみ",
+      "runner_register_hint": "トークンは登録時に作成され、一度だけ表示されます。",
+      "runner_deactivate_confirm_title": "ランナーを無効化しますか？",
+      "runner_deactivate_confirm_description": "「{name}」は今後実行を占有できなくなります。そのトークンは直ちに無効になります。",
+      "integrations_description": "外部のトラッカーおよび Git プロバイダーです。低下した接続がライブとして表示されることはありません。",
+      "connections_empty_description": "プロバイダーを接続して、作業パッケージとコードを同期してください。",
+      "providers_description": "各プロバイダーアダプターがサポートする内容です。",
+      "capability_column": "機能権限",
+      "support_short": {
+        "supported": "対応",
+        "partial": "一部",
+        "unsupported": "非対応",
+        "requires_configuration": "要設定",
+        "unknown": "—"
+      },
+      "health_unavailable": "健全性が取得できません",
+      "disconnect_confirm_title": "接続を切断しますか？",
+      "disconnect_confirm_description": "「{name}」は同期を停止します。リンクは切断済みとして保持され、データは削除されません。",
+      "retention_description": "各カテゴリの保持期間です。空欄は無期限保持を意味します。",
+      "retention_after_days": "{count}日後に削除",
+      "unsaved_changes": "未保存の変更",
+      "retention_apply_hint": "データ保持はスケジュールに従って実行されます。今すぐ実行するには適用してください。",
+      "retention_apply_confirm_title": "データ保持を今すぐ適用しますか？",
+      "retention_apply_confirm_description": "保存された期限より古いデータは完全に削除されます。未保存の変更は適用されません。"
+    },
+    "capability_description": {
+      "project_read": "プロジェクトの Project Hub 画面を表示します。",
+      "package_edit": "作業パッケージ、ダイアグラム、下書きを作成・編集します。",
+      "package_approve_execution": "エージェントによる実行のためにパッケージを承認します。",
+      "run_start": "ランナー上で実行を開始します。",
+      "run_cancel": "進行中の実行をキャンセルします。",
+      "review_approve_code": "実行によって生成されたコードを承認します。",
+      "review_accept_outcome": "実行の成果を完了として受け入れます。",
+      "merge_request": "承認済みコードのマージをリクエストします。",
+      "decision_publish": "意思決定をプロジェクトのナレッジに公開します。",
+      "project_plan": "フェーズ、マイルストーン、ロードマップを計画します。",
+      "integration_manage": "接続とランナーを管理します。",
+      "workspace_admin": "有効化、機能権限の付与、データ保持を変更します。"
     },
     "capability": {
       "project_read": "プロジェクトの閲覧",
@@ -897,7 +1009,20 @@
       },
       "ambiguous_edge": "曖昧です：種類またはラベルと、明確な方向を追加してください。",
       "source": "始点",
-      "target": "終点"
+      "target": "終点",
+      "toolbar_label": "ダイアグラムツール",
+      "zoom_fit": "ズームを合わせる",
+      "zoom_reset": "ズームをリセット",
+      "properties": "プロパティー",
+      "inspector_empty": "編集するノードまたはエッジを選択してください。",
+      "edge_label": "{source} → {target}",
+      "select_edge": "エッジ {label}：{source} から {target}",
+      "unsaved": "未保存の変更",
+      "canvas_empty": "ノードを追加して開始してください。",
+      "node": "ノード",
+      "edge": "エッジ",
+      "ambiguous_short": "不明確",
+      "read_only": "読み取り専用 — このダイアグラムを変更するには「パッケージの編集」が必要です。"
     }
   }
 }

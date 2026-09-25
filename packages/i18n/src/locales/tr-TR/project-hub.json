@@ -187,7 +187,20 @@
       },
       "discussion": "Tartışma",
       "open_discussion": "Tartışmayı aç",
-      "close_discussion": "Tartışmayı kapat"
+      "close_discussion": "Tartışmayı kapat",
+      "sidebar": {
+        "status": "Durum",
+        "phase": "Aşama",
+        "delivery": "Teslimat",
+        "approval": "Onay",
+        "flags": "İşaretler",
+        "next_step": "Sonraki adım",
+        "hint": "İsteğe bağlı: sürümlü bir brief, açık bir yürütme onayı ve teslimat kanıtı ekler.",
+        "approved_revision": "Revizyon {number} onaylandı",
+        "pending_revision": "Revizyon {number} onaylanmadı",
+        "no_revision": "Henüz revizyon yok",
+        "approve": "Revizyon {number} onayla"
+      }
     },
     "brief": {
       "intent": "Amaç / neden",
@@ -574,7 +587,13 @@
       "ai_answer_hint": "AI yanıtı — karar değildir",
       "mark_read": "Okundu olarak işaretle",
       "system": "Sistem",
-      "private_source": "Özel bir kaynağa dayanır; yalnızca onaylanan metin paylaşılır."
+      "private_source": "Özel bir kaynağa dayanır; yalnızca onaylanan metin paylaşılır.",
+      "blocked_count": "{count, plural, one {# kaynak kullanılmadı} other {# kaynak kullanılmadı}}",
+      "composer_hint": "⌘↵ göndermek için · kaynaklı bir yanıt için @AI'dan bahsedin",
+      "empty_hint": "Bir şey yazan ilk kişi olun.",
+      "hide_replies": "Yanıtları gizle",
+      "private_source_short": "Özel kaynak",
+      "replying_to": "{name} kullanıcısına yanıt veriliyor"
     },
     "activity": {
       "title": "Etkinlik",
@@ -610,7 +629,16 @@
       "open_questions": "{count, plural, one {# açık soru} other {# açık soru}}",
       "section_empty": "Bu bölümde hiçbir şey yok.",
       "updated": "Güncellendi: {time}",
-      "sections_label": "Paket bölümleri"
+      "sections_label": "Paket bölümleri",
+      "view_all": "Tümü",
+      "view_active": "Etkin",
+      "view_drafts": "Taslaklar",
+      "hide_done": "Tamamlananları gizle",
+      "show_done": "Tamamlananları göster",
+      "show_empty_groups": "Boş aşamaları göster",
+      "hide_empty_groups": "Boş aşamaları gizle",
+      "next": "Sonraki",
+      "filtered_empty": "Bu görünümde iş paketi yok."
     },
     "roadmap": {
       "title": "Yol haritası",
@@ -666,7 +694,15 @@
       "late_by": "{hours} sa gecikmeli (tahmini {date})",
       "not_late": "Gecikme yok",
       "via": "{path} üzerinden",
-      "impact_basis_deps": "Yalnızca bağımlılıklar ve güvenilir tarihlerden hesaplanmıştır. Plan değiştirilmez."
+      "impact_basis_deps": "Yalnızca bağımlılıklar ve güvenilir tarihlerden hesaplanmıştır. Plan değiştirilmez.",
+      "dependency": "Bağımlılık",
+      "milestone": "Kilometre taşı",
+      "package": "İş paketi",
+      "empty_hint": "Burada görmek için bir kilometre taşı ekleyin veya iş paketlerine hedef tarihler belirleyin.",
+      "projects_selected": "{count, plural, one {# proje} other {# proje}}",
+      "range_auto": "Otomatik aralık",
+      "range_clear": "Aralığı temizle",
+      "redacted": "Gizlenmiş"
     },
     "knowledge": {
       "title": "Bilgi",
@@ -702,7 +738,8 @@
       "registered": "{name} kaydedildi",
       "quarantined_warning": "Karantinada — açmayın veya paylaşmayın. İçerik engellendi.",
       "format_blocked": "Engellendi (karantina)",
-      "mime": "MIME türü"
+      "mime": "MIME türü",
+      "quarantined_count": "{count, plural, one {# karantinadaki yükleme} other {# karantinadaki yükleme}}"
     },
     "overview": {
       "title": "Genel bakış",
@@ -713,7 +750,18 @@
       "empty": "Etkin çalışma yok.",
       "open_project": "Projeyi aç",
       "counts": "{active} etkin · {review} incelemede · {ready} hazır",
-      "not_enabled": "Etkin değil"
+      "not_enabled": "Etkin değil",
+      "category": {
+        "decision_needed": "Karar gerekli",
+        "blocked": "Engellendi",
+        "mention": "Bahsetme",
+        "review_request": "İnceleme istendi",
+        "technical": "Teknik"
+      },
+      "open_decisions_count": "{count, plural, one {# açık karar} other {# açık karar}}",
+      "caught_up": "Her şey güncel",
+      "caught_up_hint": "Sizi bekleyen bir karar yok ve devam eden bir çalışma yok.",
+      "no_projects": "Henüz hiçbir projeye katılmadınız."
     },
     "messages": {
       "title": "Mesajlar",
@@ -731,7 +779,8 @@
       "private_notice": "Özel konuşma — yalnızca katılımcılar okuyabilir.",
       "kind": "Tür",
       "conversation_title": "Başlık (isteğe bağlı)",
-      "new_conversation": "Yeni konuşma"
+      "new_conversation": "Yeni konuşma",
+      "empty_hint": "Bir proje kanalı veya doğrudan mesaj başlatın."
     },
     "search": {
       "title": "Ara",
@@ -750,7 +799,8 @@
         "event": "Olay",
         "upload": "Yükleme",
         "issue": "İş öğesi"
-      }
+      },
+      "start_title": "Paketler, kararlar, sayfalar ve mesajlar arasında arama yapın"
     },
     "settings": {
       "title": "Project Hub",
@@ -837,7 +887,69 @@
         "ai_outputs": "AI çıktıları",
         "exports": "Dışa aktarımlar"
       },
-      "admin_only": "Bunu yalnızca çalışma alanı yöneticileri değiştirebilir."
+      "admin_only": "Bunu yalnızca çalışma alanı yöneticileri değiştirebilir.",
+      "admin_only_description": "Bu ayarları görüntüleyebilirsiniz; değişiklikler için \"Project Hub'ı yönetme\" yetkinliği gerekir.",
+      "activation_description": "Uzantıyı çalışma alanı ve proje bazında etkinleştirin. Her değişiklik bir nedenle denetlenir.",
+      "workspace_enabled_description": "Projeler yalnızca çalışma alanı etkinken etkinleştirilebilir.",
+      "projects_enabled_count": "{count} etkin",
+      "requires_workspace": "Önce çalışma alanını etkinleştirin.",
+      "enable": "Etkinleştir",
+      "disable": "Devre dışı bırak",
+      "activation_enable_description": "Atamaları olan üyeler Project Hub ekranlarına ve eylemlerine erişim kazanır.",
+      "activation_disable_description": "Yeniden etkinleştirilene kadar çalıştırmalar, onaylar ve entegrasyonlar duraklatılır. Hiçbir veri silinmez.",
+      "grants_description": "Üye başına açık haklar. Yerel roller hiçbir zaman yürütme, inceleme veya birleştirme hakkı anlamına gelmez.",
+      "grants_empty_title": "Atanmış yetkinlik yok",
+      "grant_count": "{count} yetkinlik",
+      "grant_dialog_title": "Yetkinlik ata",
+      "grant_capability_hint": "Neye izin verdiğini görmek için bir yetkinlik seçin.",
+      "revoke_grant_label": "{capability} yetkinliğini iptal et",
+      "revoke_confirm_title": "Yetkinlik iptal edilsin mi?",
+      "revoke_confirm_description": "{member}, {scope} için \"{capability}\" yetkinliğini kaybeder. Devam eden çalışma etkilenmez.",
+      "runners_description": "Çalıştırmaları yürüten makineler. Her runner kendi token'ıyla kimlik doğrulaması yapar.",
+      "runners_empty_description": "Çalıştırma yapmak için bir runner kaydedin.",
+      "runner_status": {
+        "online": "Çevrimiçi",
+        "idle": "Boşta",
+        "inactive": "Etkin değil"
+      },
+      "runner_token_once": "Yalnızca bir kez gösterilir",
+      "runner_register_hint": "Token kayıt sırasında oluşturulur ve bir kez gösterilir.",
+      "runner_deactivate_confirm_title": "Runner devre dışı bırakılsın mı?",
+      "runner_deactivate_confirm_description": "\"{name}\" artık çalıştırma sahiplenemez. Token'ı hemen çalışmayı durdurur.",
+      "integrations_description": "Harici izleyiciler ve Git sağlayıcıları. Düşük performanslı bağlantılar hiçbir zaman canlı olarak gösterilmez.",
+      "connections_empty_description": "İş paketlerini ve kodu senkronize etmek için bir sağlayıcı bağlayın.",
+      "providers_description": "Her sağlayıcı bağdaştırıcısının neyi desteklediği.",
+      "capability_column": "Yetkinlik",
+      "support_short": {
+        "supported": "Evet",
+        "partial": "Kısmi",
+        "unsupported": "Hayır",
+        "requires_configuration": "Yapılandırma",
+        "unknown": "—"
+      },
+      "health_unavailable": "Durum kullanılamıyor",
+      "disconnect_confirm_title": "Bağlantı kesilsin mi?",
+      "disconnect_confirm_description": "\"{name}\" senkronizasyonu durdurur. Bağlantılar kopuk olarak saklanır; hiçbir veri silinmez.",
+      "retention_description": "Her kategorinin ne kadar süre saklanacağı. Boş bırakmak süresiz saklama anlamına gelir.",
+      "retention_after_days": "{count} gün sonra silinir",
+      "unsaved_changes": "Kaydedilmemiş değişiklikler",
+      "retention_apply_hint": "Saklama bir programa göre çalışır; hemen çalıştırmak için şimdi uygulayın.",
+      "retention_apply_confirm_title": "Saklama şimdi uygulansın mı?",
+      "retention_apply_confirm_description": "Kaydedilen sınırlardan daha eski veriler kalıcı olarak silinir. Kaydedilmemiş değişiklikler uygulanmaz."
+    },
+    "capability_description": {
+      "project_read": "Bir projenin Project Hub ekranlarını görüntüleme.",
+      "package_edit": "İş paketleri, diyagramlar ve taslaklar oluşturma ve düzenleme.",
+      "package_approve_execution": "Bir paketi bir ajan tarafından yürütülmek üzere onaylama.",
+      "run_start": "Bir runner'da çalıştırma başlatma.",
+      "run_cancel": "Devam eden çalıştırmaları iptal etme.",
+      "review_approve_code": "Bir çalıştırma tarafından üretilen kodu onaylama.",
+      "review_accept_outcome": "Bir çalıştırmanın sonucunu tamamlandı olarak kabul etme.",
+      "merge_request": "Onaylanmış kodun birleştirilmesini isteme.",
+      "decision_publish": "Kararları proje bilgisine yayınlama.",
+      "project_plan": "Aşamaları, kilometre taşlarını ve yol haritasını planlama.",
+      "integration_manage": "Bağlantıları ve runner'ları yönetme.",
+      "workspace_admin": "Etkinleştirmeyi, atamaları ve saklamayı değiştirme."
     },
     "capability": {
       "project_read": "Projeyi okuma",
@@ -897,7 +1009,20 @@
       },
       "ambiguous_edge": "Belirsiz: bir tür veya etiket ve net bir yön ekleyin.",
       "source": "Kaynak",
-      "target": "Hedef"
+      "target": "Hedef",
+      "toolbar_label": "Diyagram araçları",
+      "zoom_fit": "Yakınlaştırmayı sığdır",
+      "zoom_reset": "Yakınlaştırmayı sıfırla",
+      "properties": "Özellikler",
+      "inspector_empty": "Düzenlemek için bir düğüm veya kenar seçin.",
+      "edge_label": "{source} → {target}",
+      "select_edge": "Kenar {label}: {source} - {target}",
+      "unsaved": "Kaydedilmemiş değişiklikler",
+      "canvas_empty": "Başlamak için bir düğüm ekleyin.",
+      "node": "Düğüm",
+      "edge": "Kenar",
+      "ambiguous_short": "Belirsiz",
+      "read_only": "Salt okunur — bu diyagramı değiştirmek için \"Paketleri düzenleme\" gerekir."
     }
   }
 }

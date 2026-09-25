@@ -187,7 +187,20 @@
       },
       "discussion": "Discussão",
       "open_discussion": "Abrir discussão",
-      "close_discussion": "Fechar discussão"
+      "close_discussion": "Fechar discussão",
+      "sidebar": {
+        "status": "Status",
+        "phase": "Fase",
+        "delivery": "Entrega",
+        "approval": "Aprovação",
+        "flags": "Sinalizadores",
+        "next_step": "Próxima etapa",
+        "hint": "Opcional: adiciona um briefing versionado, uma aprovação de execução explícita e evidências de entrega.",
+        "approved_revision": "Revisão {number} aprovada",
+        "pending_revision": "Revisão {number} não aprovada",
+        "no_revision": "Ainda não há revisão",
+        "approve": "Aprovar revisão {number}"
+      }
     },
     "brief": {
       "intent": "Objetivo / por quê",
@@ -574,7 +587,13 @@
       "ai_answer_hint": "Resposta da IA: não é uma decisão",
       "mark_read": "Marcar como lida",
       "system": "Sistema",
-      "private_source": "Baseado em uma fonte privada; apenas o texto confirmado é compartilhado."
+      "private_source": "Baseado em uma fonte privada; apenas o texto confirmado é compartilhado.",
+      "blocked_count": "{count, plural, one {# fonte não usada} many {# de fontes não usadas} other {# fontes não usadas}}",
+      "composer_hint": "⌘↵ para enviar · mencione @AI para uma resposta com fontes",
+      "empty_hint": "Seja o primeiro a escrever algo.",
+      "hide_replies": "Ocultar respostas",
+      "private_source_short": "Fonte privada",
+      "replying_to": "Respondendo a {name}"
     },
     "activity": {
       "title": "Atividade",
@@ -610,7 +629,16 @@
       "open_questions": "{count, plural, one {# pergunta em aberto} many {# de perguntas em aberto} other {# perguntas em aberto}}",
       "section_empty": "Nada nesta seção.",
       "updated": "Atualizado {time}",
-      "sections_label": "Seções de pacotes"
+      "sections_label": "Seções de pacotes",
+      "view_all": "Todos",
+      "view_active": "Ativos",
+      "view_drafts": "Rascunhos",
+      "hide_done": "Ocultar concluídos",
+      "show_done": "Mostrar concluídos",
+      "show_empty_groups": "Mostrar fases vazias",
+      "hide_empty_groups": "Ocultar fases vazias",
+      "next": "Próximo",
+      "filtered_empty": "Nenhum pacote de trabalho nesta exibição."
     },
     "roadmap": {
       "title": "Roteiro",
@@ -666,7 +694,15 @@
       "late_by": "Atrasado em {hours} h (previsão {date})",
       "not_late": "Sem atraso",
       "via": "Via {path}",
-      "impact_basis_deps": "Calculado apenas a partir de dependências e datas confiáveis. O plano não é alterado."
+      "impact_basis_deps": "Calculado apenas a partir de dependências e datas confiáveis. O plano não é alterado.",
+      "dependency": "Dependência",
+      "milestone": "Marco",
+      "package": "Pacote de trabalho",
+      "empty_hint": "Adicione um marco ou defina datas previstas nos pacotes de trabalho para vê-los aqui.",
+      "projects_selected": "{count, plural, one {# projeto} many {# de projetos} other {# projetos}}",
+      "range_auto": "Intervalo automático",
+      "range_clear": "Limpar intervalo",
+      "redacted": "Ocultado"
     },
     "knowledge": {
       "title": "Conhecimento",
@@ -702,7 +738,8 @@
       "registered": "{name} registrado",
       "quarantined_warning": "Em quarentena – não abra nem compartilhe. O conteúdo está bloqueado.",
       "format_blocked": "Bloqueado (quarentena)",
-      "mime": "Tipo MIME"
+      "mime": "Tipo MIME",
+      "quarantined_count": "{count, plural, one {# upload em quarentena} many {# de uploads em quarentena} other {# uploads em quarentena}}"
     },
     "overview": {
       "title": "Visão geral",
@@ -713,7 +750,18 @@
       "empty": "Nenhum trabalho ativo.",
       "open_project": "Abrir projeto",
       "counts": "{active} ativos · {review} em revisão · {ready} prontos",
-      "not_enabled": "Não habilitado"
+      "not_enabled": "Não habilitado",
+      "category": {
+        "decision_needed": "Decisão necessária",
+        "blocked": "Bloqueado",
+        "mention": "Menção",
+        "review_request": "Revisão solicitada",
+        "technical": "Técnico"
+      },
+      "open_decisions_count": "{count, plural, one {# decisão em aberto} many {# de decisões em aberto} other {# decisões em aberto}}",
+      "caught_up": "Você está em dia com tudo",
+      "caught_up_hint": "Nenhuma decisão está esperando por você e nenhum trabalho está em andamento.",
+      "no_projects": "Você ainda não participa de nenhum projeto."
     },
     "messages": {
       "title": "Mensagens",
@@ -731,7 +779,8 @@
       "private_notice": "Conversa privada: somente os participantes podem lê-la.",
       "kind": "Tipo",
       "conversation_title": "Título (opcional)",
-      "new_conversation": "Nova conversa"
+      "new_conversation": "Nova conversa",
+      "empty_hint": "Inicie um canal do projeto ou uma mensagem direta."
     },
     "search": {
       "title": "Pesquisa",
@@ -750,7 +799,8 @@
         "event": "Evento",
         "upload": "Upload",
         "issue": "Item de trabalho"
-      }
+      },
+      "start_title": "Pesquisar em pacotes, decisões, páginas e mensagens"
     },
     "settings": {
       "title": "Project Hub",
@@ -837,7 +887,69 @@
         "ai_outputs": "Saídas da IA",
         "exports": "Exportações"
       },
-      "admin_only": "Somente administradores do espaço de trabalho podem alterar isto."
+      "admin_only": "Somente administradores do espaço de trabalho podem alterar isto.",
+      "admin_only_description": "Você pode visualizar estas configurações; as alterações exigem a capacidade \"Administrar Project Hub\".",
+      "activation_description": "Ative a extensão por espaço de trabalho e por projeto. Cada alteração é auditada com um motivo.",
+      "workspace_enabled_description": "Os projetos só podem ser habilitados enquanto o espaço de trabalho estiver habilitado.",
+      "projects_enabled_count": "{count} habilitados",
+      "requires_workspace": "Habilite o espaço de trabalho primeiro.",
+      "enable": "Habilitar",
+      "disable": "Desabilitar",
+      "activation_enable_description": "Os membros com concessões obtêm acesso às telas e ações do Project Hub.",
+      "activation_disable_description": "Execuções, aprovações e integrações são pausadas até que seja habilitado novamente. Nenhum dado é excluído.",
+      "grants_description": "Direitos explícitos por membro. As funções nativas nunca implicam direitos de execução, revisão ou mesclagem.",
+      "grants_empty_title": "Nenhuma capacidade concedida",
+      "grant_count": "{count} capacidades",
+      "grant_dialog_title": "Conceder capacidade",
+      "grant_capability_hint": "Escolha uma capacidade para ver o que ela permite.",
+      "revoke_grant_label": "Revogar {capability}",
+      "revoke_confirm_title": "Revogar capacidade?",
+      "revoke_confirm_description": "{member} perde \"{capability}\" para {scope}. O trabalho em andamento não é afetado.",
+      "runners_description": "Máquinas que executam execuções. Cada runner se autentica com seu próprio token.",
+      "runners_empty_description": "Registre um runner para executar execuções.",
+      "runner_status": {
+        "online": "On-line",
+        "idle": "Ocioso",
+        "inactive": "Inativo"
+      },
+      "runner_token_once": "Exibido apenas uma vez",
+      "runner_register_hint": "O token é criado no registro e exibido uma vez.",
+      "runner_deactivate_confirm_title": "Desativar runner?",
+      "runner_deactivate_confirm_description": "\"{name}\" não poderá mais reservar execuções. Seu token para de funcionar imediatamente.",
+      "integrations_description": "Rastreadores externos e provedores Git. Conexões degradadas nunca são exibidas como ativas.",
+      "connections_empty_description": "Conecte um provedor para sincronizar pacotes de trabalho e código.",
+      "providers_description": "O que cada adaptador de provedor suporta.",
+      "capability_column": "Capacidade",
+      "support_short": {
+        "supported": "Sim",
+        "partial": "Parcial",
+        "unsupported": "Não",
+        "requires_configuration": "Config.",
+        "unknown": "—"
+      },
+      "health_unavailable": "Integridade indisponível",
+      "disconnect_confirm_title": "Desconectar conexão?",
+      "disconnect_confirm_description": "\"{name}\" para de sincronizar. Os vínculos são mantidos como desconectados; nenhum dado é excluído.",
+      "retention_description": "Por quanto tempo cada categoria é mantida. Vazio significa manter para sempre.",
+      "retention_after_days": "Excluído após {count} dias",
+      "unsaved_changes": "Alterações não salvas",
+      "retention_apply_hint": "A retenção é executada em um cronograma; aplique agora para executá-la imediatamente.",
+      "retention_apply_confirm_title": "Aplicar retenção agora?",
+      "retention_apply_confirm_description": "Dados mais antigos que os limites salvos são excluídos permanentemente. Alterações não salvas não são aplicadas."
+    },
+    "capability_description": {
+      "project_read": "Visualizar as telas do Project Hub de um projeto.",
+      "package_edit": "Criar e editar pacotes de trabalho, diagramas e rascunhos.",
+      "package_approve_execution": "Aprovar um pacote para execução por um agente.",
+      "run_start": "Iniciar execuções em um runner.",
+      "run_cancel": "Cancelar execuções em andamento.",
+      "review_approve_code": "Aprovar o código produzido por uma execução.",
+      "review_accept_outcome": "Aceitar o resultado de uma execução como concluído.",
+      "merge_request": "Solicitar uma mesclagem de código aprovado.",
+      "decision_publish": "Publicar decisões no conhecimento do projeto.",
+      "project_plan": "Planejar fases, marcos e o roteiro.",
+      "integration_manage": "Gerenciar conexões e runners.",
+      "workspace_admin": "Alterar ativação, concessões e retenção."
     },
     "capability": {
       "project_read": "Ler projeto",
@@ -897,7 +1009,20 @@
       },
       "ambiguous_edge": "Ambígua: adicione um tipo ou rótulo e uma direção clara.",
       "source": "De",
-      "target": "Para"
+      "target": "Para",
+      "toolbar_label": "Ferramentas do diagrama",
+      "zoom_fit": "Ajustar zoom",
+      "zoom_reset": "Redefinir zoom",
+      "properties": "Propriedades",
+      "inspector_empty": "Selecione um nó ou uma aresta para editá-lo.",
+      "edge_label": "{source} → {target}",
+      "select_edge": "Aresta {label}: de {source} para {target}",
+      "unsaved": "Alterações não salvas",
+      "canvas_empty": "Adicione um nó para começar.",
+      "node": "Nó",
+      "edge": "Aresta",
+      "ambiguous_short": "Incerto",
+      "read_only": "Somente leitura — \"Editar pacotes\" é necessário para alterar este diagrama."
     }
   }
 }
