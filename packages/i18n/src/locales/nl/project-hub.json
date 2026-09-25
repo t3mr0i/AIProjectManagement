@@ -144,7 +144,9 @@
       "sync_conflict": "Synchronisatieconflict",
       "stale_evidence": "Verouderd bewijs",
       "integration_offline": "Integratie offline",
-      "native_done_without_delivery": "Klaar zonder leveringsbewijs"
+      "native_done_without_delivery": "Klaar zonder leveringsbewijs",
+      "native_done_without_delivery_evidence": "Klaar zonder leveringsbewijs",
+      "merge_pending_confirmation": "Merge wacht op bevestiging"
     },
     "trust": {
       "local_self_report": "Lokale eigen melding",
@@ -228,7 +230,16 @@
       "draft_saved": "Concept opgeslagen",
       "unsaved_changes": "Niet-opgeslagen wijzigingen",
       "version": "Conceptversie {version}",
-      "readonly": "Je kunt deze opdracht lezen, maar niet bewerken."
+      "readonly": "Je kunt deze opdracht lezen, maar niet bewerken.",
+      "scope_hint": "Eén item per regel. Voor gereedheid is minstens één item binnen de scope nodig.",
+      "verification": "Verificatie voor criterium {index}",
+      "verifications": {
+        "ci": "CI-controle",
+        "manual": "Handmatige review",
+        "runner": "Runner",
+        "any": "Willekeurig bewijs"
+      },
+      "risk_notes_hint": "Verplicht voor diepgaande pakketten: wat kan er misgaan en hoe wordt dat opgevangen."
     },
     "readiness": {
       "title": "Gereedheid",
@@ -309,7 +320,8 @@
       "continue": "Doorgaan",
       "closed": "Verduidelijking afgerond.",
       "open_blockers": "Openstaande blokkades",
-      "summary": "Samenvatting"
+      "summary": "Samenvatting",
+      "draft_ready": "Er is een conceptvoorstel klaar. Bekijk het hieronder – er is nog niets toegepast."
     },
     "proposals": {
       "title": "AI-voorstellen",
@@ -329,7 +341,8 @@
         "accepted": "Geaccepteerd",
         "rejected": "Afgewezen",
         "stale": "Verouderd"
-      }
+      },
+      "patch_field": "Veld: {field}"
     },
     "changes": {
       "records": "Wijzigingsrecords",
@@ -425,7 +438,8 @@
       "external_value": "Externe waarde",
       "keep_platform": "Platformwaarde behouden",
       "keep_external": "Externe waarde behouden",
-      "changed_at": "gewijzigd {time}"
+      "changed_at": "gewijzigd {time}",
+      "manifest": "Manifest {hash}"
     },
     "review": {
       "intent": "Goedgekeurde intentie",
@@ -472,7 +486,32 @@
       "no_capability_review": "Je hebt niet de bevoegdheid voor deze review.",
       "no_capability_merge": "Je hebt niet de bevoegdheid om een merge aan te vragen.",
       "recorded": "Reviewbesluit vastgelegd",
-      "select_mr": "Merge request"
+      "select_mr": "Merge request",
+      "change_counts": "Merge requests: {mrs} · Commits: {commits}",
+      "commit_claims": "Commitberichten (claims, geen bewijs)",
+      "required_trust": "Vereist bewijs van: {trust}",
+      "trust_level": {
+        "trusted_ci": "vertrouwde CI",
+        "human": "menselijke review",
+        "runner": "runner",
+        "any": "willekeurige bron"
+      },
+      "open_point": {
+        "criterion_not_proven": "Criterium niet aangetoond: {criterion} ({reason})",
+        "code_review_required": "Codereview vereist voor head {sha}",
+        "code_review_invalidated": "Codereview ongeldig door nieuwe commits (head {sha})",
+        "open_question": "Open vraag: {title}",
+        "outcome_acceptance_missing": "Acceptatie van resultaat ontbreekt",
+        "no_approved_revision": "Geen goedgekeurde revisie",
+        "revision_changed_since_approval": "De revisie is sinds de goedkeuring gewijzigd"
+      },
+      "validity": {
+        "valid": "Geldig",
+        "changes_requested": "Wijzigingen gevraagd",
+        "invalidated": "Ongeldig gemaakt",
+        "stale_revision": "Voor een oudere revisie",
+        "stale_head": "Voor een oudere commit"
+      }
     },
     "history": {
       "timeline": "Pakketactiviteit",
@@ -498,7 +537,8 @@
       "aggregate": "Totaal: {state}",
       "aggregate_rule": "Regel: {rule}",
       "deployed_not_released": "Uitgerold zonder bekende release: niet noodzakelijk beschikbaar voor alle gebruikers.",
-      "history_title": "Geschiedenis (incl. rollbacks)"
+      "history_title": "Geschiedenis (incl. rollbacks)",
+      "local_state_unknown": "De status op ontwikkelaarscomputers is onbekend."
     },
     "discussion": {
       "title": "Discussie",
@@ -533,7 +573,8 @@
       "ai_badge": "AI",
       "ai_answer_hint": "AI-antwoord: geen besluit",
       "mark_read": "Markeren als gelezen",
-      "system": "Systeem"
+      "system": "Systeem",
+      "private_source": "Gebaseerd op een privébron; alleen de bevestigde tekst wordt gedeeld."
     },
     "activity": {
       "title": "Activiteit",
@@ -620,7 +661,12 @@
       "successor": "Opvolger",
       "project_filter": "Projecten",
       "created": "Mijlpaal gemaakt",
-      "uncertain": "Onzeker"
+      "uncertain": "Onzeker",
+      "dependency_create": "Afhankelijkheid toevoegen",
+      "late_by": "{hours} u te laat (verwacht {date})",
+      "not_late": "Niet te laat",
+      "via": "Via {path}",
+      "impact_basis_deps": "Alleen berekend op basis van afhankelijkheden en betrouwbare datums. Het plan wordt niet gewijzigd."
     },
     "knowledge": {
       "title": "Kennis",
@@ -643,7 +689,20 @@
       "decisions": "Besluiten",
       "decisions_empty": "Nog geen besluiten.",
       "search_placeholder": "Zoeken in dit project",
-      "search_empty": "Geen toegankelijke resultaten."
+      "search_empty": "Geen toegankelijke resultaten.",
+      "register": "Bijlage registreren",
+      "register_submit": "Registreren",
+      "register_hint": "Kies een bestaande bijlage van dit project. Deze wordt gescand en geclassificeerd; er wordt niets opnieuw geüpload.",
+      "candidates": "Bijlagen",
+      "candidates_empty": "Geen ongeregistreerde bijlagen in dit project.",
+      "filename": "Bestandsnaam",
+      "declared_mime": "Opgegeven type (MIME)",
+      "declared_mime_hint": "Het door de scan gedetecteerde type heeft voorrang.",
+      "not_uploaded": "upload onvolledig",
+      "registered": "{name} geregistreerd",
+      "quarantined_warning": "In quarantaine – niet openen of delen. De inhoud is geblokkeerd.",
+      "format_blocked": "Geblokkeerd (quarantaine)",
+      "mime": "MIME-type"
     },
     "overview": {
       "title": "Overzicht",
@@ -689,7 +748,8 @@
         "page": "Pagina",
         "message": "Bericht",
         "event": "Gebeurtenis",
-        "upload": "Upload"
+        "upload": "Upload",
+        "issue": "Werkitem"
       }
     },
     "settings": {
@@ -732,7 +792,8 @@
         "supported": "Ondersteund",
         "partial": "Gedeeltelijk",
         "unsupported": "Niet ondersteund",
-        "unknown": "Onbekend"
+        "unknown": "Onbekend",
+        "requires_configuration": "Configuratie vereist"
       },
       "connections": "Verbindingen",
       "connections_empty": "Geen verbindingen.",
@@ -752,7 +813,8 @@
         "active": "Actief",
         "degraded": "Verminderd",
         "offline": "Offline",
-        "disabled": "Uitgeschakeld"
+        "disabled": "Uitgeschakeld",
+        "stale": "Verouderd"
       },
       "reconcile": "Afstemmen",
       "reconcile_started": "Afstemming geaccepteerd (wordt op de achtergrond uitgevoerd)",
@@ -790,6 +852,52 @@
       "project_plan": "Project plannen",
       "integration_manage": "Integraties beheren",
       "workspace_admin": "Project Hub beheren"
+    },
+    "diagram": {
+      "title": "Diagrammen",
+      "description": "Gestructureerde diagrammen: knooppunten en verbindingen dragen betekenis, posities zijn alleen lay-out.",
+      "create": "Nieuw diagram",
+      "name": "Naam",
+      "empty": "Nog geen diagrammen.",
+      "counts": "{nodes} knooppunten · {edges} verbindingen",
+      "unlinked": "Niet gekoppeld aan een werkpakket",
+      "open": "Editor openen",
+      "close": "Editor sluiten",
+      "canvas_label": "Diagramcanvas",
+      "node_label": "{label} ({type}). Sleep of gebruik de pijltjestoetsen om te verplaatsen.",
+      "canvas_help": "Sleep knooppunten, of focus er één en gebruik de pijltjestoetsen (Shift = grotere stappen). Verplaatsen wijzigt alleen de lay-out.",
+      "version": "Versie {version}",
+      "no_change": "Niets gewijzigd.",
+      "layout_only": "Opgeslagen – alleen lay-out. De betekenis van het diagram is niet veranderd.",
+      "semantic_change": "Opgeslagen – de betekenis is veranderd. Er is een interpretatievoorstel gemaakt.",
+      "diff_summary": "Knooppunten: +{nodesAdded} −{nodesRemoved} ~{nodesChanged} · Verbindingen: +{edgesAdded} −{edgesRemoved} ~{edgesChanged}",
+      "pending_interpretation": "Openstaande interpretatie",
+      "not_a_requirement": "Alleen een interpretatie – niets wordt een vereiste totdat een persoon het accepteert.",
+      "uncertainty": "Onzekerheid: {level}",
+      "questions": "Vragen over dubbelzinnige verbindingen",
+      "suggested_criteria": "Voorgestelde acceptatiecriteria",
+      "impacts": "Mogelijke impact",
+      "needs_package": "Koppel het diagram aan een werkpakket om criteria over te nemen.",
+      "accept": "Selectie accepteren",
+      "accepted": "Interpretatie geaccepteerd",
+      "nodes": "Knooppunten",
+      "add_node": "Knooppunt toevoegen",
+      "new_node": "Nieuw knooppunt",
+      "label": "Label",
+      "type": "Type",
+      "remove_node": "{label} verwijderen",
+      "edges": "Verbindingen",
+      "add_edge": "Verbinding toevoegen",
+      "remove_edge": "Verbinding verwijderen",
+      "direction": "Richting",
+      "directions": {
+        "forward": "Eén richting (→)",
+        "both": "Beide richtingen (↔)",
+        "unknown": "Onduidelijk (?)"
+      },
+      "ambiguous_edge": "Dubbelzinnig: voeg een type of label en een duidelijke richting toe.",
+      "source": "Van",
+      "target": "Naar"
     }
   }
 }

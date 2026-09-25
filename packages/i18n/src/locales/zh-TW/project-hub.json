@@ -144,7 +144,9 @@
       "sync_conflict": "同步衝突",
       "stale_evidence": "證據已過時",
       "integration_offline": "整合離線",
-      "native_done_without_delivery": "已完成但無交付證據"
+      "native_done_without_delivery": "已完成但無交付證據",
+      "native_done_without_delivery_evidence": "已完成但無交付證據",
+      "merge_pending_confirmation": "合併等待確認"
     },
     "trust": {
       "local_self_report": "本機自行回報",
@@ -228,7 +230,16 @@
       "draft_saved": "草稿已儲存",
       "unsaved_changes": "未儲存的變更",
       "version": "草稿版本{version}",
-      "readonly": "您可以閱讀此任務說明，但無法編輯。"
+      "readonly": "您可以閱讀此任務說明，但無法編輯。",
+      "scope_hint": "每行一個項目。就緒至少需要一個範圍內的項目。",
+      "verification": "標準{index}的驗證方式",
+      "verifications": {
+        "ci": "CI 檢查",
+        "manual": "人工審查",
+        "runner": "執行器",
+        "any": "任何證據"
+      },
+      "risk_notes_hint": "深入工作包必填：可能出現什麼問題以及如何降低風險。"
     },
     "readiness": {
       "title": "就緒狀態",
@@ -309,7 +320,8 @@
       "continue": "繼續",
       "closed": "釐清已完成。",
       "open_blockers": "未解決的阻礙",
-      "summary": "摘要"
+      "summary": "摘要",
+      "draft_ready": "建議草稿已準備就緒。請在下方審查——尚未套用任何內容。"
     },
     "proposals": {
       "title": "AI 建議",
@@ -329,7 +341,8 @@
         "accepted": "已接受",
         "rejected": "已拒絕",
         "stale": "已過時"
-      }
+      },
+      "patch_field": "欄位：{field}"
     },
     "changes": {
       "records": "變更紀錄",
@@ -425,7 +438,8 @@
       "external_value": "外部值",
       "keep_platform": "保留平台值",
       "keep_external": "保留外部值",
-      "changed_at": "變更於{time}"
+      "changed_at": "變更於{time}",
+      "manifest": "資訊清單 {hash}"
     },
     "review": {
       "intent": "已核准的目標",
@@ -472,7 +486,32 @@
       "no_capability_review": "您沒有進行此審查的功能權限。",
       "no_capability_merge": "您沒有要求合併的功能權限。",
       "recorded": "已記錄審查決定",
-      "select_mr": "合併請求"
+      "select_mr": "合併請求",
+      "change_counts": "{mrs} 個合併請求 · {commits} 個提交",
+      "commit_claims": "提交訊息（聲明，而非證據）",
+      "required_trust": "需要以下來源的證據：{trust}",
+      "trust_level": {
+        "trusted_ci": "受信任的 CI",
+        "human": "人工審查",
+        "runner": "執行器",
+        "any": "任何來源"
+      },
+      "open_point": {
+        "criterion_not_proven": "標準未獲證明：{criterion}（{reason}）",
+        "code_review_required": "head {sha} 需要程式碼審查",
+        "code_review_invalidated": "程式碼審查因新提交而失效（head {sha}）",
+        "open_question": "未解決的問題：{title}",
+        "outcome_acceptance_missing": "缺少結果驗收",
+        "no_approved_revision": "沒有已核准的修訂版",
+        "revision_changed_since_approval": "修訂版在核准後已變更"
+      },
+      "validity": {
+        "valid": "有效",
+        "changes_requested": "已要求變更",
+        "invalidated": "已失效",
+        "stale_revision": "針對較舊的修訂版",
+        "stale_head": "針對較舊的提交"
+      }
     },
     "history": {
       "timeline": "工作包動態",
@@ -498,7 +537,8 @@
       "aggregate": "整體：{state}",
       "aggregate_rule": "規則：{rule}",
       "deployed_not_released": "已部署但無已知的發布，不一定所有使用者皆可使用。",
-      "history_title": "歷史記錄（含復原）"
+      "history_title": "歷史記錄（含復原）",
+      "local_state_unknown": "開發人員電腦上的狀態未知。"
     },
     "discussion": {
       "title": "討論",
@@ -533,7 +573,8 @@
       "ai_badge": "AI",
       "ai_answer_hint": "AI 回答，並非決策",
       "mark_read": "標示為已讀",
-      "system": "系統"
+      "system": "系統",
+      "private_source": "基於私人來源；僅分享已確認的文字。"
     },
     "activity": {
       "title": "動態",
@@ -620,7 +661,12 @@
       "successor": "後續項目",
       "project_filter": "專案",
       "created": "已建立里程碑",
-      "uncertain": "不確定"
+      "uncertain": "不確定",
+      "dependency_create": "新增相依性",
+      "late_by": "延遲 {hours} 小時（預計 {date}）",
+      "not_late": "未延遲",
+      "via": "經由 {path}",
+      "impact_basis_deps": "僅根據相依性和可靠日期計算。計畫不會變更。"
     },
     "knowledge": {
       "title": "知識",
@@ -643,7 +689,20 @@
       "decisions": "決策",
       "decisions_empty": "尚無決策。",
       "search_placeholder": "在此專案中搜尋",
-      "search_empty": "沒有可存取的結果。"
+      "search_empty": "沒有可存取的結果。",
+      "register": "登錄附件",
+      "register_submit": "登錄",
+      "register_hint": "選擇此專案中的現有附件。系統會進行掃描與分類；不會重新上傳任何內容。",
+      "candidates": "附件",
+      "candidates_empty": "此專案中沒有未登錄的附件。",
+      "filename": "檔案名稱",
+      "declared_mime": "宣告的類型（MIME）",
+      "declared_mime_hint": "以掃描偵測到的類型為準。",
+      "not_uploaded": "上傳未完成",
+      "registered": "已登錄 {name}",
+      "quarantined_warning": "已隔離——請勿開啟或分享。內容已遭封鎖。",
+      "format_blocked": "已封鎖（已隔離）",
+      "mime": "MIME 類型"
     },
     "overview": {
       "title": "總覽",
@@ -689,7 +748,8 @@
         "page": "頁面",
         "message": "訊息",
         "event": "事件",
-        "upload": "上傳"
+        "upload": "上傳",
+        "issue": "工作事項"
       }
     },
     "settings": {
@@ -732,7 +792,8 @@
         "supported": "支援",
         "partial": "部分支援",
         "unsupported": "不支援",
-        "unknown": "未知"
+        "unknown": "未知",
+        "requires_configuration": "需要設定"
       },
       "connections": "連線",
       "connections_empty": "沒有連線。",
@@ -752,7 +813,8 @@
         "active": "使用中",
         "degraded": "效能降低",
         "offline": "離線",
-        "disabled": "已停用"
+        "disabled": "已停用",
+        "stale": "已過時"
       },
       "reconcile": "核對",
       "reconcile_started": "已接受核對（於背景執行）",
@@ -790,6 +852,52 @@
       "project_plan": "規劃專案",
       "integration_manage": "管理整合",
       "workspace_admin": "管理 Project Hub"
+    },
+    "diagram": {
+      "title": "圖表",
+      "description": "結構化圖表：節點和連線承載意義，位置僅影響版面配置。",
+      "create": "新增圖表",
+      "name": "名稱",
+      "empty": "尚無圖表。",
+      "counts": "{nodes} 個節點 · {edges} 條連線",
+      "unlinked": "未連結至工作包",
+      "open": "開啟編輯器",
+      "close": "關閉編輯器",
+      "canvas_label": "圖表畫布",
+      "node_label": "{label}（{type}）。拖曳或使用方向鍵移動。",
+      "canvas_help": "拖曳節點，或將焦點移至某個節點後使用方向鍵（Shift = 較大步幅）。移動只會變更版面配置。",
+      "version": "版本 {version}",
+      "no_change": "沒有任何變更。",
+      "layout_only": "已儲存——僅版面配置。圖表的意義沒有變更。",
+      "semantic_change": "已儲存——意義已變更。已建立詮釋建議。",
+      "diff_summary": "節點：+{nodesAdded} −{nodesRemoved} ~{nodesChanged} · 連線：+{edgesAdded} −{edgesRemoved} ~{edgesChanged}",
+      "pending_interpretation": "待處理的詮釋",
+      "not_a_requirement": "僅為詮釋——在有人接受之前，任何內容都不會成為需求。",
+      "uncertainty": "不確定性：{level}",
+      "questions": "關於意義不明確連線的問題",
+      "suggested_criteria": "建議的驗收標準",
+      "impacts": "可能的影響",
+      "needs_package": "請將圖表連結至工作包以接受標準。",
+      "accept": "接受所選項目",
+      "accepted": "已接受詮釋",
+      "nodes": "節點",
+      "add_node": "新增節點",
+      "new_node": "新節點",
+      "label": "標籤",
+      "type": "類型",
+      "remove_node": "移除 {label}",
+      "edges": "連線",
+      "add_edge": "新增連線",
+      "remove_edge": "移除連線",
+      "direction": "方向",
+      "directions": {
+        "forward": "單向（→）",
+        "both": "雙向（↔）",
+        "unknown": "不明確（?）"
+      },
+      "ambiguous_edge": "意義不明確：請新增類型或標籤以及明確的方向。",
+      "source": "起點",
+      "target": "終點"
     }
   }
 }

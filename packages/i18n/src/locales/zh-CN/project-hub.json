@@ -144,7 +144,9 @@
       "sync_conflict": "同步冲突",
       "stale_evidence": "证据已过时",
       "integration_offline": "集成离线",
-      "native_done_without_delivery": "已完成但无交付证据"
+      "native_done_without_delivery": "已完成但无交付证据",
+      "native_done_without_delivery_evidence": "已完成但无交付证据",
+      "merge_pending_confirmation": "合并等待确认"
     },
     "trust": {
       "local_self_report": "本地自行报告",
@@ -228,7 +230,16 @@
       "draft_saved": "草稿已保存",
       "unsaved_changes": "未保存的更改",
       "version": "草稿版本{version}",
-      "readonly": "您可以查看此任务说明，但无法编辑。"
+      "readonly": "您可以查看此任务说明，但无法编辑。",
+      "scope_hint": "每行一项。就绪至少需要一个范围内的项。",
+      "verification": "标准{index}的验证方式",
+      "verifications": {
+        "ci": "CI 检查",
+        "manual": "人工审查",
+        "runner": "运行器",
+        "any": "任意证据"
+      },
+      "risk_notes_hint": "深入工作包必填：可能出现什么问题以及如何缓解。"
     },
     "readiness": {
       "title": "就绪状态",
@@ -309,7 +320,8 @@
       "continue": "继续",
       "closed": "澄清已完成。",
       "open_blockers": "未解决的阻碍",
-      "summary": "摘要"
+      "summary": "摘要",
+      "draft_ready": "建议草稿已准备好。请在下方审查——尚未应用任何内容。"
     },
     "proposals": {
       "title": "AI 建议",
@@ -329,7 +341,8 @@
         "accepted": "已接受",
         "rejected": "已拒绝",
         "stale": "已过时"
-      }
+      },
+      "patch_field": "字段：{field}"
     },
     "changes": {
       "records": "变更记录",
@@ -425,7 +438,8 @@
       "external_value": "外部值",
       "keep_platform": "保留平台值",
       "keep_external": "保留外部值",
-      "changed_at": "更改于{time}"
+      "changed_at": "更改于{time}",
+      "manifest": "清单 {hash}"
     },
     "review": {
       "intent": "已批准的目标",
@@ -472,7 +486,32 @@
       "no_capability_review": "您没有进行此审查的功能权限。",
       "no_capability_merge": "您没有请求合并的功能权限。",
       "recorded": "审查决定已记录",
-      "select_mr": "合并请求"
+      "select_mr": "合并请求",
+      "change_counts": "{mrs} 个合并请求 · {commits} 个提交",
+      "commit_claims": "提交信息（声明，而非证据）",
+      "required_trust": "需要以下来源的证据：{trust}",
+      "trust_level": {
+        "trusted_ci": "受信任的 CI",
+        "human": "人工审查",
+        "runner": "运行器",
+        "any": "任意来源"
+      },
+      "open_point": {
+        "criterion_not_proven": "标准未得到证明：{criterion}（{reason}）",
+        "code_review_required": "head {sha} 需要代码审查",
+        "code_review_invalidated": "代码审查因新提交而失效（head {sha}）",
+        "open_question": "未解决的问题：{title}",
+        "outcome_acceptance_missing": "缺少结果验收",
+        "no_approved_revision": "没有已批准的修订版",
+        "revision_changed_since_approval": "修订版在批准后已更改"
+      },
+      "validity": {
+        "valid": "有效",
+        "changes_requested": "已请求更改",
+        "invalidated": "已失效",
+        "stale_revision": "针对较旧的修订版",
+        "stale_head": "针对较旧的提交"
+      }
     },
     "history": {
       "timeline": "工作包动态",
@@ -498,7 +537,8 @@
       "aggregate": "总体：{state}",
       "aggregate_rule": "规则：{rule}",
       "deployed_not_released": "已部署但无已知发布，不一定对所有用户可用。",
-      "history_title": "历史（含回滚）"
+      "history_title": "历史（含回滚）",
+      "local_state_unknown": "开发人员计算机上的状态未知。"
     },
     "discussion": {
       "title": "讨论",
@@ -533,7 +573,8 @@
       "ai_badge": "AI",
       "ai_answer_hint": "AI 回答，并非决策",
       "mark_read": "标记为已读",
-      "system": "系统"
+      "system": "系统",
+      "private_source": "基于私有来源；仅共享已确认的文本。"
     },
     "activity": {
       "title": "动态",
@@ -620,7 +661,12 @@
       "successor": "后续项",
       "project_filter": "项目",
       "created": "里程碑已创建",
-      "uncertain": "不确定"
+      "uncertain": "不确定",
+      "dependency_create": "添加依赖关系",
+      "late_by": "延迟 {hours} 小时（预计 {date}）",
+      "not_late": "未延迟",
+      "via": "经由 {path}",
+      "impact_basis_deps": "仅根据依赖关系和可靠日期计算。计划不会被更改。"
     },
     "knowledge": {
       "title": "知识",
@@ -643,7 +689,20 @@
       "decisions": "决策",
       "decisions_empty": "暂无决策。",
       "search_placeholder": "在此项目中搜索",
-      "search_empty": "没有可访问的结果。"
+      "search_empty": "没有可访问的结果。",
+      "register": "登记附件",
+      "register_submit": "登记",
+      "register_hint": "选择此项目中的现有附件。系统会对其进行扫描和分类；不会重新上传任何内容。",
+      "candidates": "附件",
+      "candidates_empty": "此项目中没有未登记的附件。",
+      "filename": "文件名",
+      "declared_mime": "声明的类型（MIME）",
+      "declared_mime_hint": "以扫描检测到的类型为准。",
+      "not_uploaded": "上传未完成",
+      "registered": "已登记 {name}",
+      "quarantined_warning": "已隔离——请勿打开或共享。内容已被阻止。",
+      "format_blocked": "已阻止（已隔离）",
+      "mime": "MIME 类型"
     },
     "overview": {
       "title": "概览",
@@ -689,7 +748,8 @@
         "page": "页面",
         "message": "消息",
         "event": "事件",
-        "upload": "上传"
+        "upload": "上传",
+        "issue": "工作项"
       }
     },
     "settings": {
@@ -732,7 +792,8 @@
         "supported": "支持",
         "partial": "部分支持",
         "unsupported": "不支持",
-        "unknown": "未知"
+        "unknown": "未知",
+        "requires_configuration": "需要配置"
       },
       "connections": "连接",
       "connections_empty": "没有连接。",
@@ -752,7 +813,8 @@
         "active": "活跃",
         "degraded": "降级",
         "offline": "离线",
-        "disabled": "已停用"
+        "disabled": "已停用",
+        "stale": "已过时"
       },
       "reconcile": "对账",
       "reconcile_started": "对账已接受（在后台运行）",
@@ -790,6 +852,52 @@
       "project_plan": "规划项目",
       "integration_manage": "管理集成",
       "workspace_admin": "管理 Project Hub"
+    },
+    "diagram": {
+      "title": "图表",
+      "description": "结构化图表：节点和连线承载含义，位置仅影响布局。",
+      "create": "新建图表",
+      "name": "名称",
+      "empty": "暂无图表。",
+      "counts": "{nodes} 个节点 · {edges} 条连线",
+      "unlinked": "未关联工作包",
+      "open": "打开编辑器",
+      "close": "关闭编辑器",
+      "canvas_label": "图表画布",
+      "node_label": "{label}（{type}）。拖动或使用方向键移动。",
+      "canvas_help": "拖动节点，或聚焦某个节点后使用方向键（Shift = 更大步长）。移动只会更改布局。",
+      "version": "版本 {version}",
+      "no_change": "没有任何更改。",
+      "layout_only": "已保存——仅布局。图表的含义没有变化。",
+      "semantic_change": "已保存——含义已变化。已创建解读建议。",
+      "diff_summary": "节点：+{nodesAdded} −{nodesRemoved} ~{nodesChanged} · 连线：+{edgesAdded} −{edgesRemoved} ~{edgesChanged}",
+      "pending_interpretation": "待处理的解读",
+      "not_a_requirement": "仅为解读——在有人接受之前，任何内容都不会成为需求。",
+      "uncertainty": "不确定性：{level}",
+      "questions": "关于含义不明确连线的问题",
+      "suggested_criteria": "建议的验收标准",
+      "impacts": "可能的影响",
+      "needs_package": "请将图表关联到工作包以接受标准。",
+      "accept": "接受所选项",
+      "accepted": "解读已接受",
+      "nodes": "节点",
+      "add_node": "添加节点",
+      "new_node": "新节点",
+      "label": "标签",
+      "type": "类型",
+      "remove_node": "移除 {label}",
+      "edges": "连线",
+      "add_edge": "添加连线",
+      "remove_edge": "移除连线",
+      "direction": "方向",
+      "directions": {
+        "forward": "单向（→）",
+        "both": "双向（↔）",
+        "unknown": "不明确（?）"
+      },
+      "ambiguous_edge": "含义不明确：请添加类型或标签以及明确的方向。",
+      "source": "起点",
+      "target": "终点"
     }
   }
 }

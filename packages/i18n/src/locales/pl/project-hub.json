@@ -144,7 +144,9 @@
       "sync_conflict": "Konflikt synchronizacji",
       "stale_evidence": "Nieaktualne dowody",
       "integration_offline": "Integracja offline",
-      "native_done_without_delivery": "Gotowe bez dowodu dostarczenia"
+      "native_done_without_delivery": "Gotowe bez dowodu dostarczenia",
+      "native_done_without_delivery_evidence": "Gotowe bez dowodu dostarczenia",
+      "merge_pending_confirmation": "Scalenie oczekuje na potwierdzenie"
     },
     "trust": {
       "local_self_report": "Lokalne zgłoszenie własne",
@@ -228,7 +230,16 @@
       "draft_saved": "Wersja robocza zapisana",
       "unsaved_changes": "Niezapisane zmiany",
       "version": "Wersja robocza {version}",
-      "readonly": "Te założenia można czytać, ale nie można ich edytować."
+      "readonly": "Te założenia można czytać, ale nie można ich edytować.",
+      "scope_hint": "Jeden punkt na wiersz. Gotowość wymaga co najmniej jednego punktu w zakresie.",
+      "verification": "Weryfikacja kryterium {index}",
+      "verifications": {
+        "ci": "Kontrola CI",
+        "manual": "Przegląd ręczny",
+        "runner": "Runner",
+        "any": "Dowolny dowód"
+      },
+      "risk_notes_hint": "Wymagane dla pakietów szczegółowych: co może pójść nie tak i jak temu zapobiec."
     },
     "readiness": {
       "title": "Gotowość",
@@ -309,7 +320,8 @@
       "continue": "Kontynuuj",
       "closed": "Doprecyzowanie zakończone.",
       "open_blockers": "Otwarte blokady",
-      "summary": "Podsumowanie"
+      "summary": "Podsumowanie",
+      "draft_ready": "Wersja robocza propozycji jest gotowa. Przejrzyj ją poniżej – nic jeszcze nie zostało zastosowane."
     },
     "proposals": {
       "title": "Propozycje AI",
@@ -329,7 +341,8 @@
         "accepted": "Zaakceptowana",
         "rejected": "Odrzucona",
         "stale": "Nieaktualna"
-      }
+      },
+      "patch_field": "Pole: {field}"
     },
     "changes": {
       "records": "Rejestr zmian",
@@ -425,7 +438,8 @@
       "external_value": "Wartość zewnętrzna",
       "keep_platform": "Zachowaj wartość platformy",
       "keep_external": "Zachowaj wartość zewnętrzną",
-      "changed_at": "zmieniono {time}"
+      "changed_at": "zmieniono {time}",
+      "manifest": "Manifest {hash}"
     },
     "review": {
       "intent": "Zatwierdzony zamiar",
@@ -472,7 +486,32 @@
       "no_capability_review": "Brak uprawnienia do tego przeglądu.",
       "no_capability_merge": "Brak uprawnienia do żądania scalenia.",
       "recorded": "Zapisano decyzję przeglądu",
-      "select_mr": "Merge request"
+      "select_mr": "Merge request",
+      "change_counts": "Merge requesty: {mrs} · Commity: {commits}",
+      "commit_claims": "Komunikaty commitów (deklaracje, nie dowody)",
+      "required_trust": "Wymaga dowodu z: {trust}",
+      "trust_level": {
+        "trusted_ci": "zaufane CI",
+        "human": "przegląd przez człowieka",
+        "runner": "runner",
+        "any": "dowolne źródło"
+      },
+      "open_point": {
+        "criterion_not_proven": "Kryterium nieudowodnione: {criterion} ({reason})",
+        "code_review_required": "Wymagany przegląd kodu dla heada {sha}",
+        "code_review_invalidated": "Przegląd kodu unieważniony przez nowe commity (head {sha})",
+        "open_question": "Otwarte pytanie: {title}",
+        "outcome_acceptance_missing": "Brak akceptacji rezultatu",
+        "no_approved_revision": "Brak zatwierdzonej rewizji",
+        "revision_changed_since_approval": "Rewizja zmieniła się od zatwierdzenia"
+      },
+      "validity": {
+        "valid": "Ważny",
+        "changes_requested": "Zażądano zmian",
+        "invalidated": "Unieważniony",
+        "stale_revision": "Dla starszej rewizji",
+        "stale_head": "Dla starszego commita"
+      }
     },
     "history": {
       "timeline": "Aktywność pakietu",
@@ -498,7 +537,8 @@
       "aggregate": "Łącznie: {state}",
       "aggregate_rule": "Reguła: {rule}",
       "deployed_not_released": "Wdrożone bez znanego wydania — niekoniecznie dostępne dla wszystkich użytkowników.",
-      "history_title": "Historia (łącznie z wycofaniami)"
+      "history_title": "Historia (łącznie z wycofaniami)",
+      "local_state_unknown": "Stan na komputerach deweloperów jest nieznany."
     },
     "discussion": {
       "title": "Dyskusja",
@@ -533,7 +573,8 @@
       "ai_badge": "AI",
       "ai_answer_hint": "Odpowiedź AI — nie jest decyzją",
       "mark_read": "Oznacz jako przeczytane",
-      "system": "System"
+      "system": "System",
+      "private_source": "Oparte na prywatnym źródle; udostępniany jest tylko potwierdzony tekst."
     },
     "activity": {
       "title": "Aktywność",
@@ -620,7 +661,12 @@
       "successor": "Następnik",
       "project_filter": "Projekty",
       "created": "Kamień milowy utworzony",
-      "uncertain": "Niepewne"
+      "uncertain": "Niepewne",
+      "dependency_create": "Dodaj zależność",
+      "late_by": "Opóźnienie {hours} h (prognoza {date})",
+      "not_late": "Bez opóźnienia",
+      "via": "Przez {path}",
+      "impact_basis_deps": "Obliczone wyłącznie na podstawie zależności i wiarygodnych dat. Plan nie jest zmieniany."
     },
     "knowledge": {
       "title": "Wiedza",
@@ -643,7 +689,20 @@
       "decisions": "Decyzje",
       "decisions_empty": "Brak decyzji.",
       "search_placeholder": "Szukaj w tym projekcie",
-      "search_empty": "Brak dostępnych wyników."
+      "search_empty": "Brak dostępnych wyników.",
+      "register": "Zarejestruj załącznik",
+      "register_submit": "Zarejestruj",
+      "register_hint": "Wybierz istniejący załącznik tego projektu. Zostanie przeskanowany i sklasyfikowany; nic nie jest przesyłane ponownie.",
+      "candidates": "Załączniki",
+      "candidates_empty": "Brak niezarejestrowanych załączników w tym projekcie.",
+      "filename": "Nazwa pliku",
+      "declared_mime": "Deklarowany typ (MIME)",
+      "declared_mime_hint": "Pierwszeństwo ma typ wykryty podczas skanowania.",
+      "not_uploaded": "przesyłanie niekompletne",
+      "registered": "Zarejestrowano {name}",
+      "quarantined_warning": "W kwarantannie – nie otwieraj ani nie udostępniaj. Zawartość jest zablokowana.",
+      "format_blocked": "Zablokowane (kwarantanna)",
+      "mime": "Typ MIME"
     },
     "overview": {
       "title": "Przegląd",
@@ -689,7 +748,8 @@
         "page": "Strona",
         "message": "Wiadomość",
         "event": "Zdarzenie",
-        "upload": "Przesłany plik"
+        "upload": "Przesłany plik",
+        "issue": "Element pracy"
       }
     },
     "settings": {
@@ -732,7 +792,8 @@
         "supported": "Obsługiwane",
         "partial": "Częściowo",
         "unsupported": "Nieobsługiwane",
-        "unknown": "Nieznane"
+        "unknown": "Nieznane",
+        "requires_configuration": "Wymaga konfiguracji"
       },
       "connections": "Połączenia",
       "connections_empty": "Brak połączeń.",
@@ -752,7 +813,8 @@
         "active": "Aktywne",
         "degraded": "Ograniczone",
         "offline": "Offline",
-        "disabled": "Wyłączone"
+        "disabled": "Wyłączone",
+        "stale": "Nieaktualne"
       },
       "reconcile": "Uzgodnij",
       "reconcile_started": "Uzgadnianie przyjęte (działa w tle)",
@@ -790,6 +852,52 @@
       "project_plan": "Planowanie projektu",
       "integration_manage": "Zarządzanie integracjami",
       "workspace_admin": "Administrowanie Project Hub"
+    },
+    "diagram": {
+      "title": "Diagramy",
+      "description": "Diagramy strukturalne: węzły i krawędzie niosą znaczenie, pozycje dotyczą tylko układu.",
+      "create": "Nowy diagram",
+      "name": "Nazwa",
+      "empty": "Brak diagramów.",
+      "counts": "Węzły: {nodes} · Krawędzie: {edges}",
+      "unlinked": "Niepowiązany z pakietem roboczym",
+      "open": "Otwórz edytor",
+      "close": "Zamknij edytor",
+      "canvas_label": "Obszar diagramu",
+      "node_label": "{label} ({type}). Przeciągnij lub użyj klawiszy strzałek, aby przesunąć.",
+      "canvas_help": "Przeciągaj węzły albo ustaw fokus na jednym i użyj klawiszy strzałek (Shift = większe kroki). Przesuwanie zmienia tylko układ.",
+      "version": "Wersja {version}",
+      "no_change": "Nic się nie zmieniło.",
+      "layout_only": "Zapisano – tylko układ. Znaczenie diagramu się nie zmieniło.",
+      "semantic_change": "Zapisano – znaczenie się zmieniło. Utworzono propozycję interpretacji.",
+      "diff_summary": "Węzły: +{nodesAdded} −{nodesRemoved} ~{nodesChanged} · Krawędzie: +{edgesAdded} −{edgesRemoved} ~{edgesChanged}",
+      "pending_interpretation": "Oczekująca interpretacja",
+      "not_a_requirement": "Tylko interpretacja – nic nie staje się wymaganiem, dopóki człowiek tego nie zaakceptuje.",
+      "uncertainty": "Niepewność: {level}",
+      "questions": "Pytania o niejednoznaczne krawędzie",
+      "suggested_criteria": "Sugerowane kryteria akceptacji",
+      "impacts": "Możliwy wpływ",
+      "needs_package": "Powiąż diagram z pakietem roboczym, aby przejąć kryteria.",
+      "accept": "Zaakceptuj zaznaczone",
+      "accepted": "Interpretacja zaakceptowana",
+      "nodes": "Węzły",
+      "add_node": "Dodaj węzeł",
+      "new_node": "Nowy węzeł",
+      "label": "Etykieta",
+      "type": "Typ",
+      "remove_node": "Usuń {label}",
+      "edges": "Krawędzie",
+      "add_edge": "Dodaj krawędź",
+      "remove_edge": "Usuń krawędź",
+      "direction": "Kierunek",
+      "directions": {
+        "forward": "W jedną stronę (→)",
+        "both": "W obie strony (↔)",
+        "unknown": "Niejasny (?)"
+      },
+      "ambiguous_edge": "Niejednoznaczna: dodaj typ lub etykietę oraz jasny kierunek.",
+      "source": "Od",
+      "target": "Do"
     }
   }
 }

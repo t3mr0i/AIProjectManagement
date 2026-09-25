@@ -62,6 +62,4 @@ class Command(BaseCommand):
                 status = resp.status_code
             samples.sort()
             p95 = samples[max(0, int(len(samples) * 0.95) - 1)]
-            self.stdout.write(
-                f"{name:18s} status={status} p50={statistics.median(samples):7.1f}ms p95={p95:7.1f}ms"
-            )
+            self.stdout.write(f"{name:18s} status={status} p50={statistics.median(samples):7.1f}ms p95={p95:7.1f}ms")

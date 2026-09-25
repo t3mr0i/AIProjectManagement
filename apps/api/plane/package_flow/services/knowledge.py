@@ -324,7 +324,9 @@ def list_candidates(project, *, issue_id=None, limit=200):
 
     No second file store: candidates are the native Plane assets themselves.
     """
-    registered = UploadRecord.objects.filter(project=project, deleted_at__isnull=True).values_list("asset_id", flat=True)
+    registered = UploadRecord.objects.filter(project=project, deleted_at__isnull=True).values_list(
+        "asset_id", flat=True
+    )
     qs = FileAsset.objects.filter(
         workspace_id=project.workspace_id,
         project_id=project.id,

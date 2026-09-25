@@ -25,7 +25,9 @@ def test_pf04_extension_migration_is_additive():
         if isinstance(op, migrations.CreateModel):
             assert op.options.get("db_table", "").startswith("pf_"), op.name
     # Native app is only a dependency, never a migration target.
-    assert all(dep[0] in ("db", "__setting__") or "AUTH_USER_MODEL" in str(dep) for dep in module.Migration.dependencies)
+    assert all(
+        dep[0] in ("db", "__setting__") or "AUTH_USER_MODEL" in str(dep) for dep in module.Migration.dependencies
+    )
 
 
 @pytest.mark.contract
@@ -39,7 +41,9 @@ class TestOneIssueOneNavigationTarget:
         row = next(r for r in rows if r["work_item_id"] == str(pkg.issue.id))
         assert row["project_id"] == str(pkg.project.id)
         assert row["sequence_id"] == pkg.issue.sequence_id
-        native = pkg.human.get(f"/api/workspaces/{world.workspace.slug}/projects/{pkg.project.id}/issues/{pkg.issue.id}/")
+        native = pkg.human.get(
+            f"/api/workspaces/{world.workspace.slug}/projects/{pkg.project.id}/issues/{pkg.issue.id}/"
+        )
         assert native.status_code == 200, native.content
         assert native.json()["id"] == str(pkg.issue.id)
         assert native.json()["name"] == row["name"]
@@ -49,9 +53,12 @@ class TestOneIssueOneNavigationTarget:
         listing = listing.get("results", listing) if isinstance(listing, dict) else listing
         ids = {r["work_item_id"] for r in listing}
         assert str(plain.id) not in ids
-        assert pkg.human.get(
-            f"/api/workspaces/{world.workspace.slug}/projects/{pkg.project.id}/issues/{plain.id}/"
-        ).status_code == 200
+        assert (
+            pkg.human.get(
+                f"/api/workspaces/{world.workspace.slug}/projects/{pkg.project.id}/issues/{plain.id}/"
+            ).status_code
+            == 200
+        )
 
 
 @pytest.mark.contract

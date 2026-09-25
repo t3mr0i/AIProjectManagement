@@ -144,7 +144,9 @@
       "sync_conflict": "Conflito de sincronização",
       "stale_evidence": "Evidências desatualizadas",
       "integration_offline": "Integração offline",
-      "native_done_without_delivery": "Concluído sem evidência de entrega"
+      "native_done_without_delivery": "Concluído sem evidência de entrega",
+      "native_done_without_delivery_evidence": "Concluído sem evidência de entrega",
+      "merge_pending_confirmation": "Mesclagem aguardando confirmação"
     },
     "trust": {
       "local_self_report": "Autorrelato local",
@@ -228,7 +230,16 @@
       "draft_saved": "Rascunho salvo",
       "unsaved_changes": "Alterações não salvas",
       "version": "Versão do rascunho {version}",
-      "readonly": "Você pode ler este briefing, mas não editá-lo."
+      "readonly": "Você pode ler este briefing, mas não editá-lo.",
+      "scope_hint": "Um item por linha. A prontidão exige pelo menos um item no escopo.",
+      "verification": "Verificação do critério {index}",
+      "verifications": {
+        "ci": "Verificação de CI",
+        "manual": "Revisão manual",
+        "runner": "Runner",
+        "any": "Qualquer evidência"
+      },
+      "risk_notes_hint": "Obrigatório para pacotes detalhados: o que pode dar errado e como isso é mitigado."
     },
     "readiness": {
       "title": "Prontidão",
@@ -309,7 +320,8 @@
       "continue": "Continuar",
       "closed": "Esclarecimento concluído.",
       "open_blockers": "Bloqueios em aberto",
-      "summary": "Resumo"
+      "summary": "Resumo",
+      "draft_ready": "Um rascunho de proposta está pronto. Revise-o abaixo – nada foi aplicado ainda."
     },
     "proposals": {
       "title": "Propostas da IA",
@@ -329,7 +341,8 @@
         "accepted": "Aceita",
         "rejected": "Rejeitada",
         "stale": "Desatualizada"
-      }
+      },
+      "patch_field": "Campo: {field}"
     },
     "changes": {
       "records": "Registros de alteração",
@@ -425,7 +438,8 @@
       "external_value": "Valor externo",
       "keep_platform": "Manter valor da plataforma",
       "keep_external": "Manter valor externo",
-      "changed_at": "alterado {time}"
+      "changed_at": "alterado {time}",
+      "manifest": "Manifesto {hash}"
     },
     "review": {
       "intent": "Intenção aprovada",
@@ -472,7 +486,32 @@
       "no_capability_review": "Você não tem a capacidade para esta revisão.",
       "no_capability_merge": "Você não tem a capacidade para solicitar uma mesclagem.",
       "recorded": "Decisão de revisão registrada",
-      "select_mr": "Merge request"
+      "select_mr": "Merge request",
+      "change_counts": "Merge requests: {mrs} · Commits: {commits}",
+      "commit_claims": "Mensagens de commit (declarações, não evidências)",
+      "required_trust": "Requer evidência de: {trust}",
+      "trust_level": {
+        "trusted_ci": "CI confiável",
+        "human": "revisão humana",
+        "runner": "runner",
+        "any": "qualquer fonte"
+      },
+      "open_point": {
+        "criterion_not_proven": "Critério não comprovado: {criterion} ({reason})",
+        "code_review_required": "Revisão de código necessária para o head {sha}",
+        "code_review_invalidated": "Revisão de código invalidada por novos commits (head {sha})",
+        "open_question": "Pergunta em aberto: {title}",
+        "outcome_acceptance_missing": "Falta a aceitação do resultado",
+        "no_approved_revision": "Nenhuma revisão aprovada",
+        "revision_changed_since_approval": "A revisão mudou desde a aprovação"
+      },
+      "validity": {
+        "valid": "Válida",
+        "changes_requested": "Alterações solicitadas",
+        "invalidated": "Invalidada",
+        "stale_revision": "Para uma revisão mais antiga",
+        "stale_head": "Para um commit mais antigo"
+      }
     },
     "history": {
       "timeline": "Atividade do pacote",
@@ -498,7 +537,8 @@
       "aggregate": "Geral: {state}",
       "aggregate_rule": "Regra: {rule}",
       "deployed_not_released": "Implantado sem um lançamento conhecido: não necessariamente disponível para todos os usuários.",
-      "history_title": "Histórico (incl. reversões)"
+      "history_title": "Histórico (incl. reversões)",
+      "local_state_unknown": "O estado nas máquinas dos desenvolvedores é desconhecido."
     },
     "discussion": {
       "title": "Discussão",
@@ -533,7 +573,8 @@
       "ai_badge": "IA",
       "ai_answer_hint": "Resposta da IA: não é uma decisão",
       "mark_read": "Marcar como lida",
-      "system": "Sistema"
+      "system": "Sistema",
+      "private_source": "Baseado em uma fonte privada; apenas o texto confirmado é compartilhado."
     },
     "activity": {
       "title": "Atividade",
@@ -620,7 +661,12 @@
       "successor": "Sucessor",
       "project_filter": "Projetos",
       "created": "Marco criado",
-      "uncertain": "Incerto"
+      "uncertain": "Incerto",
+      "dependency_create": "Adicionar dependência",
+      "late_by": "Atrasado em {hours} h (previsão {date})",
+      "not_late": "Sem atraso",
+      "via": "Via {path}",
+      "impact_basis_deps": "Calculado apenas a partir de dependências e datas confiáveis. O plano não é alterado."
     },
     "knowledge": {
       "title": "Conhecimento",
@@ -643,7 +689,20 @@
       "decisions": "Decisões",
       "decisions_empty": "Nenhuma decisão ainda.",
       "search_placeholder": "Pesquisar neste projeto",
-      "search_empty": "Nenhum resultado acessível."
+      "search_empty": "Nenhum resultado acessível.",
+      "register": "Registrar anexo",
+      "register_submit": "Registrar",
+      "register_hint": "Escolha um anexo existente deste projeto. Ele é verificado e classificado; nada é enviado novamente.",
+      "candidates": "Anexos",
+      "candidates_empty": "Nenhum anexo não registrado neste projeto.",
+      "filename": "Nome do arquivo",
+      "declared_mime": "Tipo declarado (MIME)",
+      "declared_mime_hint": "O tipo detectado pela verificação tem prioridade.",
+      "not_uploaded": "upload incompleto",
+      "registered": "{name} registrado",
+      "quarantined_warning": "Em quarentena – não abra nem compartilhe. O conteúdo está bloqueado.",
+      "format_blocked": "Bloqueado (quarentena)",
+      "mime": "Tipo MIME"
     },
     "overview": {
       "title": "Visão geral",
@@ -689,7 +748,8 @@
         "page": "Página",
         "message": "Mensagem",
         "event": "Evento",
-        "upload": "Upload"
+        "upload": "Upload",
+        "issue": "Item de trabalho"
       }
     },
     "settings": {
@@ -732,7 +792,8 @@
         "supported": "Compatível",
         "partial": "Parcial",
         "unsupported": "Não compatível",
-        "unknown": "Desconhecido"
+        "unknown": "Desconhecido",
+        "requires_configuration": "Requer configuração"
       },
       "connections": "Conexões",
       "connections_empty": "Nenhuma conexão.",
@@ -752,7 +813,8 @@
         "active": "Ativa",
         "degraded": "Degradada",
         "offline": "Offline",
-        "disabled": "Desabilitada"
+        "disabled": "Desabilitada",
+        "stale": "Desatualizada"
       },
       "reconcile": "Reconciliar",
       "reconcile_started": "Reconciliação aceita (executada em segundo plano)",
@@ -790,6 +852,52 @@
       "project_plan": "Planejar projeto",
       "integration_manage": "Gerenciar integrações",
       "workspace_admin": "Administrar Project Hub"
+    },
+    "diagram": {
+      "title": "Diagramas",
+      "description": "Diagramas estruturados: nós e arestas têm significado, as posições são apenas de layout.",
+      "create": "Novo diagrama",
+      "name": "Nome",
+      "empty": "Nenhum diagrama ainda.",
+      "counts": "Nós: {nodes} · Arestas: {edges}",
+      "unlinked": "Não vinculado a um pacote de trabalho",
+      "open": "Abrir editor",
+      "close": "Fechar editor",
+      "canvas_label": "Área do diagrama",
+      "node_label": "{label} ({type}). Arraste ou use as teclas de seta para mover.",
+      "canvas_help": "Arraste os nós, ou coloque o foco em um e use as teclas de seta (Shift = passos maiores). Mover altera apenas o layout.",
+      "version": "Versão {version}",
+      "no_change": "Nada foi alterado.",
+      "layout_only": "Salvo – apenas layout. O significado do diagrama não mudou.",
+      "semantic_change": "Salvo – o significado mudou. Uma proposta de interpretação foi criada.",
+      "diff_summary": "Nós: +{nodesAdded} −{nodesRemoved} ~{nodesChanged} · Arestas: +{edgesAdded} −{edgesRemoved} ~{edgesChanged}",
+      "pending_interpretation": "Interpretação pendente",
+      "not_a_requirement": "Apenas uma interpretação – nada se torna requisito até que uma pessoa o aceite.",
+      "uncertainty": "Incerteza: {level}",
+      "questions": "Perguntas sobre arestas ambíguas",
+      "suggested_criteria": "Critérios de aceitação sugeridos",
+      "impacts": "Possíveis impactos",
+      "needs_package": "Vincule o diagrama a um pacote de trabalho para aceitar critérios.",
+      "accept": "Aceitar selecionados",
+      "accepted": "Interpretação aceita",
+      "nodes": "Nós",
+      "add_node": "Adicionar nó",
+      "new_node": "Novo nó",
+      "label": "Rótulo",
+      "type": "Tipo",
+      "remove_node": "Remover {label}",
+      "edges": "Arestas",
+      "add_edge": "Adicionar aresta",
+      "remove_edge": "Remover aresta",
+      "direction": "Direção",
+      "directions": {
+        "forward": "Um sentido (→)",
+        "both": "Ambos os sentidos (↔)",
+        "unknown": "Incerto (?)"
+      },
+      "ambiguous_edge": "Ambígua: adicione um tipo ou rótulo e uma direção clara.",
+      "source": "De",
+      "target": "Para"
     }
   }
 }

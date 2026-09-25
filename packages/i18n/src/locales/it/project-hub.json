@@ -144,7 +144,9 @@
       "sync_conflict": "Conflitto di sincronizzazione",
       "stale_evidence": "Evidenze non aggiornate",
       "integration_offline": "Integrazione offline",
-      "native_done_without_delivery": "Completato senza evidenza di consegna"
+      "native_done_without_delivery": "Completato senza evidenza di consegna",
+      "native_done_without_delivery_evidence": "Completato senza evidenza di consegna",
+      "merge_pending_confirmation": "Merge in attesa di conferma"
     },
     "trust": {
       "local_self_report": "Autodichiarazione locale",
@@ -228,7 +230,16 @@
       "draft_saved": "Bozza salvata",
       "unsaved_changes": "Modifiche non salvate",
       "version": "Versione bozza {version}",
-      "readonly": "Può leggere questo brief, ma non modificarlo."
+      "readonly": "Può leggere questo brief, ma non modificarlo.",
+      "scope_hint": "Un elemento per riga. La prontezza richiede almeno un elemento nell'ambito.",
+      "verification": "Verifica del criterio {index}",
+      "verifications": {
+        "ci": "Controllo CI",
+        "manual": "Review manuale",
+        "runner": "Runner",
+        "any": "Qualsiasi evidenza"
+      },
+      "risk_notes_hint": "Obbligatorio per i pacchetti approfonditi: cosa potrebbe andare storto e come viene mitigato."
     },
     "readiness": {
       "title": "Prontezza",
@@ -309,7 +320,8 @@
       "continue": "Continua",
       "closed": "Chiarimento terminato.",
       "open_blockers": "Ostacoli aperti",
-      "summary": "Riepilogo"
+      "summary": "Riepilogo",
+      "draft_ready": "Una bozza di proposta è pronta. La esamini qui sotto – non è ancora stato applicato nulla."
     },
     "proposals": {
       "title": "Proposte dell'IA",
@@ -329,7 +341,8 @@
         "accepted": "Accettata",
         "rejected": "Rifiutata",
         "stale": "Non aggiornata"
-      }
+      },
+      "patch_field": "Campo: {field}"
     },
     "changes": {
       "records": "Registrazioni delle modifiche",
@@ -425,7 +438,8 @@
       "external_value": "Valore esterno",
       "keep_platform": "Mantieni valore della piattaforma",
       "keep_external": "Mantieni valore esterno",
-      "changed_at": "modificato {time}"
+      "changed_at": "modificato {time}",
+      "manifest": "Manifest {hash}"
     },
     "review": {
       "intent": "Intento approvato",
@@ -472,7 +486,32 @@
       "no_capability_review": "Non dispone della capacità per questa review.",
       "no_capability_merge": "Non dispone della capacità per richiedere un merge.",
       "recorded": "Decisione di review registrata",
-      "select_mr": "Merge request"
+      "select_mr": "Merge request",
+      "change_counts": "Merge request: {mrs} · Commit: {commits}",
+      "commit_claims": "Messaggi di commit (dichiarazioni, non evidenze)",
+      "required_trust": "Richiede evidenza da: {trust}",
+      "trust_level": {
+        "trusted_ci": "CI attendibile",
+        "human": "review umana",
+        "runner": "runner",
+        "any": "qualsiasi fonte"
+      },
+      "open_point": {
+        "criterion_not_proven": "Criterio non dimostrato: {criterion} ({reason})",
+        "code_review_required": "Code review necessaria per l'head {sha}",
+        "code_review_invalidated": "Code review invalidata da nuovi commit (head {sha})",
+        "open_question": "Domanda aperta: {title}",
+        "outcome_acceptance_missing": "Manca l'accettazione del risultato",
+        "no_approved_revision": "Nessuna revisione approvata",
+        "revision_changed_since_approval": "La revisione è cambiata dopo l'approvazione"
+      },
+      "validity": {
+        "valid": "Valida",
+        "changes_requested": "Modifiche richieste",
+        "invalidated": "Invalidata",
+        "stale_revision": "Per una revisione precedente",
+        "stale_head": "Per un commit precedente"
+      }
     },
     "history": {
       "timeline": "Attività del pacchetto",
@@ -498,7 +537,8 @@
       "aggregate": "Complessivo: {state}",
       "aggregate_rule": "Regola: {rule}",
       "deployed_not_released": "Distribuito senza un rilascio noto: non necessariamente disponibile per tutti gli utenti.",
-      "history_title": "Cronologia (incl. rollback)"
+      "history_title": "Cronologia (incl. rollback)",
+      "local_state_unknown": "Lo stato sui computer degli sviluppatori è sconosciuto."
     },
     "discussion": {
       "title": "Discussione",
@@ -533,7 +573,8 @@
       "ai_badge": "IA",
       "ai_answer_hint": "Risposta dell'IA: non è una decisione",
       "mark_read": "Segna come letto",
-      "system": "Sistema"
+      "system": "Sistema",
+      "private_source": "Basato su una fonte privata; viene condiviso solo il testo confermato."
     },
     "activity": {
       "title": "Attività",
@@ -620,7 +661,12 @@
       "successor": "Successore",
       "project_filter": "Progetti",
       "created": "Milestone creata",
-      "uncertain": "Incerto"
+      "uncertain": "Incerto",
+      "dependency_create": "Aggiungi dipendenza",
+      "late_by": "In ritardo di {hours} h (previsione {date})",
+      "not_late": "Non in ritardo",
+      "via": "Tramite {path}",
+      "impact_basis_deps": "Calcolato solo da dipendenze e date affidabili. Il piano non viene modificato."
     },
     "knowledge": {
       "title": "Conoscenza",
@@ -643,7 +689,20 @@
       "decisions": "Decisioni",
       "decisions_empty": "Ancora nessuna decisione.",
       "search_placeholder": "Cerca in questo progetto",
-      "search_empty": "Nessun risultato accessibile."
+      "search_empty": "Nessun risultato accessibile.",
+      "register": "Registra allegato",
+      "register_submit": "Registra",
+      "register_hint": "Scelga un allegato esistente di questo progetto. Viene scansionato e classificato; nulla viene caricato di nuovo.",
+      "candidates": "Allegati",
+      "candidates_empty": "Nessun allegato non registrato in questo progetto.",
+      "filename": "Nome file",
+      "declared_mime": "Tipo dichiarato (MIME)",
+      "declared_mime_hint": "Il tipo rilevato dalla scansione ha la precedenza.",
+      "not_uploaded": "caricamento incompleto",
+      "registered": "{name} registrato",
+      "quarantined_warning": "In quarantena – non aprire né condividere. Il contenuto è bloccato.",
+      "format_blocked": "Bloccato (quarantena)",
+      "mime": "Tipo MIME"
     },
     "overview": {
       "title": "Panoramica",
@@ -689,7 +748,8 @@
         "page": "Pagina",
         "message": "Messaggio",
         "event": "Evento",
-        "upload": "Caricamento"
+        "upload": "Caricamento",
+        "issue": "Elemento di lavoro"
       }
     },
     "settings": {
@@ -732,7 +792,8 @@
         "supported": "Supportato",
         "partial": "Parziale",
         "unsupported": "Non supportato",
-        "unknown": "Sconosciuto"
+        "unknown": "Sconosciuto",
+        "requires_configuration": "Richiede configurazione"
       },
       "connections": "Connessioni",
       "connections_empty": "Nessuna connessione.",
@@ -752,7 +813,8 @@
         "active": "Attiva",
         "degraded": "Degradata",
         "offline": "Offline",
-        "disabled": "Disabilitata"
+        "disabled": "Disabilitata",
+        "stale": "Non aggiornata"
       },
       "reconcile": "Riconcilia",
       "reconcile_started": "Riconciliazione accettata (eseguita in background)",
@@ -790,6 +852,52 @@
       "project_plan": "Pianificare il progetto",
       "integration_manage": "Gestire le integrazioni",
       "workspace_admin": "Amministrare Project Hub"
+    },
+    "diagram": {
+      "title": "Diagrammi",
+      "description": "Diagrammi strutturati: nodi e archi hanno un significato, le posizioni riguardano solo il layout.",
+      "create": "Nuovo diagramma",
+      "name": "Nome",
+      "empty": "Ancora nessun diagramma.",
+      "counts": "Nodi: {nodes} · Archi: {edges}",
+      "unlinked": "Non collegato a un pacchetto di lavoro",
+      "open": "Apri editor",
+      "close": "Chiudi editor",
+      "canvas_label": "Area del diagramma",
+      "node_label": "{label} ({type}). Trascini o usi i tasti freccia per spostare.",
+      "canvas_help": "Trascini i nodi, oppure dia il focus a uno e usi i tasti freccia (Shift = passi più grandi). Lo spostamento modifica solo il layout.",
+      "version": "Versione {version}",
+      "no_change": "Nessuna modifica.",
+      "layout_only": "Salvato – solo layout. Il significato del diagramma non è cambiato.",
+      "semantic_change": "Salvato – il significato è cambiato. È stata creata una proposta di interpretazione.",
+      "diff_summary": "Nodi: +{nodesAdded} −{nodesRemoved} ~{nodesChanged} · Archi: +{edgesAdded} −{edgesRemoved} ~{edgesChanged}",
+      "pending_interpretation": "Interpretazione in sospeso",
+      "not_a_requirement": "Solo un'interpretazione – nulla diventa un requisito finché una persona non lo accetta.",
+      "uncertainty": "Incertezza: {level}",
+      "questions": "Domande sugli archi ambigui",
+      "suggested_criteria": "Criteri di accettazione suggeriti",
+      "impacts": "Possibili impatti",
+      "needs_package": "Colleghi il diagramma a un pacchetto di lavoro per accettare i criteri.",
+      "accept": "Accetta selezionati",
+      "accepted": "Interpretazione accettata",
+      "nodes": "Nodi",
+      "add_node": "Aggiungi nodo",
+      "new_node": "Nuovo nodo",
+      "label": "Etichetta",
+      "type": "Tipo",
+      "remove_node": "Rimuovi {label}",
+      "edges": "Archi",
+      "add_edge": "Aggiungi arco",
+      "remove_edge": "Rimuovi arco",
+      "direction": "Direzione",
+      "directions": {
+        "forward": "Unidirezionale (→)",
+        "both": "Bidirezionale (↔)",
+        "unknown": "Non chiara (?)"
+      },
+      "ambiguous_edge": "Ambiguo: aggiunga un tipo o un'etichetta e una direzione chiara.",
+      "source": "Da",
+      "target": "A"
     }
   }
 }

@@ -144,7 +144,9 @@
       "sync_conflict": "Senkronizasyon çakışması",
       "stale_evidence": "Güncel olmayan kanıt",
       "integration_offline": "Entegrasyon çevrimdışı",
-      "native_done_without_delivery": "Teslimat kanıtı olmadan tamamlandı"
+      "native_done_without_delivery": "Teslimat kanıtı olmadan tamamlandı",
+      "native_done_without_delivery_evidence": "Teslimat kanıtı olmadan tamamlandı",
+      "merge_pending_confirmation": "Birleştirme onay bekliyor"
     },
     "trust": {
       "local_self_report": "Yerel öz bildirim",
@@ -228,7 +230,16 @@
       "draft_saved": "Taslak kaydedildi",
       "unsaved_changes": "Kaydedilmemiş değişiklikler",
       "version": "Taslak sürümü {version}",
-      "readonly": "Bu brief'i okuyabilirsiniz ancak düzenleyemezsiniz."
+      "readonly": "Bu brief'i okuyabilirsiniz ancak düzenleyemezsiniz.",
+      "scope_hint": "Her satıra bir öğe. Hazırlık için kapsamda en az bir öğe gerekir.",
+      "verification": "Kriter {index} için doğrulama",
+      "verifications": {
+        "ci": "CI kontrolü",
+        "manual": "Manuel inceleme",
+        "runner": "Runner",
+        "any": "Herhangi bir kanıt"
+      },
+      "risk_notes_hint": "Derin paketler için zorunludur: neyin ters gidebileceği ve bunun nasıl azaltılacağı."
     },
     "readiness": {
       "title": "Hazırlık",
@@ -309,7 +320,8 @@
       "continue": "Devam et",
       "closed": "Netleştirme tamamlandı.",
       "open_blockers": "Açık engeller",
-      "summary": "Özet"
+      "summary": "Özet",
+      "draft_ready": "Bir öneri taslağı hazır. Aşağıda inceleyin; henüz hiçbir şey uygulanmadı."
     },
     "proposals": {
       "title": "AI önerileri",
@@ -329,7 +341,8 @@
         "accepted": "Kabul edildi",
         "rejected": "Reddedildi",
         "stale": "Güncel değil"
-      }
+      },
+      "patch_field": "Alan: {field}"
     },
     "changes": {
       "records": "Değişiklik kayıtları",
@@ -425,7 +438,8 @@
       "external_value": "Harici değer",
       "keep_platform": "Platform değerini koru",
       "keep_external": "Harici değeri koru",
-      "changed_at": "değiştirildi {time}"
+      "changed_at": "değiştirildi {time}",
+      "manifest": "Manifest {hash}"
     },
     "review": {
       "intent": "Onaylanan amaç",
@@ -472,7 +486,32 @@
       "no_capability_review": "Bu inceleme için yetkinliğiniz yok.",
       "no_capability_merge": "Birleştirme isteme yetkinliğiniz yok.",
       "recorded": "İnceleme kararı kaydedildi",
-      "select_mr": "Birleştirme isteği"
+      "select_mr": "Birleştirme isteği",
+      "change_counts": "Birleştirme istekleri: {mrs} · Commit'ler: {commits}",
+      "commit_claims": "Commit mesajları (beyanlar, kanıt değil)",
+      "required_trust": "Şu kaynaktan kanıt gerekir: {trust}",
+      "trust_level": {
+        "trusted_ci": "güvenilir CI",
+        "human": "insan incelemesi",
+        "runner": "runner",
+        "any": "herhangi bir kaynak"
+      },
+      "open_point": {
+        "criterion_not_proven": "Kriter kanıtlanmadı: {criterion} ({reason})",
+        "code_review_required": "Head {sha} için kod incelemesi gerekli",
+        "code_review_invalidated": "Kod incelemesi yeni commit'ler nedeniyle geçersiz (head {sha})",
+        "open_question": "Açık soru: {title}",
+        "outcome_acceptance_missing": "Sonuç kabulü eksik",
+        "no_approved_revision": "Onaylanmış revizyon yok",
+        "revision_changed_since_approval": "Revizyon onaydan sonra değişti"
+      },
+      "validity": {
+        "valid": "Geçerli",
+        "changes_requested": "Değişiklik istendi",
+        "invalidated": "Geçersiz kılındı",
+        "stale_revision": "Daha eski bir revizyon için",
+        "stale_head": "Daha eski bir commit için"
+      }
     },
     "history": {
       "timeline": "Paket etkinliği",
@@ -498,7 +537,8 @@
       "aggregate": "Genel: {state}",
       "aggregate_rule": "Kural: {rule}",
       "deployed_not_released": "Bilinen bir sürüm olmadan dağıtıldı — tüm kullanıcılar tarafından kullanılabilir olması gerekmez.",
-      "history_title": "Geçmiş (geri almalar dahil)"
+      "history_title": "Geçmiş (geri almalar dahil)",
+      "local_state_unknown": "Geliştirici bilgisayarlarındaki durum bilinmiyor."
     },
     "discussion": {
       "title": "Tartışma",
@@ -533,7 +573,8 @@
       "ai_badge": "AI",
       "ai_answer_hint": "AI yanıtı — karar değildir",
       "mark_read": "Okundu olarak işaretle",
-      "system": "Sistem"
+      "system": "Sistem",
+      "private_source": "Özel bir kaynağa dayanır; yalnızca onaylanan metin paylaşılır."
     },
     "activity": {
       "title": "Etkinlik",
@@ -620,7 +661,12 @@
       "successor": "Sonraki",
       "project_filter": "Projeler",
       "created": "Kilometre taşı oluşturuldu",
-      "uncertain": "Belirsiz"
+      "uncertain": "Belirsiz",
+      "dependency_create": "Bağımlılık ekle",
+      "late_by": "{hours} sa gecikmeli (tahmini {date})",
+      "not_late": "Gecikme yok",
+      "via": "{path} üzerinden",
+      "impact_basis_deps": "Yalnızca bağımlılıklar ve güvenilir tarihlerden hesaplanmıştır. Plan değiştirilmez."
     },
     "knowledge": {
       "title": "Bilgi",
@@ -643,7 +689,20 @@
       "decisions": "Kararlar",
       "decisions_empty": "Henüz karar yok.",
       "search_placeholder": "Bu projede ara",
-      "search_empty": "Erişilebilir sonuç yok."
+      "search_empty": "Erişilebilir sonuç yok.",
+      "register": "Eki kaydet",
+      "register_submit": "Kaydet",
+      "register_hint": "Bu projenin mevcut bir ekini seçin. Taranır ve sınıflandırılır; hiçbir şey yeniden yüklenmez.",
+      "candidates": "Ekler",
+      "candidates_empty": "Bu projede kaydedilmemiş ek yok.",
+      "filename": "Dosya adı",
+      "declared_mime": "Beyan edilen tür (MIME)",
+      "declared_mime_hint": "Tarama tarafından algılanan tür önceliklidir.",
+      "not_uploaded": "yükleme tamamlanmadı",
+      "registered": "{name} kaydedildi",
+      "quarantined_warning": "Karantinada — açmayın veya paylaşmayın. İçerik engellendi.",
+      "format_blocked": "Engellendi (karantina)",
+      "mime": "MIME türü"
     },
     "overview": {
       "title": "Genel bakış",
@@ -689,7 +748,8 @@
         "page": "Sayfa",
         "message": "Mesaj",
         "event": "Olay",
-        "upload": "Yükleme"
+        "upload": "Yükleme",
+        "issue": "İş öğesi"
       }
     },
     "settings": {
@@ -732,7 +792,8 @@
         "supported": "Destekleniyor",
         "partial": "Kısmi",
         "unsupported": "Desteklenmiyor",
-        "unknown": "Bilinmiyor"
+        "unknown": "Bilinmiyor",
+        "requires_configuration": "Yapılandırma gerekir"
       },
       "connections": "Bağlantılar",
       "connections_empty": "Bağlantı yok.",
@@ -752,7 +813,8 @@
         "active": "Etkin",
         "degraded": "Düşük performans",
         "offline": "Çevrimdışı",
-        "disabled": "Devre dışı"
+        "disabled": "Devre dışı",
+        "stale": "Güncel değil"
       },
       "reconcile": "Uzlaştır",
       "reconcile_started": "Uzlaştırma kabul edildi (arka planda çalışıyor)",
@@ -790,6 +852,52 @@
       "project_plan": "Projeyi planlama",
       "integration_manage": "Entegrasyonları yönetme",
       "workspace_admin": "Project Hub'ı yönetme"
+    },
+    "diagram": {
+      "title": "Diyagramlar",
+      "description": "Yapılandırılmış diyagramlar: düğümler ve kenarlar anlam taşır, konumlar yalnızca yerleşimdir.",
+      "create": "Yeni diyagram",
+      "name": "Ad",
+      "empty": "Henüz diyagram yok.",
+      "counts": "{nodes} düğüm · {edges} kenar",
+      "unlinked": "Bir iş paketine bağlı değil",
+      "open": "Düzenleyiciyi aç",
+      "close": "Düzenleyiciyi kapat",
+      "canvas_label": "Diyagram tuvali",
+      "node_label": "{label} ({type}). Taşımak için sürükleyin veya ok tuşlarını kullanın.",
+      "canvas_help": "Düğümleri sürükleyin ya da birine odaklanıp ok tuşlarını kullanın (Shift = daha büyük adımlar). Taşımak yalnızca yerleşimi değiştirir.",
+      "version": "Sürüm {version}",
+      "no_change": "Hiçbir şey değişmedi.",
+      "layout_only": "Kaydedildi — yalnızca yerleşim. Diyagramın anlamı değişmedi.",
+      "semantic_change": "Kaydedildi — anlam değişti. Bir yorumlama önerisi oluşturuldu.",
+      "diff_summary": "Düğümler: +{nodesAdded} −{nodesRemoved} ~{nodesChanged} · Kenarlar: +{edgesAdded} −{edgesRemoved} ~{edgesChanged}",
+      "pending_interpretation": "Bekleyen yorumlama",
+      "not_a_requirement": "Yalnızca yorumlama — bir kişi kabul edene kadar hiçbir şey gereksinim olmaz.",
+      "uncertainty": "Belirsizlik: {level}",
+      "questions": "Belirsiz kenarlar hakkında sorular",
+      "suggested_criteria": "Önerilen kabul kriterleri",
+      "impacts": "Olası etkiler",
+      "needs_package": "Kriterleri kabul etmek için diyagramı bir iş paketine bağlayın.",
+      "accept": "Seçilenleri kabul et",
+      "accepted": "Yorumlama kabul edildi",
+      "nodes": "Düğümler",
+      "add_node": "Düğüm ekle",
+      "new_node": "Yeni düğüm",
+      "label": "Etiket",
+      "type": "Tür",
+      "remove_node": "{label} öğesini kaldır",
+      "edges": "Kenarlar",
+      "add_edge": "Kenar ekle",
+      "remove_edge": "Kenarı kaldır",
+      "direction": "Yön",
+      "directions": {
+        "forward": "Tek yön (→)",
+        "both": "İki yön (↔)",
+        "unknown": "Belirsiz (?)"
+      },
+      "ambiguous_edge": "Belirsiz: bir tür veya etiket ve net bir yön ekleyin.",
+      "source": "Kaynak",
+      "target": "Hedef"
     }
   }
 }

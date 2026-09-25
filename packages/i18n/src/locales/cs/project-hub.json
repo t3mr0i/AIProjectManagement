@@ -144,7 +144,9 @@
       "sync_conflict": "Konflikt synchronizace",
       "stale_evidence": "Zastaralé důkazy",
       "integration_offline": "Integrace offline",
-      "native_done_without_delivery": "Hotovo bez důkazu o dodání"
+      "native_done_without_delivery": "Hotovo bez důkazu o dodání",
+      "native_done_without_delivery_evidence": "Hotovo bez důkazu o dodání",
+      "merge_pending_confirmation": "Sloučení čeká na potvrzení"
     },
     "trust": {
       "local_self_report": "Místní vlastní hlášení",
@@ -228,7 +230,16 @@
       "draft_saved": "Koncept uložen",
       "unsaved_changes": "Neuložené změny",
       "version": "Verze konceptu {version}",
-      "readonly": "Toto zadání můžete číst, ale ne upravovat."
+      "readonly": "Toto zadání můžete číst, ale ne upravovat.",
+      "scope_hint": "Jedna položka na řádek. Pro připravenost je potřeba alespoň jedna položka v rozsahu.",
+      "verification": "Ověření kritéria {index}",
+      "verifications": {
+        "ci": "Kontrola CI",
+        "manual": "Ruční kontrola",
+        "runner": "Runner",
+        "any": "Jakýkoli důkaz"
+      },
+      "risk_notes_hint": "Povinné u podrobných balíčků: co se může pokazit a jak se tomu předchází."
     },
     "readiness": {
       "title": "Připravenost",
@@ -309,7 +320,8 @@
       "continue": "Pokračovat",
       "closed": "Upřesnění dokončeno.",
       "open_blockers": "Otevřené blokery",
-      "summary": "Shrnutí"
+      "summary": "Shrnutí",
+      "draft_ready": "Koncept návrhu je připraven. Zkontrolujte jej níže – zatím nebylo nic použito."
     },
     "proposals": {
       "title": "Návrhy AI",
@@ -329,7 +341,8 @@
         "accepted": "Přijato",
         "rejected": "Odmítnuto",
         "stale": "Zastaralé"
-      }
+      },
+      "patch_field": "Pole: {field}"
     },
     "changes": {
       "records": "Záznamy změn",
@@ -425,7 +438,8 @@
       "external_value": "Externí hodnota",
       "keep_platform": "Ponechat hodnotu platformy",
       "keep_external": "Ponechat externí hodnotu",
-      "changed_at": "změněno {time}"
+      "changed_at": "změněno {time}",
+      "manifest": "Manifest {hash}"
     },
     "review": {
       "intent": "Schválený záměr",
@@ -472,7 +486,32 @@
       "no_capability_review": "Pro tuto kontrolu nemáte oprávnění.",
       "no_capability_merge": "Nemáte oprávnění vyžádat sloučení.",
       "recorded": "Rozhodnutí kontroly zaznamenáno",
-      "select_mr": "Merge request"
+      "select_mr": "Merge request",
+      "change_counts": "Merge requesty: {mrs} · Commity: {commits}",
+      "commit_claims": "Zprávy commitů (tvrzení, nikoli důkazy)",
+      "required_trust": "Vyžaduje důkaz od: {trust}",
+      "trust_level": {
+        "trusted_ci": "důvěryhodné CI",
+        "human": "lidská kontrola",
+        "runner": "runner",
+        "any": "jakýkoli zdroj"
+      },
+      "open_point": {
+        "criterion_not_proven": "Kritérium neprokázáno: {criterion} ({reason})",
+        "code_review_required": "Vyžadována revize kódu pro head {sha}",
+        "code_review_invalidated": "Revize kódu zneplatněna novými commity (head {sha})",
+        "open_question": "Otevřená otázka: {title}",
+        "outcome_acceptance_missing": "Chybí převzetí výsledku",
+        "no_approved_revision": "Žádná schválená revize",
+        "revision_changed_since_approval": "Revize se od schválení změnila"
+      },
+      "validity": {
+        "valid": "Platné",
+        "changes_requested": "Požadovány změny",
+        "invalidated": "Zneplatněno",
+        "stale_revision": "Pro starší revizi",
+        "stale_head": "Pro starší commit"
+      }
     },
     "history": {
       "timeline": "Aktivita balíčku",
@@ -498,7 +537,8 @@
       "aggregate": "Celkově: {state}",
       "aggregate_rule": "Pravidlo: {rule}",
       "deployed_not_released": "Nasazeno bez známého vydání – nemusí být dostupné všem uživatelům.",
-      "history_title": "Historie (vč. vrácení zpět)"
+      "history_title": "Historie (vč. vrácení zpět)",
+      "local_state_unknown": "Stav na počítačích vývojářů není znám."
     },
     "discussion": {
       "title": "Diskuse",
@@ -533,7 +573,8 @@
       "ai_badge": "AI",
       "ai_answer_hint": "Odpověď AI – nejde o rozhodnutí",
       "mark_read": "Označit jako přečtené",
-      "system": "Systém"
+      "system": "Systém",
+      "private_source": "Vychází ze soukromého zdroje; sdílí se pouze potvrzený text."
     },
     "activity": {
       "title": "Aktivita",
@@ -620,7 +661,12 @@
       "successor": "Následník",
       "project_filter": "Projekty",
       "created": "Milník vytvořen",
-      "uncertain": "Nejisté"
+      "uncertain": "Nejisté",
+      "dependency_create": "Přidat závislost",
+      "late_by": "Zpoždění {hours} h (předpoklad {date})",
+      "not_late": "Bez zpoždění",
+      "via": "Přes {path}",
+      "impact_basis_deps": "Vypočteno pouze ze závislostí a spolehlivých termínů. Plán se nemění."
     },
     "knowledge": {
       "title": "Znalosti",
@@ -643,7 +689,20 @@
       "decisions": "Rozhodnutí",
       "decisions_empty": "Zatím žádná rozhodnutí.",
       "search_placeholder": "Hledat v tomto projektu",
-      "search_empty": "Žádné dostupné výsledky."
+      "search_empty": "Žádné dostupné výsledky.",
+      "register": "Registrovat přílohu",
+      "register_submit": "Registrovat",
+      "register_hint": "Vyberte existující přílohu tohoto projektu. Bude zkontrolována a zařazena; nic se znovu nenahrává.",
+      "candidates": "Přílohy",
+      "candidates_empty": "V tomto projektu nejsou žádné neregistrované přílohy.",
+      "filename": "Název souboru",
+      "declared_mime": "Deklarovaný typ (MIME)",
+      "declared_mime_hint": "Přednost má typ zjištěný kontrolou.",
+      "not_uploaded": "nahrávání nedokončeno",
+      "registered": "{name} registrováno",
+      "quarantined_warning": "V karanténě – neotevírejte ani nesdílejte. Obsah je zablokován.",
+      "format_blocked": "Zablokováno (karanténa)",
+      "mime": "Typ MIME"
     },
     "overview": {
       "title": "Přehled",
@@ -689,7 +748,8 @@
         "page": "Stránka",
         "message": "Zpráva",
         "event": "Událost",
-        "upload": "Nahraný soubor"
+        "upload": "Nahraný soubor",
+        "issue": "Pracovní položka"
       }
     },
     "settings": {
@@ -732,7 +792,8 @@
         "supported": "Podporováno",
         "partial": "Částečně",
         "unsupported": "Nepodporováno",
-        "unknown": "Neznámé"
+        "unknown": "Neznámé",
+        "requires_configuration": "Vyžaduje konfiguraci"
       },
       "connections": "Připojení",
       "connections_empty": "Žádná připojení.",
@@ -752,7 +813,8 @@
         "active": "Aktivní",
         "degraded": "Omezené",
         "offline": "Offline",
-        "disabled": "Zakázáno"
+        "disabled": "Zakázáno",
+        "stale": "Zastaralé"
       },
       "reconcile": "Sladit",
       "reconcile_started": "Sladění přijato (běží na pozadí)",
@@ -790,6 +852,52 @@
       "project_plan": "Plánovat projekt",
       "integration_manage": "Spravovat integrace",
       "workspace_admin": "Spravovat Project Hub"
+    },
+    "diagram": {
+      "title": "Diagramy",
+      "description": "Strukturované diagramy: uzly a hrany nesou význam, pozice slouží jen k rozvržení.",
+      "create": "Nový diagram",
+      "name": "Název",
+      "empty": "Zatím žádné diagramy.",
+      "counts": "Uzly: {nodes} · Hrany: {edges}",
+      "unlinked": "Nepropojeno s pracovním balíčkem",
+      "open": "Otevřít editor",
+      "close": "Zavřít editor",
+      "canvas_label": "Plátno diagramu",
+      "node_label": "{label} ({type}). Přesuňte tažením nebo šipkami.",
+      "canvas_help": "Přetáhněte uzly, nebo na jeden přesuňte fokus a použijte šipky (Shift = větší kroky). Přesunutí mění jen rozvržení.",
+      "version": "Verze {version}",
+      "no_change": "Nic se nezměnilo.",
+      "layout_only": "Uloženo – pouze rozvržení. Význam diagramu se nezměnil.",
+      "semantic_change": "Uloženo – význam se změnil. Byl vytvořen návrh interpretace.",
+      "diff_summary": "Uzly: +{nodesAdded} −{nodesRemoved} ~{nodesChanged} · Hrany: +{edgesAdded} −{edgesRemoved} ~{edgesChanged}",
+      "pending_interpretation": "Čekající interpretace",
+      "not_a_requirement": "Pouze interpretace – nic se nestane požadavkem, dokud to člověk nepřijme.",
+      "uncertainty": "Nejistota: {level}",
+      "questions": "Otázky k nejednoznačným hranám",
+      "suggested_criteria": "Navrhovaná kritéria přijetí",
+      "impacts": "Možné dopady",
+      "needs_package": "Pro převzetí kritérií propojte diagram s pracovním balíčkem.",
+      "accept": "Přijmout vybrané",
+      "accepted": "Interpretace přijata",
+      "nodes": "Uzly",
+      "add_node": "Přidat uzel",
+      "new_node": "Nový uzel",
+      "label": "Popisek",
+      "type": "Typ",
+      "remove_node": "Odebrat {label}",
+      "edges": "Hrany",
+      "add_edge": "Přidat hranu",
+      "remove_edge": "Odebrat hranu",
+      "direction": "Směr",
+      "directions": {
+        "forward": "Jedním směrem (→)",
+        "both": "Oběma směry (↔)",
+        "unknown": "Nejasné (?)"
+      },
+      "ambiguous_edge": "Nejednoznačné: doplňte typ nebo popisek a jasný směr.",
+      "source": "Z",
+      "target": "Do"
     }
   }
 }

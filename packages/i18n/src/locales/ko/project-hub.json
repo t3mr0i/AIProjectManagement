@@ -144,7 +144,9 @@
       "sync_conflict": "동기화 충돌",
       "stale_evidence": "오래된 증거",
       "integration_offline": "연동 오프라인",
-      "native_done_without_delivery": "딜리버리 증거 없이 완료됨"
+      "native_done_without_delivery": "딜리버리 증거 없이 완료됨",
+      "native_done_without_delivery_evidence": "딜리버리 증거 없이 완료됨",
+      "merge_pending_confirmation": "병합 확인 대기 중"
     },
     "trust": {
       "local_self_report": "로컬 자체 보고",
@@ -228,7 +230,16 @@
       "draft_saved": "초안이 저장되었습니다",
       "unsaved_changes": "저장되지 않은 변경 사항",
       "version": "초안 버전 {version}",
-      "readonly": "이 브리프를 읽을 수는 있지만 편집할 수는 없습니다."
+      "readonly": "이 브리프를 읽을 수는 있지만 편집할 수는 없습니다.",
+      "scope_hint": "한 줄에 하나의 항목을 입력합니다. 준비 상태가 되려면 범위 내 항목이 하나 이상 필요합니다.",
+      "verification": "기준 {index} 검증",
+      "verifications": {
+        "ci": "CI 검사",
+        "manual": "수동 검토",
+        "runner": "러너",
+        "any": "모든 증거"
+      },
+      "risk_notes_hint": "상세 패키지에 필수: 무엇이 잘못될 수 있으며 어떻게 완화하는지 입력합니다."
     },
     "readiness": {
       "title": "준비 상태",
@@ -309,7 +320,8 @@
       "continue": "계속",
       "closed": "명확화가 완료되었습니다.",
       "open_blockers": "해결되지 않은 차단 요소",
-      "summary": "요약"
+      "summary": "요약",
+      "draft_ready": "제안 초안이 준비되었습니다. 아래에서 검토하십시오. 아직 아무것도 적용되지 않았습니다."
     },
     "proposals": {
       "title": "AI 제안",
@@ -329,7 +341,8 @@
         "accepted": "수락됨",
         "rejected": "거부됨",
         "stale": "오래됨"
-      }
+      },
+      "patch_field": "필드: {field}"
     },
     "changes": {
       "records": "변경 기록",
@@ -425,7 +438,8 @@
       "external_value": "외부 값",
       "keep_platform": "플랫폼 값 유지",
       "keep_external": "외부 값 유지",
-      "changed_at": "{time}에 변경됨"
+      "changed_at": "{time}에 변경됨",
+      "manifest": "매니페스트 {hash}"
     },
     "review": {
       "intent": "승인된 목표",
@@ -472,7 +486,32 @@
       "no_capability_review": "이 검토를 수행할 기능 권한이 없습니다.",
       "no_capability_merge": "병합을 요청할 기능 권한이 없습니다.",
       "recorded": "검토 결정이 기록되었습니다",
-      "select_mr": "머지 요청"
+      "select_mr": "머지 요청",
+      "change_counts": "머지 요청 {mrs}개 · 커밋 {commits}개",
+      "commit_claims": "커밋 메시지(주장이며 증거가 아님)",
+      "required_trust": "필요한 증거 출처: {trust}",
+      "trust_level": {
+        "trusted_ci": "신뢰할 수 있는 CI",
+        "human": "사람의 검토",
+        "runner": "러너",
+        "any": "모든 출처"
+      },
+      "open_point": {
+        "criterion_not_proven": "입증되지 않은 기준: {criterion}({reason})",
+        "code_review_required": "헤드 {sha}에 대한 코드 검토가 필요합니다",
+        "code_review_invalidated": "새 커밋으로 인해 코드 검토가 무효화되었습니다(헤드 {sha})",
+        "open_question": "미해결 질문: {title}",
+        "outcome_acceptance_missing": "결과 인수가 없습니다",
+        "no_approved_revision": "승인된 리비전이 없습니다",
+        "revision_changed_since_approval": "승인 이후 리비전이 변경되었습니다"
+      },
+      "validity": {
+        "valid": "유효",
+        "changes_requested": "변경 요청됨",
+        "invalidated": "무효화됨",
+        "stale_revision": "이전 리비전 대상",
+        "stale_head": "이전 커밋 대상"
+      }
     },
     "history": {
       "timeline": "패키지 활동",
@@ -498,7 +537,8 @@
       "aggregate": "전체: {state}",
       "aggregate_rule": "규칙: {rule}",
       "deployed_not_released": "알려진 릴리스 없이 배포되었습니다. 모든 사용자가 사용할 수 있는 것은 아닐 수 있습니다.",
-      "history_title": "기록(롤백 포함)"
+      "history_title": "기록(롤백 포함)",
+      "local_state_unknown": "개발자 컴퓨터의 상태는 알 수 없습니다."
     },
     "discussion": {
       "title": "토론",
@@ -533,7 +573,8 @@
       "ai_badge": "AI",
       "ai_answer_hint": "AI 답변 - 결정이 아님",
       "mark_read": "읽음으로 표시",
-      "system": "시스템"
+      "system": "시스템",
+      "private_source": "비공개 출처를 기반으로 합니다. 확인된 텍스트만 공유됩니다."
     },
     "activity": {
       "title": "활동",
@@ -620,7 +661,12 @@
       "successor": "후행 항목",
       "project_filter": "프로젝트",
       "created": "마일스톤이 생성되었습니다",
-      "uncertain": "불확실"
+      "uncertain": "불확실",
+      "dependency_create": "종속성 추가",
+      "late_by": "{hours}시간 지연(예상 {date})",
+      "not_late": "지연 없음",
+      "via": "경유: {path}",
+      "impact_basis_deps": "종속성과 신뢰할 수 있는 날짜만으로 계산되었습니다. 계획은 변경되지 않습니다."
     },
     "knowledge": {
       "title": "지식",
@@ -643,7 +689,20 @@
       "decisions": "결정",
       "decisions_empty": "아직 결정이 없습니다.",
       "search_placeholder": "이 프로젝트에서 검색",
-      "search_empty": "액세스할 수 있는 결과가 없습니다."
+      "search_empty": "액세스할 수 있는 결과가 없습니다.",
+      "register": "첨부 파일 등록",
+      "register_submit": "등록",
+      "register_hint": "이 프로젝트의 기존 첨부 파일을 선택하십시오. 검사 및 분류가 진행되며 다시 업로드되지 않습니다.",
+      "candidates": "첨부 파일",
+      "candidates_empty": "이 프로젝트에 등록되지 않은 첨부 파일이 없습니다.",
+      "filename": "파일 이름",
+      "declared_mime": "선언된 형식(MIME)",
+      "declared_mime_hint": "검사에서 감지된 형식이 우선합니다.",
+      "not_uploaded": "업로드 미완료",
+      "registered": "{name} 등록됨",
+      "quarantined_warning": "격리됨 – 열거나 공유하지 마십시오. 콘텐츠가 차단되었습니다.",
+      "format_blocked": "차단됨(격리)",
+      "mime": "MIME 형식"
     },
     "overview": {
       "title": "개요",
@@ -689,7 +748,8 @@
         "page": "페이지",
         "message": "메시지",
         "event": "이벤트",
-        "upload": "업로드"
+        "upload": "업로드",
+        "issue": "작업 항목"
       }
     },
     "settings": {
@@ -732,7 +792,8 @@
         "supported": "지원됨",
         "partial": "부분 지원",
         "unsupported": "지원되지 않음",
-        "unknown": "알 수 없음"
+        "unknown": "알 수 없음",
+        "requires_configuration": "구성 필요"
       },
       "connections": "연결",
       "connections_empty": "연결이 없습니다.",
@@ -752,7 +813,8 @@
         "active": "활성",
         "degraded": "성능 저하",
         "offline": "오프라인",
-        "disabled": "비활성화됨"
+        "disabled": "비활성화됨",
+        "stale": "오래됨"
       },
       "reconcile": "조정",
       "reconcile_started": "조정이 수락되었습니다(백그라운드에서 실행)",
@@ -790,6 +852,52 @@
       "project_plan": "프로젝트 계획",
       "integration_manage": "연동 관리",
       "workspace_admin": "Project Hub 관리"
+    },
+    "diagram": {
+      "title": "다이어그램",
+      "description": "구조화된 다이어그램: 노드와 에지가 의미를 가지며, 위치는 레이아웃에만 해당합니다.",
+      "create": "새 다이어그램",
+      "name": "이름",
+      "empty": "아직 다이어그램이 없습니다.",
+      "counts": "노드 {nodes}개 · 에지 {edges}개",
+      "unlinked": "작업 패키지에 연결되지 않음",
+      "open": "편집기 열기",
+      "close": "편집기 닫기",
+      "canvas_label": "다이어그램 캔버스",
+      "node_label": "{label}({type}). 드래그하거나 화살표 키를 사용하여 이동합니다.",
+      "canvas_help": "노드를 드래그하거나, 노드에 포커스를 두고 화살표 키를 사용합니다(Shift = 더 큰 단위). 이동은 레이아웃만 변경합니다.",
+      "version": "버전 {version}",
+      "no_change": "변경된 내용이 없습니다.",
+      "layout_only": "저장됨 – 레이아웃만 변경되었습니다. 다이어그램의 의미는 변경되지 않았습니다.",
+      "semantic_change": "저장됨 – 의미가 변경되었습니다. 해석 제안이 생성되었습니다.",
+      "diff_summary": "노드: +{nodesAdded} −{nodesRemoved} ~{nodesChanged} · 에지: +{edgesAdded} −{edgesRemoved} ~{edgesChanged}",
+      "pending_interpretation": "대기 중인 해석",
+      "not_a_requirement": "해석일 뿐입니다 – 사람이 수락하기 전까지는 아무것도 요구 사항이 되지 않습니다.",
+      "uncertainty": "불확실성: {level}",
+      "questions": "모호한 에지에 대한 질문",
+      "suggested_criteria": "제안된 인수 기준",
+      "impacts": "가능한 영향",
+      "needs_package": "기준을 수락하려면 다이어그램을 작업 패키지에 연결하십시오.",
+      "accept": "선택 항목 수락",
+      "accepted": "해석이 수락되었습니다",
+      "nodes": "노드",
+      "add_node": "노드 추가",
+      "new_node": "새 노드",
+      "label": "레이블",
+      "type": "유형",
+      "remove_node": "{label} 제거",
+      "edges": "에지",
+      "add_edge": "에지 추가",
+      "remove_edge": "에지 제거",
+      "direction": "방향",
+      "directions": {
+        "forward": "단방향(→)",
+        "both": "양방향(↔)",
+        "unknown": "불분명(?)"
+      },
+      "ambiguous_edge": "모호함: 유형 또는 레이블과 명확한 방향을 추가하십시오.",
+      "source": "시작",
+      "target": "끝"
     }
   }
 }

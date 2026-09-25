@@ -144,7 +144,9 @@
       "sync_conflict": "同期の競合",
       "stale_evidence": "古いエビデンス",
       "integration_offline": "連携がオフライン",
-      "native_done_without_delivery": "デリバリーのエビデンスなしで完了"
+      "native_done_without_delivery": "デリバリーのエビデンスなしで完了",
+      "native_done_without_delivery_evidence": "デリバリーのエビデンスなしで完了",
+      "merge_pending_confirmation": "マージの確認待ち"
     },
     "trust": {
       "local_self_report": "ローカルの自己申告",
@@ -228,7 +230,16 @@
       "draft_saved": "下書きを保存しました",
       "unsaved_changes": "未保存の変更",
       "version": "下書きバージョン {version}",
-      "readonly": "このブリーフは閲覧できますが、編集はできません。"
+      "readonly": "このブリーフは閲覧できますが、編集はできません。",
+      "scope_hint": "1 行に 1 項目ずつ入力します。準備完了には、スコープ内の項目が少なくとも 1 つ必要です。",
+      "verification": "基準{index}の検証方法",
+      "verifications": {
+        "ci": "CI チェック",
+        "manual": "手動レビュー",
+        "runner": "ランナー",
+        "any": "任意のエビデンス"
+      },
+      "risk_notes_hint": "ディープのパッケージでは必須です：何が問題になり得るか、どのように軽減するか。"
     },
     "readiness": {
       "title": "準備状況",
@@ -309,7 +320,8 @@
       "continue": "続行",
       "closed": "明確化が完了しました。",
       "open_blockers": "未解決のブロッカー",
-      "summary": "まとめ"
+      "summary": "まとめ",
+      "draft_ready": "提案の下書きが用意できました。下で確認してください。まだ何も適用されていません。"
     },
     "proposals": {
       "title": "AI の提案",
@@ -329,7 +341,8 @@
         "accepted": "承認済み",
         "rejected": "却下済み",
         "stale": "古い"
-      }
+      },
+      "patch_field": "フィールド：{field}"
     },
     "changes": {
       "records": "変更記録",
@@ -425,7 +438,8 @@
       "external_value": "外部の値",
       "keep_platform": "プラットフォームの値を保持",
       "keep_external": "外部の値を保持",
-      "changed_at": "{time}に変更"
+      "changed_at": "{time}に変更",
+      "manifest": "マニフェスト {hash}"
     },
     "review": {
       "intent": "承認された目的",
@@ -472,7 +486,32 @@
       "no_capability_review": "このレビューを行う機能権限がありません。",
       "no_capability_merge": "マージをリクエストする機能権限がありません。",
       "recorded": "レビューの判断を記録しました",
-      "select_mr": "マージリクエスト"
+      "select_mr": "マージリクエスト",
+      "change_counts": "マージリクエスト {mrs} 件 · コミット {commits} 件",
+      "commit_claims": "コミットメッセージ（申告であり、エビデンスではありません）",
+      "required_trust": "必要なエビデンスの提供元：{trust}",
+      "trust_level": {
+        "trusted_ci": "信頼済みの CI",
+        "human": "人間によるレビュー",
+        "runner": "ランナー",
+        "any": "任意のソース"
+      },
+      "open_point": {
+        "criterion_not_proven": "基準が証明されていません：{criterion}（{reason}）",
+        "code_review_required": "ヘッド {sha} のコードレビューが必要です",
+        "code_review_invalidated": "新しいコミットによりコードレビューが無効になりました（ヘッド {sha}）",
+        "open_question": "未解決の質問：{title}",
+        "outcome_acceptance_missing": "成果の受け入れがありません",
+        "no_approved_revision": "承認済みのリビジョンがありません",
+        "revision_changed_since_approval": "承認後にリビジョンが変更されました"
+      },
+      "validity": {
+        "valid": "有効",
+        "changes_requested": "変更を要求",
+        "invalidated": "無効化済み",
+        "stale_revision": "古いリビジョンに対するもの",
+        "stale_head": "古いコミットに対するもの"
+      }
     },
     "history": {
       "timeline": "パッケージのアクティビティ",
@@ -498,7 +537,8 @@
       "aggregate": "全体：{state}",
       "aggregate_rule": "ルール：{rule}",
       "deployed_not_released": "既知のリリースなしでデプロイされています。すべてのユーザーが利用できるとは限りません。",
-      "history_title": "履歴（ロールバックを含む）"
+      "history_title": "履歴（ロールバックを含む）",
+      "local_state_unknown": "開発者のマシン上の状態は不明です。"
     },
     "discussion": {
       "title": "ディスカッション",
@@ -533,7 +573,8 @@
       "ai_badge": "AI",
       "ai_answer_hint": "AI の回答：意思決定ではありません",
       "mark_read": "既読にする",
-      "system": "システム"
+      "system": "システム",
+      "private_source": "非公開のソースに基づいています。共有されるのは確認済みのテキストのみです。"
     },
     "activity": {
       "title": "アクティビティ",
@@ -620,7 +661,12 @@
       "successor": "後続",
       "project_filter": "プロジェクト",
       "created": "マイルストーンを作成しました",
-      "uncertain": "不確定"
+      "uncertain": "不確定",
+      "dependency_create": "依存関係を追加",
+      "late_by": "{hours} 時間の遅延（見込み {date}）",
+      "not_late": "遅延なし",
+      "via": "経由：{path}",
+      "impact_basis_deps": "依存関係と信頼できる日付のみから算出しています。計画は変更されません。"
     },
     "knowledge": {
       "title": "ナレッジ",
@@ -643,7 +689,20 @@
       "decisions": "意思決定",
       "decisions_empty": "意思決定はまだありません。",
       "search_placeholder": "このプロジェクト内を検索",
-      "search_empty": "アクセス可能な結果はありません。"
+      "search_empty": "アクセス可能な結果はありません。",
+      "register": "添付ファイルを登録",
+      "register_submit": "登録",
+      "register_hint": "このプロジェクトの既存の添付ファイルを選択してください。スキャンと分類が行われます。再アップロードは行われません。",
+      "candidates": "添付ファイル",
+      "candidates_empty": "このプロジェクトに未登録の添付ファイルはありません。",
+      "filename": "ファイル名",
+      "declared_mime": "申告された種類（MIME）",
+      "declared_mime_hint": "スキャンで検出された種類が優先されます。",
+      "not_uploaded": "アップロード未完了",
+      "registered": "{name}を登録しました",
+      "quarantined_warning": "隔離済みです。開いたり共有したりしないでください。コンテンツはブロックされています。",
+      "format_blocked": "ブロック済み（隔離）",
+      "mime": "MIME タイプ"
     },
     "overview": {
       "title": "概要",
@@ -689,7 +748,8 @@
         "page": "ページ",
         "message": "メッセージ",
         "event": "イベント",
-        "upload": "アップロード"
+        "upload": "アップロード",
+        "issue": "作業項目"
       }
     },
     "settings": {
@@ -732,7 +792,8 @@
         "supported": "サポート",
         "partial": "一部サポート",
         "unsupported": "非サポート",
-        "unknown": "不明"
+        "unknown": "不明",
+        "requires_configuration": "設定が必要"
       },
       "connections": "接続",
       "connections_empty": "接続はありません。",
@@ -752,7 +813,8 @@
         "active": "アクティブ",
         "degraded": "低下",
         "offline": "オフライン",
-        "disabled": "無効"
+        "disabled": "無効",
+        "stale": "古い"
       },
       "reconcile": "照合",
       "reconcile_started": "照合を受理しました（バックグラウンドで実行）",
@@ -790,6 +852,52 @@
       "project_plan": "プロジェクトの計画",
       "integration_manage": "連携の管理",
       "workspace_admin": "Project Hub の管理"
+    },
+    "diagram": {
+      "title": "ダイアグラム",
+      "description": "構造化ダイアグラム：ノードとエッジが意味を持ち、位置はレイアウトのみに関係します。",
+      "create": "新しいダイアグラム",
+      "name": "名前",
+      "empty": "ダイアグラムはまだありません。",
+      "counts": "ノード {nodes} 個 · エッジ {edges} 本",
+      "unlinked": "作業パッケージにリンクされていません",
+      "open": "エディターを開く",
+      "close": "エディターを閉じる",
+      "canvas_label": "ダイアグラムキャンバス",
+      "node_label": "{label}（{type}）。ドラッグするか矢印キーで移動します。",
+      "canvas_help": "ノードをドラッグするか、ノードにフォーカスして矢印キーを使用します（Shift = 大きく移動）。移動してもレイアウトのみが変更されます。",
+      "version": "バージョン {version}",
+      "no_change": "変更はありません。",
+      "layout_only": "保存しました（レイアウトのみ）。ダイアグラムの意味は変わっていません。",
+      "semantic_change": "保存しました。意味が変更されたため、解釈の提案が作成されました。",
+      "diff_summary": "ノード：+{nodesAdded} −{nodesRemoved} ~{nodesChanged} · エッジ：+{edgesAdded} −{edgesRemoved} ~{edgesChanged}",
+      "pending_interpretation": "保留中の解釈",
+      "not_a_requirement": "これは解釈にすぎません。人が承認するまで、要件になるものはありません。",
+      "uncertainty": "不確実性：{level}",
+      "questions": "曖昧なエッジに関する質問",
+      "suggested_criteria": "提案された受け入れ基準",
+      "impacts": "考えられる影響",
+      "needs_package": "基準を承認するには、ダイアグラムを作業パッケージにリンクしてください。",
+      "accept": "選択項目を承認",
+      "accepted": "解釈を承認しました",
+      "nodes": "ノード",
+      "add_node": "ノードを追加",
+      "new_node": "新しいノード",
+      "label": "ラベル",
+      "type": "種類",
+      "remove_node": "{label}を削除",
+      "edges": "エッジ",
+      "add_edge": "エッジを追加",
+      "remove_edge": "エッジを削除",
+      "direction": "方向",
+      "directions": {
+        "forward": "一方向（→）",
+        "both": "双方向（↔）",
+        "unknown": "不明（?）"
+      },
+      "ambiguous_edge": "曖昧です：種類またはラベルと、明確な方向を追加してください。",
+      "source": "始点",
+      "target": "終点"
     }
   }
 }

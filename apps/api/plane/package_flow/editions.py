@@ -18,17 +18,68 @@ REPO_ROOT = API_ROOT.parents[1]
 
 # status: native (Community source present) | extension (implemented here) | needs_verification
 CAPABILITIES = [
-    {"id": "users_memberships", "status": "native", "evidence": ["apps/api/plane/db/models/workspace.py", "apps/api/plane/db/models/project.py"]},
-    {"id": "issues_drafts_states", "status": "native", "evidence": ["apps/api/plane/db/models/issue.py", "apps/api/plane/db/models/state.py"]},
-    {"id": "cycles_modules_views", "status": "native", "evidence": ["apps/api/plane/db/models/cycle.py", "apps/api/plane/db/models/module.py", "apps/api/plane/db/models/view.py"]},
-    {"id": "pages_versions_assets", "status": "native", "evidence": ["apps/api/plane/db/models/page.py", "apps/api/plane/db/models/asset.py"]},
-    {"id": "rich_text_collaboration", "status": "native", "evidence": ["packages/editor/package.json", "apps/live/package.json"]},
-    {"id": "oauth_github_gitlab_google_gitea", "status": "native", "evidence": ["apps/api/plane/authentication/provider/oauth/github.py", "apps/api/plane/authentication/provider/oauth/gitlab.py"]},
-    {"id": "native_github_slack_integration_models", "status": "native", "evidence": ["apps/api/plane/db/models/integration/github.py", "apps/api/plane/db/models/integration/slack.py"]},
-    {"id": "package_profiles_revisions_approvals", "status": "extension", "evidence": ["apps/api/plane/package_flow/models/core.py"]},
-    {"id": "runner_claims_runs", "status": "extension", "evidence": ["apps/api/plane/package_flow/models/execution.py", "apps/runner"]},
-    {"id": "chat_dm_ai_decisions", "status": "extension", "evidence": ["apps/api/plane/package_flow/models/collaboration.py"]},
-    {"id": "portfolio_dependencies_milestones", "status": "extension", "evidence": ["apps/api/plane/package_flow/models/planning.py"]},
+    {
+        "id": "users_memberships",
+        "status": "native",
+        "evidence": ["apps/api/plane/db/models/workspace.py", "apps/api/plane/db/models/project.py"],
+    },
+    {
+        "id": "issues_drafts_states",
+        "status": "native",
+        "evidence": ["apps/api/plane/db/models/issue.py", "apps/api/plane/db/models/state.py"],
+    },
+    {
+        "id": "cycles_modules_views",
+        "status": "native",
+        "evidence": [
+            "apps/api/plane/db/models/cycle.py",
+            "apps/api/plane/db/models/module.py",
+            "apps/api/plane/db/models/view.py",
+        ],
+    },
+    {
+        "id": "pages_versions_assets",
+        "status": "native",
+        "evidence": ["apps/api/plane/db/models/page.py", "apps/api/plane/db/models/asset.py"],
+    },
+    {
+        "id": "rich_text_collaboration",
+        "status": "native",
+        "evidence": ["packages/editor/package.json", "apps/live/package.json"],
+    },
+    {
+        "id": "oauth_github_gitlab_google_gitea",
+        "status": "native",
+        "evidence": [
+            "apps/api/plane/authentication/provider/oauth/github.py",
+            "apps/api/plane/authentication/provider/oauth/gitlab.py",
+        ],
+    },
+    {
+        "id": "native_github_slack_integration_models",
+        "status": "native",
+        "evidence": ["apps/api/plane/db/models/integration/github.py", "apps/api/plane/db/models/integration/slack.py"],
+    },
+    {
+        "id": "package_profiles_revisions_approvals",
+        "status": "extension",
+        "evidence": ["apps/api/plane/package_flow/models/core.py"],
+    },
+    {
+        "id": "runner_claims_runs",
+        "status": "extension",
+        "evidence": ["apps/api/plane/package_flow/models/execution.py", "apps/runner"],
+    },
+    {
+        "id": "chat_dm_ai_decisions",
+        "status": "extension",
+        "evidence": ["apps/api/plane/package_flow/models/collaboration.py"],
+    },
+    {
+        "id": "portfolio_dependencies_milestones",
+        "status": "extension",
+        "evidence": ["apps/api/plane/package_flow/models/planning.py"],
+    },
     {"id": "provider_adapters_contracts", "status": "extension", "evidence": ["apps/api/plane/package_flow/adapters"]},
     # Enterprise items are NOT in the Community source; they stay open checks (O03/O07).
     {"id": "saml_sso", "status": "needs_verification", "evidence": []},

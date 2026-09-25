@@ -865,7 +865,9 @@ def batch_status_facts(issues):
     )
     signals = {i for i, _ in mr_rows}
     for model in (Delivery, ExternalLink, SyncConflict):
-        signals |= set(model.objects.filter(issue_id__in=ids, deleted_at__isnull=True).values_list("issue_id", flat=True))
+        signals |= set(
+            model.objects.filter(issue_id__in=ids, deleted_at__isnull=True).values_list("issue_id", flat=True)
+        )
     facts = {}
     for issue in issues:
         profile = getattr(issue, "package_profile", None)

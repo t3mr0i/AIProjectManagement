@@ -144,7 +144,9 @@
       "sync_conflict": "Xung đột đồng bộ",
       "stale_evidence": "Bằng chứng đã cũ",
       "integration_offline": "Tích hợp ngoại tuyến",
-      "native_done_without_delivery": "Hoàn thành nhưng không có bằng chứng bàn giao"
+      "native_done_without_delivery": "Hoàn thành nhưng không có bằng chứng bàn giao",
+      "native_done_without_delivery_evidence": "Hoàn thành nhưng không có bằng chứng bàn giao",
+      "merge_pending_confirmation": "Hợp nhất đang chờ xác nhận"
     },
     "trust": {
       "local_self_report": "Tự báo cáo cục bộ",
@@ -228,7 +230,16 @@
       "draft_saved": "Đã lưu bản nháp",
       "unsaved_changes": "Thay đổi chưa lưu",
       "version": "Phiên bản nháp {version}",
-      "readonly": "Bạn có thể đọc bản mô tả này nhưng không thể chỉnh sửa."
+      "readonly": "Bạn có thể đọc bản mô tả này nhưng không thể chỉnh sửa.",
+      "scope_hint": "Mỗi dòng một mục. Để sẵn sàng cần ít nhất một mục trong phạm vi.",
+      "verification": "Xác minh cho tiêu chí {index}",
+      "verifications": {
+        "ci": "Kiểm tra CI",
+        "manual": "Xem xét thủ công",
+        "runner": "Runner",
+        "any": "Bằng chứng bất kỳ"
+      },
+      "risk_notes_hint": "Bắt buộc với gói chuyên sâu: điều gì có thể xảy ra sai và cách giảm thiểu."
     },
     "readiness": {
       "title": "Mức sẵn sàng",
@@ -309,7 +320,8 @@
       "continue": "Tiếp tục",
       "closed": "Đã hoàn tất làm rõ.",
       "open_blockers": "Trở ngại chưa giải quyết",
-      "summary": "Tóm tắt"
+      "summary": "Tóm tắt",
+      "draft_ready": "Bản nháp đề xuất đã sẵn sàng. Hãy xem xét bên dưới – chưa có gì được áp dụng."
     },
     "proposals": {
       "title": "Đề xuất của AI",
@@ -329,7 +341,8 @@
         "accepted": "Đã chấp nhận",
         "rejected": "Đã từ chối",
         "stale": "Lỗi thời"
-      }
+      },
+      "patch_field": "Trường: {field}"
     },
     "changes": {
       "records": "Bản ghi thay đổi",
@@ -425,7 +438,8 @@
       "external_value": "Giá trị bên ngoài",
       "keep_platform": "Giữ giá trị nền tảng",
       "keep_external": "Giữ giá trị bên ngoài",
-      "changed_at": "đã thay đổi {time}"
+      "changed_at": "đã thay đổi {time}",
+      "manifest": "Manifest {hash}"
     },
     "review": {
       "intent": "Mục tiêu đã phê duyệt",
@@ -472,7 +486,32 @@
       "no_capability_review": "Bạn không có quyền chức năng cho lần xem xét này.",
       "no_capability_merge": "Bạn không có quyền chức năng để yêu cầu hợp nhất.",
       "recorded": "Đã ghi nhận quyết định xem xét",
-      "select_mr": "Yêu cầu hợp nhất"
+      "select_mr": "Yêu cầu hợp nhất",
+      "change_counts": "{mrs} yêu cầu hợp nhất · {commits} commit",
+      "commit_claims": "Thông điệp commit (khẳng định, không phải bằng chứng)",
+      "required_trust": "Yêu cầu bằng chứng từ: {trust}",
+      "trust_level": {
+        "trusted_ci": "CI tin cậy",
+        "human": "xem xét bởi con người",
+        "runner": "runner",
+        "any": "nguồn bất kỳ"
+      },
+      "open_point": {
+        "criterion_not_proven": "Tiêu chí chưa được chứng minh: {criterion} ({reason})",
+        "code_review_required": "Cần xem xét mã cho head {sha}",
+        "code_review_invalidated": "Xem xét mã bị vô hiệu do có commit mới (head {sha})",
+        "open_question": "Câu hỏi mở: {title}",
+        "outcome_acceptance_missing": "Chưa có nghiệm thu kết quả",
+        "no_approved_revision": "Không có bản sửa đổi được phê duyệt",
+        "revision_changed_since_approval": "Bản sửa đổi đã thay đổi kể từ khi phê duyệt"
+      },
+      "validity": {
+        "valid": "Hợp lệ",
+        "changes_requested": "Yêu cầu thay đổi",
+        "invalidated": "Đã vô hiệu",
+        "stale_revision": "Cho bản sửa đổi cũ hơn",
+        "stale_head": "Cho commit cũ hơn"
+      }
     },
     "history": {
       "timeline": "Hoạt động của gói",
@@ -498,7 +537,8 @@
       "aggregate": "Tổng thể: {state}",
       "aggregate_rule": "Quy tắc: {rule}",
       "deployed_not_released": "Đã triển khai nhưng không có bản phát hành đã biết — không nhất thiết khả dụng cho mọi người dùng.",
-      "history_title": "Lịch sử (bao gồm hoàn tác)"
+      "history_title": "Lịch sử (bao gồm hoàn tác)",
+      "local_state_unknown": "Không xác định được trạng thái trên máy của nhà phát triển."
     },
     "discussion": {
       "title": "Thảo luận",
@@ -533,7 +573,8 @@
       "ai_badge": "AI",
       "ai_answer_hint": "Câu trả lời của AI — không phải quyết định",
       "mark_read": "Đánh dấu đã đọc",
-      "system": "Hệ thống"
+      "system": "Hệ thống",
+      "private_source": "Dựa trên nguồn riêng tư; chỉ văn bản đã xác nhận được chia sẻ."
     },
     "activity": {
       "title": "Hoạt động",
@@ -620,7 +661,12 @@
       "successor": "Mục sau",
       "project_filter": "Dự án",
       "created": "Đã tạo cột mốc",
-      "uncertain": "Không chắc chắn"
+      "uncertain": "Không chắc chắn",
+      "dependency_create": "Thêm phụ thuộc",
+      "late_by": "Trễ {hours} giờ (dự kiến {date})",
+      "not_late": "Không trễ",
+      "via": "Qua {path}",
+      "impact_basis_deps": "Chỉ được tính từ các phụ thuộc và ngày đáng tin cậy. Kế hoạch không bị thay đổi."
     },
     "knowledge": {
       "title": "Kiến thức",
@@ -643,7 +689,20 @@
       "decisions": "Quyết định",
       "decisions_empty": "Chưa có quyết định nào.",
       "search_placeholder": "Tìm kiếm trong dự án này",
-      "search_empty": "Không có kết quả nào bạn có thể truy cập."
+      "search_empty": "Không có kết quả nào bạn có thể truy cập.",
+      "register": "Đăng ký tệp đính kèm",
+      "register_submit": "Đăng ký",
+      "register_hint": "Chọn một tệp đính kèm có sẵn của dự án này. Tệp sẽ được quét và phân loại; không có gì được tải lên lại.",
+      "candidates": "Tệp đính kèm",
+      "candidates_empty": "Không có tệp đính kèm chưa đăng ký nào trong dự án này.",
+      "filename": "Tên tệp",
+      "declared_mime": "Loại đã khai báo (MIME)",
+      "declared_mime_hint": "Loại được phát hiện khi quét sẽ được ưu tiên.",
+      "not_uploaded": "tải lên chưa hoàn tất",
+      "registered": "Đã đăng ký {name}",
+      "quarantined_warning": "Đã cách ly – không mở hoặc chia sẻ. Nội dung bị chặn.",
+      "format_blocked": "Bị chặn (cách ly)",
+      "mime": "Loại MIME"
     },
     "overview": {
       "title": "Tổng quan",
@@ -689,7 +748,8 @@
         "page": "Trang",
         "message": "Tin nhắn",
         "event": "Sự kiện",
-        "upload": "Tệp tải lên"
+        "upload": "Tệp tải lên",
+        "issue": "Mục công việc"
       }
     },
     "settings": {
@@ -732,7 +792,8 @@
         "supported": "Được hỗ trợ",
         "partial": "Hỗ trợ một phần",
         "unsupported": "Không được hỗ trợ",
-        "unknown": "Không xác định"
+        "unknown": "Không xác định",
+        "requires_configuration": "Cần cấu hình"
       },
       "connections": "Kết nối",
       "connections_empty": "Không có kết nối nào.",
@@ -752,7 +813,8 @@
         "active": "Đang hoạt động",
         "degraded": "Suy giảm",
         "offline": "Ngoại tuyến",
-        "disabled": "Đã tắt"
+        "disabled": "Đã tắt",
+        "stale": "Lỗi thời"
       },
       "reconcile": "Đối soát",
       "reconcile_started": "Đã chấp nhận đối soát (chạy trong nền)",
@@ -790,6 +852,52 @@
       "project_plan": "Lập kế hoạch dự án",
       "integration_manage": "Quản lý tích hợp",
       "workspace_admin": "Quản trị Project Hub"
+    },
+    "diagram": {
+      "title": "Sơ đồ",
+      "description": "Sơ đồ có cấu trúc: nút và cạnh mang ý nghĩa, vị trí chỉ là bố cục.",
+      "create": "Sơ đồ mới",
+      "name": "Tên",
+      "empty": "Chưa có sơ đồ nào.",
+      "counts": "{nodes} nút · {edges} cạnh",
+      "unlinked": "Chưa liên kết với gói công việc",
+      "open": "Mở trình chỉnh sửa",
+      "close": "Đóng trình chỉnh sửa",
+      "canvas_label": "Vùng vẽ sơ đồ",
+      "node_label": "{label} ({type}). Kéo hoặc dùng phím mũi tên để di chuyển.",
+      "canvas_help": "Kéo các nút, hoặc chọn một nút và dùng phím mũi tên (Shift = bước lớn hơn). Di chuyển chỉ thay đổi bố cục.",
+      "version": "Phiên bản {version}",
+      "no_change": "Không có gì thay đổi.",
+      "layout_only": "Đã lưu – chỉ bố cục. Ý nghĩa của sơ đồ không thay đổi.",
+      "semantic_change": "Đã lưu – ý nghĩa đã thay đổi. Một đề xuất diễn giải đã được tạo.",
+      "diff_summary": "Nút: +{nodesAdded} −{nodesRemoved} ~{nodesChanged} · Cạnh: +{edgesAdded} −{edgesRemoved} ~{edgesChanged}",
+      "pending_interpretation": "Diễn giải đang chờ",
+      "not_a_requirement": "Chỉ là diễn giải – không có gì trở thành yêu cầu cho đến khi một người chấp nhận.",
+      "uncertainty": "Mức độ không chắc chắn: {level}",
+      "questions": "Câu hỏi về các cạnh không rõ ràng",
+      "suggested_criteria": "Tiêu chí chấp nhận được gợi ý",
+      "impacts": "Tác động có thể xảy ra",
+      "needs_package": "Liên kết sơ đồ với một gói công việc để chấp nhận tiêu chí.",
+      "accept": "Chấp nhận mục đã chọn",
+      "accepted": "Đã chấp nhận diễn giải",
+      "nodes": "Nút",
+      "add_node": "Thêm nút",
+      "new_node": "Nút mới",
+      "label": "Nhãn",
+      "type": "Loại",
+      "remove_node": "Xóa {label}",
+      "edges": "Cạnh",
+      "add_edge": "Thêm cạnh",
+      "remove_edge": "Xóa cạnh",
+      "direction": "Hướng",
+      "directions": {
+        "forward": "Một chiều (→)",
+        "both": "Hai chiều (↔)",
+        "unknown": "Không rõ (?)"
+      },
+      "ambiguous_edge": "Không rõ ràng: thêm loại hoặc nhãn và một hướng rõ ràng.",
+      "source": "Từ",
+      "target": "Đến"
     }
   }
 }

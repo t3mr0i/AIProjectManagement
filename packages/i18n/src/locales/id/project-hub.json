@@ -144,7 +144,9 @@
       "sync_conflict": "Konflik sinkronisasi",
       "stale_evidence": "Bukti usang",
       "integration_offline": "Integrasi offline",
-      "native_done_without_delivery": "Selesai tanpa bukti pengiriman"
+      "native_done_without_delivery": "Selesai tanpa bukti pengiriman",
+      "native_done_without_delivery_evidence": "Selesai tanpa bukti pengiriman",
+      "merge_pending_confirmation": "Merge menunggu konfirmasi"
     },
     "trust": {
       "local_self_report": "Laporan mandiri lokal",
@@ -228,7 +230,16 @@
       "draft_saved": "Draf disimpan",
       "unsaved_changes": "Perubahan belum disimpan",
       "version": "Versi draf {version}",
-      "readonly": "Anda dapat membaca brief ini tetapi tidak dapat mengeditnya."
+      "readonly": "Anda dapat membaca brief ini tetapi tidak dapat mengeditnya.",
+      "scope_hint": "Satu item per baris. Kesiapan memerlukan setidaknya satu item dalam cakupan.",
+      "verification": "Verifikasi untuk kriteria {index}",
+      "verifications": {
+        "ci": "Pemeriksaan CI",
+        "manual": "Tinjauan manual",
+        "runner": "Runner",
+        "any": "Bukti apa pun"
+      },
+      "risk_notes_hint": "Wajib untuk paket mendalam: apa yang bisa salah dan bagaimana mitigasinya."
     },
     "readiness": {
       "title": "Kesiapan",
@@ -309,7 +320,8 @@
       "continue": "Lanjutkan",
       "closed": "Klarifikasi selesai.",
       "open_blockers": "Hambatan terbuka",
-      "summary": "Ringkasan"
+      "summary": "Ringkasan",
+      "draft_ready": "Draf usulan sudah siap. Tinjau di bawah – belum ada yang diterapkan."
     },
     "proposals": {
       "title": "Usulan AI",
@@ -329,7 +341,8 @@
         "accepted": "Diterima",
         "rejected": "Ditolak",
         "stale": "Usang"
-      }
+      },
+      "patch_field": "Bidang: {field}"
     },
     "changes": {
       "records": "Catatan perubahan",
@@ -425,7 +438,8 @@
       "external_value": "Nilai eksternal",
       "keep_platform": "Pertahankan nilai platform",
       "keep_external": "Pertahankan nilai eksternal",
-      "changed_at": "diubah {time}"
+      "changed_at": "diubah {time}",
+      "manifest": "Manifest {hash}"
     },
     "review": {
       "intent": "Tujuan yang disetujui",
@@ -472,7 +486,32 @@
       "no_capability_review": "Anda tidak memiliki kapabilitas untuk tinjauan ini.",
       "no_capability_merge": "Anda tidak memiliki kapabilitas untuk meminta merge.",
       "recorded": "Keputusan tinjauan dicatat",
-      "select_mr": "Merge request"
+      "select_mr": "Merge request",
+      "change_counts": "{mrs} merge request · {commits} commit",
+      "commit_claims": "Pesan commit (klaim, bukan bukti)",
+      "required_trust": "Memerlukan bukti dari: {trust}",
+      "trust_level": {
+        "trusted_ci": "CI tepercaya",
+        "human": "tinjauan manusia",
+        "runner": "runner",
+        "any": "sumber apa pun"
+      },
+      "open_point": {
+        "criterion_not_proven": "Kriteria belum terbukti: {criterion} ({reason})",
+        "code_review_required": "Tinjauan kode diperlukan untuk head {sha}",
+        "code_review_invalidated": "Tinjauan kode tidak berlaku lagi karena commit baru (head {sha})",
+        "open_question": "Pertanyaan terbuka: {title}",
+        "outcome_acceptance_missing": "Penerimaan hasil belum ada",
+        "no_approved_revision": "Tidak ada revisi yang disetujui",
+        "revision_changed_since_approval": "Revisi telah berubah sejak disetujui"
+      },
+      "validity": {
+        "valid": "Valid",
+        "changes_requested": "Perubahan diminta",
+        "invalidated": "Tidak berlaku",
+        "stale_revision": "Untuk revisi yang lebih lama",
+        "stale_head": "Untuk commit yang lebih lama"
+      }
     },
     "history": {
       "timeline": "Aktivitas paket",
@@ -498,7 +537,8 @@
       "aggregate": "Keseluruhan: {state}",
       "aggregate_rule": "Aturan: {rule}",
       "deployed_not_released": "Di-deploy tanpa rilis yang diketahui — belum tentu tersedia untuk semua pengguna.",
-      "history_title": "Riwayat (termasuk rollback)"
+      "history_title": "Riwayat (termasuk rollback)",
+      "local_state_unknown": "Status di komputer developer tidak diketahui."
     },
     "discussion": {
       "title": "Diskusi",
@@ -533,7 +573,8 @@
       "ai_badge": "AI",
       "ai_answer_hint": "Jawaban AI — bukan keputusan",
       "mark_read": "Tandai sudah dibaca",
-      "system": "Sistem"
+      "system": "Sistem",
+      "private_source": "Berdasarkan sumber pribadi; hanya teks yang dikonfirmasi yang dibagikan."
     },
     "activity": {
       "title": "Aktivitas",
@@ -620,7 +661,12 @@
       "successor": "Penerus",
       "project_filter": "Proyek",
       "created": "Milestone dibuat",
-      "uncertain": "Tidak pasti"
+      "uncertain": "Tidak pasti",
+      "dependency_create": "Tambah dependensi",
+      "late_by": "Terlambat {hours} jam (perkiraan {date})",
+      "not_late": "Tidak terlambat",
+      "via": "Melalui {path}",
+      "impact_basis_deps": "Dihitung hanya dari dependensi dan tanggal yang dapat diandalkan. Rencana tidak diubah."
     },
     "knowledge": {
       "title": "Pengetahuan",
@@ -643,7 +689,20 @@
       "decisions": "Keputusan",
       "decisions_empty": "Belum ada keputusan.",
       "search_placeholder": "Cari di proyek ini",
-      "search_empty": "Tidak ada hasil yang dapat diakses."
+      "search_empty": "Tidak ada hasil yang dapat diakses.",
+      "register": "Daftarkan lampiran",
+      "register_submit": "Daftarkan",
+      "register_hint": "Pilih lampiran yang sudah ada di proyek ini. Lampiran akan dipindai dan diklasifikasikan; tidak ada yang diunggah ulang.",
+      "candidates": "Lampiran",
+      "candidates_empty": "Tidak ada lampiran yang belum terdaftar di proyek ini.",
+      "filename": "Nama file",
+      "declared_mime": "Tipe yang dinyatakan (MIME)",
+      "declared_mime_hint": "Tipe yang terdeteksi oleh pemindaian lebih diutamakan.",
+      "not_uploaded": "unggahan belum lengkap",
+      "registered": "{name} terdaftar",
+      "quarantined_warning": "Dikarantina – jangan buka atau bagikan. Konten diblokir.",
+      "format_blocked": "Diblokir (dikarantina)",
+      "mime": "Tipe MIME"
     },
     "overview": {
       "title": "Ringkasan",
@@ -689,7 +748,8 @@
         "page": "Halaman",
         "message": "Pesan",
         "event": "Peristiwa",
-        "upload": "Unggahan"
+        "upload": "Unggahan",
+        "issue": "Item kerja"
       }
     },
     "settings": {
@@ -732,7 +792,8 @@
         "supported": "Didukung",
         "partial": "Sebagian",
         "unsupported": "Tidak didukung",
-        "unknown": "Tidak diketahui"
+        "unknown": "Tidak diketahui",
+        "requires_configuration": "Memerlukan konfigurasi"
       },
       "connections": "Koneksi",
       "connections_empty": "Tidak ada koneksi.",
@@ -752,7 +813,8 @@
         "active": "Aktif",
         "degraded": "Menurun",
         "offline": "Offline",
-        "disabled": "Dinonaktifkan"
+        "disabled": "Dinonaktifkan",
+        "stale": "Usang"
       },
       "reconcile": "Rekonsiliasi",
       "reconcile_started": "Rekonsiliasi diterima (berjalan di latar belakang)",
@@ -790,6 +852,52 @@
       "project_plan": "Rencanakan proyek",
       "integration_manage": "Kelola integrasi",
       "workspace_admin": "Kelola Project Hub"
+    },
+    "diagram": {
+      "title": "Diagram",
+      "description": "Diagram terstruktur: node dan edge membawa makna, posisi hanya untuk tata letak.",
+      "create": "Diagram baru",
+      "name": "Nama",
+      "empty": "Belum ada diagram.",
+      "counts": "{nodes} node · {edges} edge",
+      "unlinked": "Tidak ditautkan ke paket kerja",
+      "open": "Buka editor",
+      "close": "Tutup editor",
+      "canvas_label": "Kanvas diagram",
+      "node_label": "{label} ({type}). Seret atau gunakan tombol panah untuk memindahkan.",
+      "canvas_help": "Seret node, atau fokuskan satu node dan gunakan tombol panah (Shift = langkah lebih besar). Memindahkan hanya mengubah tata letak.",
+      "version": "Versi {version}",
+      "no_change": "Tidak ada yang berubah.",
+      "layout_only": "Tersimpan – hanya tata letak. Makna diagram tidak berubah.",
+      "semantic_change": "Tersimpan – maknanya berubah. Usulan interpretasi telah dibuat.",
+      "diff_summary": "Node: +{nodesAdded} −{nodesRemoved} ~{nodesChanged} · Edge: +{edgesAdded} −{edgesRemoved} ~{edgesChanged}",
+      "pending_interpretation": "Interpretasi tertunda",
+      "not_a_requirement": "Hanya interpretasi – tidak ada yang menjadi persyaratan sampai seseorang menerimanya.",
+      "uncertainty": "Ketidakpastian: {level}",
+      "questions": "Pertanyaan tentang edge yang ambigu",
+      "suggested_criteria": "Kriteria penerimaan yang disarankan",
+      "impacts": "Kemungkinan dampak",
+      "needs_package": "Tautkan diagram ke paket kerja untuk menerima kriteria.",
+      "accept": "Terima yang dipilih",
+      "accepted": "Interpretasi diterima",
+      "nodes": "Node",
+      "add_node": "Tambah node",
+      "new_node": "Node baru",
+      "label": "Label",
+      "type": "Tipe",
+      "remove_node": "Hapus {label}",
+      "edges": "Edge",
+      "add_edge": "Tambah edge",
+      "remove_edge": "Hapus edge",
+      "direction": "Arah",
+      "directions": {
+        "forward": "Satu arah (→)",
+        "both": "Dua arah (↔)",
+        "unknown": "Tidak jelas (?)"
+      },
+      "ambiguous_edge": "Ambigu: tambahkan tipe atau label dan arah yang jelas.",
+      "source": "Dari",
+      "target": "Ke"
     }
   }
 }

@@ -49,8 +49,12 @@ class Command(BaseCommand):
         now = timezone.now()
 
         with transaction.atomic():
-            owner = User.objects.create(email=f"load-owner-{uuid.uuid4().hex[:6]}@example.test", username=uuid.uuid4().hex[:12])
-            ws = Workspace.objects.create(name="[load] Testprofil A", slug=f"{opts['slug']}-{uuid.uuid4().hex[:4]}", owner=owner)
+            owner = User.objects.create(
+                email=f"load-owner-{uuid.uuid4().hex[:6]}@example.test", username=uuid.uuid4().hex[:12]
+            )
+            ws = Workspace.objects.create(
+                name="[load] Testprofil A", slug=f"{opts['slug']}-{uuid.uuid4().hex[:4]}", owner=owner
+            )
             users = [owner] + [
                 User(email=f"load-{i}-{uuid.uuid4().hex[:6]}@example.test", username=uuid.uuid4().hex[:12])
                 for i in range(n["users"] - 1)
@@ -85,10 +89,14 @@ class Command(BaseCommand):
                 [PackageProfile(issue=x, project_id=x.project_id, workspace=ws, intent="load") for x in chunk]
             )
 
-        convs = [Conversation.objects.create(workspace=ws, project=p, kind="project", title="general") for p in projects]
+        convs = [
+            Conversation.objects.create(workspace=ws, project=p, kind="project", title="general") for p in projects
+        ]
         for c in convs:
             members = ProjectMember.objects.filter(project_id=c.project_id).values_list("member_id", flat=True)
-            ConversationParticipant.objects.bulk_create([ConversationParticipant(conversation=c, member_id=m) for m in members])
+            ConversationParticipant.objects.bulk_create(
+                [ConversationParticipant(conversation=c, member_id=m) for m in members]
+            )
         msgs = [
             Message(conversation=convs[i % len(convs)], workspace=ws, author=owner, body=f"[load] message {i}")
             for i in range(n["messages"])
@@ -96,7 +104,13 @@ class Command(BaseCommand):
         for chunk in _chunks(msgs):
             Message.objects.bulk_create(chunk)
 
-        types = ["ci.check.observed", "git.commit.observed", "run.progress", "git.merge.observed", "deployment.observed"]
+        types = [
+            "ci.check.observed",
+            "git.commit.observed",
+            "run.progress",
+            "git.merge.observed",
+            "deployment.observed",
+        ]
         created = 0
         while created < n["events"]:
             batch = []
@@ -105,11 +119,23 @@ class Command(BaseCommand):
                 t = now - timedelta(minutes=rnd.randrange(60 * 24 * 90))
                 batch.append(
                     DomainEvent(
-                        workspace=ws, project_id=issue.project_id, issue=issue, event_type=rnd.choice(types),
-                        aggregate_type="package", aggregate_id=issue.id, occurred_at=t, received_at=t,
-                        correlation_id=uuid.uuid4(), deduplication_key=f"load:{uuid.uuid4()}", source_kind="provider",
-                        source_id="load", source_instance_id="load", actor_kind="system", actor_id="load",
-                        is_fixture=True, summary="[load] fixture event",
+                        workspace=ws,
+                        project_id=issue.project_id,
+                        issue=issue,
+                        event_type=rnd.choice(types),
+                        aggregate_type="package",
+                        aggregate_id=issue.id,
+                        occurred_at=t,
+                        received_at=t,
+                        correlation_id=uuid.uuid4(),
+                        deduplication_key=f"load:{uuid.uuid4()}",
+                        source_kind="provider",
+                        source_id="load",
+                        source_instance_id="load",
+                        actor_kind="system",
+                        actor_id="load",
+                        is_fixture=True,
+                        summary="[load] fixture event",
                     )
                 )
             DomainEvent.objects.bulk_create(batch)

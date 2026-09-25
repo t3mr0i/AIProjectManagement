@@ -144,7 +144,9 @@
       "sync_conflict": "Conflict de sincronizare",
       "stale_evidence": "Dovezi învechite",
       "integration_offline": "Integrare offline",
-      "native_done_without_delivery": "Finalizat fără dovezi de livrare"
+      "native_done_without_delivery": "Finalizat fără dovezi de livrare",
+      "native_done_without_delivery_evidence": "Finalizat fără dovezi de livrare",
+      "merge_pending_confirmation": "Îmbinare în așteptarea confirmării"
     },
     "trust": {
       "local_self_report": "Auto-raportare locală",
@@ -228,7 +230,16 @@
       "draft_saved": "Ciorna a fost salvată",
       "unsaved_changes": "Modificări nesalvate",
       "version": "Versiunea ciornei {version}",
-      "readonly": "Puteți citi acest brief, dar nu îl puteți edita."
+      "readonly": "Puteți citi acest brief, dar nu îl puteți edita.",
+      "scope_hint": "Un element pe linie. Pregătirea necesită cel puțin un element inclus în domeniu.",
+      "verification": "Verificare pentru criteriul {index}",
+      "verifications": {
+        "ci": "Verificare CI",
+        "manual": "Revizuire manuală",
+        "runner": "Runner",
+        "any": "Orice dovadă"
+      },
+      "risk_notes_hint": "Obligatoriu pentru pachetele detaliate: ce poate merge prost și cum este atenuat."
     },
     "readiness": {
       "title": "Pregătire",
@@ -309,7 +320,8 @@
       "continue": "Continuați",
       "closed": "Clarificare încheiată.",
       "open_blockers": "Blocaje deschise",
-      "summary": "Rezumat"
+      "summary": "Rezumat",
+      "draft_ready": "O ciornă de propunere este gata. Examinați-o mai jos – încă nu s-a aplicat nimic."
     },
     "proposals": {
       "title": "Propuneri AI",
@@ -329,7 +341,8 @@
         "accepted": "Acceptată",
         "rejected": "Respinsă",
         "stale": "Învechită"
-      }
+      },
+      "patch_field": "Câmp: {field}"
     },
     "changes": {
       "records": "Înregistrări de modificări",
@@ -425,7 +438,8 @@
       "external_value": "Valoare externă",
       "keep_platform": "Păstrați valoarea din platformă",
       "keep_external": "Păstrați valoarea externă",
-      "changed_at": "modificat {time}"
+      "changed_at": "modificat {time}",
+      "manifest": "Manifest {hash}"
     },
     "review": {
       "intent": "Obiectiv aprobat",
@@ -472,7 +486,32 @@
       "no_capability_review": "Nu aveți capabilitatea pentru această revizuire.",
       "no_capability_merge": "Nu aveți capabilitatea de a solicita o îmbinare.",
       "recorded": "Decizia de revizuire a fost înregistrată",
-      "select_mr": "Cerere de îmbinare"
+      "select_mr": "Cerere de îmbinare",
+      "change_counts": "Cereri de îmbinare: {mrs} · Commit-uri: {commits}",
+      "commit_claims": "Mesaje de commit (afirmații, nu dovezi)",
+      "required_trust": "Necesită dovezi de la: {trust}",
+      "trust_level": {
+        "trusted_ci": "CI de încredere",
+        "human": "revizuire umană",
+        "runner": "runner",
+        "any": "orice sursă"
+      },
+      "open_point": {
+        "criterion_not_proven": "Criteriu nedovedit: {criterion} ({reason})",
+        "code_review_required": "Este necesară revizuirea codului pentru head-ul {sha}",
+        "code_review_invalidated": "Revizuirea codului a fost invalidată de commit-uri noi (head {sha})",
+        "open_question": "Întrebare deschisă: {title}",
+        "outcome_acceptance_missing": "Lipsește acceptarea rezultatului",
+        "no_approved_revision": "Nicio revizie aprobată",
+        "revision_changed_since_approval": "Revizia s-a modificat după aprobare"
+      },
+      "validity": {
+        "valid": "Validă",
+        "changes_requested": "Modificări solicitate",
+        "invalidated": "Invalidată",
+        "stale_revision": "Pentru o revizie mai veche",
+        "stale_head": "Pentru un commit mai vechi"
+      }
     },
     "history": {
       "timeline": "Activitatea pachetului",
@@ -498,7 +537,8 @@
       "aggregate": "Total: {state}",
       "aggregate_rule": "Regulă: {rule}",
       "deployed_not_released": "Implementat fără o lansare cunoscută — nu este neapărat disponibil pentru toți utilizatorii.",
-      "history_title": "Istoric (inclusiv reveniri)"
+      "history_title": "Istoric (inclusiv reveniri)",
+      "local_state_unknown": "Starea de pe calculatoarele dezvoltatorilor este necunoscută."
     },
     "discussion": {
       "title": "Discuție",
@@ -533,7 +573,8 @@
       "ai_badge": "AI",
       "ai_answer_hint": "Răspuns AI — nu este o decizie",
       "mark_read": "Marcați ca citit",
-      "system": "Sistem"
+      "system": "Sistem",
+      "private_source": "Bazat pe o sursă privată; se partajează doar textul confirmat."
     },
     "activity": {
       "title": "Activitate",
@@ -620,7 +661,12 @@
       "successor": "Succesor",
       "project_filter": "Proiecte",
       "created": "Etapa a fost creată",
-      "uncertain": "Incert"
+      "uncertain": "Incert",
+      "dependency_create": "Adăugați dependență",
+      "late_by": "Întârziere de {hours} h (estimat {date})",
+      "not_late": "Fără întârziere",
+      "via": "Prin {path}",
+      "impact_basis_deps": "Calculat doar pe baza dependențelor și a datelor sigure. Planul nu se modifică."
     },
     "knowledge": {
       "title": "Cunoștințe",
@@ -643,7 +689,20 @@
       "decisions": "Decizii",
       "decisions_empty": "Nicio decizie încă.",
       "search_placeholder": "Căutați în acest proiect",
-      "search_empty": "Niciun rezultat accesibil."
+      "search_empty": "Niciun rezultat accesibil.",
+      "register": "Înregistrați atașamentul",
+      "register_submit": "Înregistrați",
+      "register_hint": "Alegeți un atașament existent al acestui proiect. Acesta este scanat și clasificat; nimic nu este încărcat din nou.",
+      "candidates": "Atașamente",
+      "candidates_empty": "Niciun atașament neînregistrat în acest proiect.",
+      "filename": "Nume fișier",
+      "declared_mime": "Tip declarat (MIME)",
+      "declared_mime_hint": "Tipul detectat la scanare are prioritate.",
+      "not_uploaded": "încărcare incompletă",
+      "registered": "{name} a fost înregistrat",
+      "quarantined_warning": "În carantină – nu deschideți și nu partajați. Conținutul este blocat.",
+      "format_blocked": "Blocat (carantină)",
+      "mime": "Tip MIME"
     },
     "overview": {
       "title": "Prezentare generală",
@@ -689,7 +748,8 @@
         "page": "Pagină",
         "message": "Mesaj",
         "event": "Eveniment",
-        "upload": "Încărcare"
+        "upload": "Încărcare",
+        "issue": "Element de lucru"
       }
     },
     "settings": {
@@ -732,7 +792,8 @@
         "supported": "Acceptat",
         "partial": "Parțial",
         "unsupported": "Neacceptat",
-        "unknown": "Necunoscut"
+        "unknown": "Necunoscut",
+        "requires_configuration": "Necesită configurare"
       },
       "connections": "Conexiuni",
       "connections_empty": "Nicio conexiune.",
@@ -752,7 +813,8 @@
         "active": "Activ",
         "degraded": "Degradat",
         "offline": "Offline",
-        "disabled": "Dezactivat"
+        "disabled": "Dezactivat",
+        "stale": "Învechită"
       },
       "reconcile": "Reconciliați",
       "reconcile_started": "Reconcilierea a fost acceptată (rulează în fundal)",
@@ -790,6 +852,52 @@
       "project_plan": "Planificarea proiectului",
       "integration_manage": "Gestionarea integrărilor",
       "workspace_admin": "Administrarea Project Hub"
+    },
+    "diagram": {
+      "title": "Diagrame",
+      "description": "Diagrame structurate: nodurile și muchiile au semnificație, pozițiile țin doar de aspect.",
+      "create": "Diagramă nouă",
+      "name": "Nume",
+      "empty": "Nicio diagramă încă.",
+      "counts": "Noduri: {nodes} · Muchii: {edges}",
+      "unlinked": "Nelegată de un pachet de lucru",
+      "open": "Deschideți editorul",
+      "close": "Închideți editorul",
+      "canvas_label": "Planșa diagramei",
+      "node_label": "{label} ({type}). Trageți sau folosiți tastele săgeți pentru a muta.",
+      "canvas_help": "Trageți nodurile sau focalizați unul și folosiți tastele săgeți (Shift = pași mai mari). Mutarea modifică doar aspectul.",
+      "version": "Versiunea {version}",
+      "no_change": "Nu s-a modificat nimic.",
+      "layout_only": "Salvat – doar aspectul. Semnificația diagramei nu s-a modificat.",
+      "semantic_change": "Salvat – semnificația s-a modificat. A fost creată o propunere de interpretare.",
+      "diff_summary": "Noduri: +{nodesAdded} −{nodesRemoved} ~{nodesChanged} · Muchii: +{edgesAdded} −{edgesRemoved} ~{edgesChanged}",
+      "pending_interpretation": "Interpretare în așteptare",
+      "not_a_requirement": "Doar o interpretare – nimic nu devine cerință până când o persoană nu o acceptă.",
+      "uncertainty": "Incertitudine: {level}",
+      "questions": "Întrebări despre muchii ambigue",
+      "suggested_criteria": "Criterii de acceptare sugerate",
+      "impacts": "Impacturi posibile",
+      "needs_package": "Legați diagrama de un pachet de lucru pentru a accepta criterii.",
+      "accept": "Acceptați selecția",
+      "accepted": "Interpretare acceptată",
+      "nodes": "Noduri",
+      "add_node": "Adăugați nod",
+      "new_node": "Nod nou",
+      "label": "Etichetă",
+      "type": "Tip",
+      "remove_node": "Eliminați {label}",
+      "edges": "Muchii",
+      "add_edge": "Adăugați muchie",
+      "remove_edge": "Eliminați muchia",
+      "direction": "Direcție",
+      "directions": {
+        "forward": "Într-un sens (→)",
+        "both": "În ambele sensuri (↔)",
+        "unknown": "Neclar (?)"
+      },
+      "ambiguous_edge": "Ambiguă: adăugați un tip sau o etichetă și o direcție clară.",
+      "source": "De la",
+      "target": "Către"
     }
   }
 }
