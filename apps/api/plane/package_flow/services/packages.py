@@ -822,7 +822,69 @@ def _delivery_summary(issue):
     }
 
 
-def compute_package_status(issue, profile=None) -> dict:
+def batch_status_facts(issues):
+    """Precompute status inputs for many issues in a constant number of queries (NFR-01).
+
+    Returns ``{issue_id: facts}`` consumed by ``compute_package_status(..., facts=...)``.
+    Semantics are identical to the per-issue queries; issues without any delivery
+    signal skip the (expensive) delivery projection because it would be ``unknown``.
+    """
+    from ..models import Delivery, ExecutionRun, ExternalLink, MergeRequestLink, SyncConflict
+
+    ids = [i.id for i in issues]
+    if not ids:
+        return {}
+    now = timezone.now()
+    approved = {
+        (row[0], row[1])
+        for row in ExecutionApproval.objects.filter(
+            issue_id__in=ids, revoked_at__isnull=True, expires_at__gt=now, deleted_at__isnull=True
+        ).values_list("issue_id", "revision_id")
+    }
+    runs = {}
+    for issue_id, run_status, pause_reason in ExecutionRun.objects.filter(
+        issue_id__in=ids, deleted_at__isnull=True
+    ).values_list("issue_id", "status", "pause_reason"):
+        entry = runs.setdefault(issue_id, {"active": False, "finished": False, "questions": 0})
+        entry["active"] |= run_status in ACTIVE_RUN_STATUSES
+        entry["finished"] |= run_status == "finished"
+        if run_status == "waiting" and pause_reason == "question":
+            entry["questions"] += 1
+    mr_rows = list(
+        MergeRequestLink.objects.filter(issue_id__in=ids, deleted_at__isnull=True).values_list("issue_id", "state")
+    )
+    open_mr = {i for i, st in mr_rows if st == "open"}
+    outcome_ok = set(
+        ReviewApproval.objects.filter(
+            issue_id__in=ids,
+            kind=ReviewApproval.Kind.OUTCOME,
+            decision="approved",
+            invalidated_at__isnull=True,
+            deleted_at__isnull=True,
+        ).values_list("issue_id", flat=True)
+    )
+    signals = {i for i, _ in mr_rows}
+    for model in (Delivery, ExternalLink, SyncConflict):
+        signals |= set(model.objects.filter(issue_id__in=ids, deleted_at__isnull=True).values_list("issue_id", flat=True))
+    facts = {}
+    for issue in issues:
+        profile = getattr(issue, "package_profile", None)
+        run = runs.get(issue.id, {"active": False, "finished": False, "questions": 0})
+        facts[issue.id] = {
+            "has_valid_approval": bool(profile and profile.approved_revision_id)
+            and (issue.id, profile.approved_revision_id) in approved,
+            "active_run": run["active"],
+            "finished_run": run["finished"],
+            "open_questions": run["questions"],
+            "open_mr": issue.id in open_mr,
+            "outcome_ok": issue.id in outcome_ok,
+            # An approved revision may name repositories -> needs the full projection.
+            "needs_delivery": issue.id in signals or bool(profile and profile.approved_revision_id),
+        }
+    return facts
+
+
+def compute_package_status(issue, profile=None, facts=None) -> dict:
     """Read-model projection; never a second manually maintained status copy (§8.1)."""
     from ..models import ExecutionRun, MergeRequestLink
 
@@ -843,24 +905,38 @@ def compute_package_status(issue, profile=None) -> dict:
         }
     explanations = []
     flags = [f for f in (profile.flags or []) if isinstance(f, str)]
-    delivery = _delivery_summary(issue)
+    if facts is not None and not facts["needs_delivery"]:
+        # No MR, delivery, link, conflict or approved repository scope: projection is "unknown".
+        state_group = native_group
+        delivery = {
+            "delivery": "unknown",
+            "repositories": [],
+            "flags": ["native_done_without_delivery_evidence"] if state_group == "completed" else [],
+        }
+    else:
+        delivery = _delivery_summary(issue)
     for f in delivery["flags"]:
         if f not in flags:
             flags.append(f)
     delivery_state = delivery["delivery"]
 
-    approval = valid_approval_for(issue, profile)
-    runs = ExecutionRun.objects.filter(issue_id=issue.id, deleted_at__isnull=True)
-    active_run = runs.filter(status__in=ACTIVE_RUN_STATUSES).exists()
-    finished_run = runs.filter(status="finished").exists()
-    open_mr = MergeRequestLink.objects.filter(issue_id=issue.id, state="open", deleted_at__isnull=True).exists()
-    outcome_ok = ReviewApproval.objects.filter(
-        issue_id=issue.id,
-        kind=ReviewApproval.Kind.OUTCOME,
-        decision="approved",
-        invalidated_at__isnull=True,
-        deleted_at__isnull=True,
-    ).exists()
+    if facts is not None:
+        approval = True if facts["has_valid_approval"] else None
+        active_run, finished_run = facts["active_run"], facts["finished_run"]
+        open_mr, outcome_ok = facts["open_mr"], facts["outcome_ok"]
+    else:
+        approval = valid_approval_for(issue, profile)
+        runs = ExecutionRun.objects.filter(issue_id=issue.id, deleted_at__isnull=True)
+        active_run = runs.filter(status__in=ACTIVE_RUN_STATUSES).exists()
+        finished_run = runs.filter(status="finished").exists()
+        open_mr = MergeRequestLink.objects.filter(issue_id=issue.id, state="open", deleted_at__isnull=True).exists()
+        outcome_ok = ReviewApproval.objects.filter(
+            issue_id=issue.id,
+            kind=ReviewApproval.Kind.OUTCOME,
+            decision="approved",
+            invalidated_at__isnull=True,
+            deleted_at__isnull=True,
+        ).exists()
     is_code = profile.package_type == PackageProfile.PackageType.CODE
 
     if is_code:
@@ -944,9 +1020,10 @@ def list_packages(user, workspace_id, project_ids, view="all"):
         "issue_id", "assignee_id"
     ):
         assignees.setdefault(row[0], []).append(str(row[1]))
+    facts = batch_status_facts(issues)
     rows = []
     for issue in issues:
-        status = compute_package_status(issue, issue.package_profile)
+        status = compute_package_status(issue, issue.package_profile, facts=facts[issue.id])
         if view != "all" and status["phase"] != view:
             continue
         rows.append(
@@ -960,7 +1037,7 @@ def list_packages(user, workspace_id, project_ids, view="all"):
                 "is_draft": issue.is_draft,
                 "assignee_ids": assignees.get(issue.id, []),
                 "updated_at": issue.updated_at.isoformat() if issue.updated_at else None,
-                "open_questions": _open_questions(issue),
+                "open_questions": facts[issue.id]["open_questions"],
             }
         )
     return rows

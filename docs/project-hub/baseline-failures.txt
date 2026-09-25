@@ -1,6 +1,8 @@
+plane/tests/contract/api/test_projects_lite.py::TestProjectsLite::test_archived_excluded_by_default
 plane/tests/contract/api/test_projects_lite.py::TestProjectsLite::test_include_archived_returns_all
 plane/tests/contract/api/test_projects_lite.py::TestProjectsLite::test_returns_only_lite_fields
 plane/tests/contract/api/test_projects_lite.py::TestProjectsLite::test_returns_paginated_results
+plane/tests/contract/api/test_projects_lite.py::TestProjectsLite::test_unknown_workspace_is_rejected
 plane/tests/contract/app/test_authentication.py::TestBotUserLoginBlocked::test_bot_magic_sign_in_blocked
 plane/tests/contract/app/test_authentication.py::TestMagicLinkGenerate::test_magic_generate
 plane/tests/contract/app/test_authentication.py::TestMagicSignIn::test_expired_invalid_magic_link

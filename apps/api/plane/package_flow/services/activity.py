@@ -265,12 +265,12 @@ def _local_status(issue):
     return "draft"
 
 
-def package_status(issue):
+def package_status(issue, facts=None):
     """Delegates to the package service; falls back to a minimal local computation."""
     try:
         from .packages import compute_package_status  # noqa: WPS433 (lazy: owned by another workstream)
 
-        status = compute_package_status(issue)
+        status = compute_package_status(issue, facts=facts) if facts is not None else compute_package_status(issue)
     except Exception:
         return _local_status(issue)
     if isinstance(status, dict):
@@ -334,14 +334,22 @@ def unmet_dependencies(user, issue):
 
 
 def overview(user, project):
-    profiles = PackageProfile.objects.filter(project=project, issue__deleted_at__isnull=True).select_related(
-        "issue", "issue__state"
+    profiles = list(
+        PackageProfile.objects.filter(project=project, issue__deleted_at__isnull=True).select_related(
+            "issue", "issue__state", "issue__project", "issue__package_profile"
+        )
     )
+    try:
+        from .packages import batch_status_facts
+
+        facts = batch_status_facts([p.issue for p in profiles])
+    except Exception:  # noqa: BLE001 - fall back to per-issue computation
+        facts = {}
     buckets = {"active": [], "ready": [], "review": [], "shipped": [], "draft": []}
     candidates = []
     for profile in profiles:
         issue = profile.issue
-        status = package_status(issue)
+        status = package_status(issue, facts.get(issue.id))
         bucket = bucket_for(status)
         item = {
             "issue_id": str(issue.id),
@@ -354,10 +362,25 @@ def overview(user, project):
         if bucket not in ("shipped", "active", "review"):
             candidates.append((issue, item))
 
+    candidate_ids = [issue.id for issue, _ in candidates]
+    now = timezone.now()
+    approved_ids = set(
+        ExecutionApproval.objects.filter(
+            issue_id__in=candidate_ids, revoked_at__isnull=True, expires_at__gt=now
+        ).values_list("issue_id", flat=True)
+    )
+    with_deps = set(
+        PlanningDependency.objects.filter(
+            successor_type=PlanningDependency.NodeType.ISSUE,
+            successor_id__in=candidate_ids,
+            strength=PlanningDependency.Strength.HARD,
+            confirmation=PlanningDependency.Confirmation.CONFIRMED,
+        ).values_list("successor_id", flat=True)
+    )
     next_work = []
     for issue, item in candidates:
-        approved = _is_approved(issue)
-        blockers = unmet_dependencies(user, issue)
+        approved = issue.id in approved_ids
+        blockers = unmet_dependencies(user, issue) if issue.id in with_deps else []
         reasons = [f"Priority: {issue.priority or 'none'} (native Plane priority)"]
         reasons.append("Execution approved" if approved else "Execution not yet approved")
         if blockers:

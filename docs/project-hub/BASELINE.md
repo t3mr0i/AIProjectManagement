@@ -26,7 +26,7 @@ Result on the unmodified fork start commit: **571 passed, 15 failed**.
 The 15 failures are **baseline failures of this environment**, not caused by the extension (the extension did not exist yet when they were recorded) and are therefore not counted as our own successful or failed tests:
 
 - `plane/tests/contract/app/test_authentication.py` — 12 magic-link sign-in/sign-up tests (`TestMagicLinkGenerate`, `TestMagicSignIn`, `TestMagicSignUp`, `TestMagicSign*VerifyAttempts`, `TestBotUserLoginBlocked::test_bot_magic_sign_in_blocked`): magic-code generation returns HTTP 400 in this environment (instance/SMTP configuration of the local, non-Docker setup).
-- `plane/tests/contract/api/test_projects_lite.py` — 3 tests (`test_returns_paginated_results`, `test_returns_only_lite_fields`, `test_include_archived_returns_all`).
+- `plane/tests/contract/api/test_projects_lite.py` — 3 tests fail **only in the full-suite run** (test-order dependent: which 3 of its 5 tests fail varies between runs); all 5 pass when the module runs alone (verified 3× before and after the extension). All 5 are listed in `baseline-failures.txt` as order-dependent baseline tests.
 
 They must be re-checked inside the official `docker-compose-test.yml` stack before a pilot (see `RUNNING_TESTS.md`).
 
