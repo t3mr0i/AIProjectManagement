@@ -1,3 +1,7 @@
+# Copyright (c) 2023-present Plane Software, Inc. and contributors
+# SPDX-License-Identifier: AGPL-3.0-only
+# See the LICENSE file for details.
+
 """Validate documents and synthetic contracts, not a running Plane application."""
 from __future__ import annotations
 import copy, difflib, json, re
