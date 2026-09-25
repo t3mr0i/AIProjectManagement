@@ -1,0 +1,67 @@
+# Mirrors makeplane/plane `preview` into `upstream/plane-preview` and opens a
+# pull request into our integration branch `preview` when upstream has new
+# commits. The PR is only a proposal: merge it following
+# docs/project-hub/UPSTREAM_BUMP.md (lock update, migration + restore check,
+# regression gate). Nothing is merged automatically.
+name: Upstream sync (makeplane/plane)
+
+on:
+  schedule:
+    - cron: "17 5 * * *" # daily
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: upstream-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview
+          fetch-depth: 0
+
+      - name: Fetch upstream preview
+        run: |
+          git remote add upstream https://github.com/makeplane/plane.git
+          git fetch upstream preview
+
+      - name: Update mirror branch
+        run: |
+          # Fast-forward only: upstream history is never rewritten here.
+          git push origin upstream/preview:refs/heads/upstream/plane-preview
+
+      - name: Open or update sync pull request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NEW=$(git rev-list --count origin/preview..upstream/preview)
+          echo "new upstream commits: $NEW"
+          if [ "$NEW" -eq 0 ]; then
+            exit 0
+          fi
+          EXISTING=$(gh pr list --base preview --head upstream/plane-preview --state open --json number --jq '.[0].number')
+          BODY=$(cat <<'MD'
+          Automated upstream sync from `makeplane/plane@preview`.
+
+          **Do not merge blindly.** Follow `docs/project-hub/UPSTREAM_BUMP.md`:
+
+          - [ ] Review native model/API/editor/route changes and update `docs/project-hub/MUTATION_PATHS.md`
+          - [ ] Update `docs/project-hub/upstream-lock.json` (`implementationCommit` + `upstreamBumps` entry with approver)
+          - [ ] `tools/project-hub/migration_check.sh` and restore rehearsal
+          - [ ] `tools/project-hub/regression.sh` green (baseline failures listed separately)
+          MD
+          )
+          if [ -z "$EXISTING" ]; then
+            gh pr create --base preview --head upstream/plane-preview \
+              --title "chore(upstream): sync makeplane/plane preview ($NEW new commits)" \
+              --body "$BODY" --draft
+          else
+            gh pr edit "$EXISTING" --title "chore(upstream): sync makeplane/plane preview ($NEW new commits)"
+          fi

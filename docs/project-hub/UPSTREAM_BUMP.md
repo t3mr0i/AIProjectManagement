@@ -2,6 +2,12 @@
 
 The fork keeps `makeplane/plane` as a separate remote. A bump is a deliberate change reviewed like any other; `preview` is never pulled implicitly and never deployed directly.
 
+## Branches
+
+- `preview` is the fork's single integration branch (GitHub default). Everything lands here.
+- `upstream/plane-preview` is a read-only mirror of `makeplane/plane@preview`, refreshed daily by `.github/workflows/upstream-sync.yml`. When upstream has new commits, the workflow opens a draft PR `upstream/plane-preview → preview`. That PR is a proposal only and is merged by a human following this runbook.
+- Unmerged upstream PRs are taken only after review, as single commits referencing `makeplane/plane#N` and the author.
+
 ## 0. Preconditions
 
 - Current fork is green: `tools/project-hub/regression.sh` passes (or baseline failures are listed separately).
