@@ -24,7 +24,9 @@ from django.utils import timezone
 from plane.db.models import Issue, Project, User, WorkspaceMember
 
 from ..ai.context import assemble_context, conversation_audience, default_selection_for_conversation
+from ..ai import retrieval
 from ..ai.provider import get_provider
+from ..ai.usage import meta_for
 from ..capabilities import accessible_project_ids, is_project_member
 from ..errors import NotFound, PermissionDenied, ValidationFailed
 from ..models import Conversation, ConversationParticipant, Message, MessageVersion
@@ -263,18 +265,41 @@ def answer_with_ai(user, conversation, trigger, *, selection=None, provider=None
     audience = conversation_audience(conversation)
     implicit = default_selection_for_conversation(conversation, exclude_message_ids=[trigger.id])
     explicit = list(selection or [])
+    question = AI_MENTION.sub("", trigger.body).strip()
+    provider = provider or get_provider()
+    retrieved = []
+    if conversation.kind != Conversation.Kind.DIRECT and conversation.project_id and question:
+        # Relevant sources beyond the thread; still audience-checked below (FR-C02).
+        retrieved = retrieval.retrieve(
+            user,
+            conversation.workspace,
+            question,
+            project_ids=[conversation.project_id],
+            limit=6,
+            exclude=explicit + implicit,
+            provider=provider,
+        )
     ctx = assemble_context(
         requester=user,
         workspace_id=conversation.workspace_id,
         audience_ids=audience,
-        selection=explicit + implicit,
+        selection=explicit + implicit + retrieved,
     )
-    question = AI_MENTION.sub("", trigger.body).strip()
-    provider = provider or get_provider()
-    result = provider.complete("answer", [{"role": "user", "content": question}] + ctx.provider_messages())
+    result = provider.complete(
+        "answer",
+        [{"role": "user", "content": question}] + ctx.provider_messages(),
+        meta=meta_for(
+            workspace_id=conversation.workspace_id,
+            user=user,
+            project_id=conversation.project_id,
+            feature="chat_mention",
+        ),
+    )
     ai_context = {
         "status": result.status,
         "provider": result.provider,
+        "model": result.model,
+        "retrieved": [{"type": r["type"], "id": r["id"]} for r in retrieved],
         "sources_used": [a["ref"] for a in ctx.allowed],
         "blocked": ctx.blocked,
         "visible": ctx.visible,

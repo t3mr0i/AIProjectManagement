@@ -53,3 +53,4 @@ from .planning import (  # noqa: F401
     TeamScope,
     VisitMarker,
 )
+from .ai import AIEmbedding, AIUsageRecord  # noqa: F401

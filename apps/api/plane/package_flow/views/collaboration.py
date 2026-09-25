@@ -17,11 +17,11 @@ from rest_framework.response import Response
 
 from ..ai import clarify as clarify_ai
 from ..ai.context import assemble_context, conversation_audience, projects_audience
-from ..ai.provider import get_provider
 from ..capabilities import accessible_project_ids, require_extension_enabled
 from ..errors import Conflict, HumanPrincipalRequired, NotFound, ValidationFailed
 from ..models import AIProposal, Capability, Conversation, MessageVersion, NotificationItem, PackageProfile
 from ..services import activity as activity_service
+from ..services import ai as ai_service
 from ..services import conversations as conv_service
 from ..services import decisions as decision_service
 from ..services import exports as export_service
@@ -29,6 +29,7 @@ from ..services import knowledge as knowledge_service
 from ..services import notifications as notification_service
 from ..services import retention as retention_service
 from ..services import search as search_service
+from ..services.packages import _clean_criteria
 from .base import PackageFlowBaseView
 
 
@@ -326,34 +327,15 @@ class ProposalListEndpoint(CollaborationBaseView):
         task = data.get("task") or "concretize"
         if task not in ("concretize", "interpret", "report", "answer"):
             raise ValidationFailed("Unknown AI task")
-        issue = None
-        selection = list(data.get("selection") or [])
-        if data.get("issue_id"):
-            issue = self.get_issue(slug, project_id, data["issue_id"])
-            selection.insert(0, {"type": "issue", "id": str(issue.id)})
-        ctx = assemble_context(
-            requester=request.user,
-            workspace_id=project.workspace_id,
-            audience_ids=projects_audience([project.id]),
-            selection=selection,
-        )
-        result = get_provider().complete(
-            task, [{"role": "user", "content": data.get("instruction") or ""}] + ctx.provider_messages()
-        )
-        proposal = AIProposal.objects.create(
-            workspace_id=project.workspace_id,
-            project=project,
+        issue = self.get_issue(slug, project_id, data["issue_id"]) if data.get("issue_id") else None
+        proposal, result = ai_service.request_proposal(
+            request.user,
+            project,
+            task=task,
             issue=issue,
-            kind=AIProposal.Kind.DRAFT_EDIT if task == "concretize" else AIProposal.Kind.ANSWER,
-            requested_by=request.user,
-            content={
-                "task": task,
-                "result": result.as_dict(),
-                "patch": {},
-                "context": ctx.as_dict(),
-            },
-            selection={"items": selection},
-            sources=[a["ref"] for a in ctx.allowed],
+            selection=data.get("selection") or [],
+            instruction=data.get("instruction") or "",
+            use_retrieval=_bool(data.get("retrieve", True)),
         )
         code = status.HTTP_201_CREATED if result.ok else status.HTTP_200_OK
         return Response(serialize_proposal(proposal), status=code)
@@ -402,6 +384,10 @@ class ProposalDecisionEndpoint(CollaborationBaseView):
                 if field not in patch:
                     continue
                 value = patch[field]
+                if field == "criteria":
+                    value = _clean_criteria(value, profile.criteria)
+                if field == "criteria":
+                    value = _clean_criteria(value, profile.criteria)
                 if field == "scope" and isinstance(value, dict):
                     value = {**(profile.scope or {}), **value}
                 setattr(profile, field, value)

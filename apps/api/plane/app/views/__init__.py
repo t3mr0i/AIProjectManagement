@@ -181,6 +181,7 @@ from .search.issue import IssueSearchEndpoint
 
 from .external.base import (
     GPTIntegrationEndpoint,
+    RephraseGrammarEndpoint,
     UnsplashEndpoint,
     WorkspaceGPTIntegrationEndpoint,
 )

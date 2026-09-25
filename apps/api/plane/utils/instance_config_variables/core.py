@@ -277,6 +277,20 @@ llm_config_variables = [
         "category": "AI",
         "is_encrypted": False,
     },
+    {
+        # Custom endpoint: Azure OpenAI, proxies, Ollama, any OpenAI-compatible server
+        "key": "LLM_BASE_URL",
+        "value": os.environ.get("LLM_BASE_URL", ""),
+        "category": "AI",
+        "is_encrypted": False,
+    },
+    {
+        # Empty = provider default; semantic retrieval is off for providers without embeddings
+        "key": "LLM_EMBEDDING_MODEL",
+        "value": os.environ.get("LLM_EMBEDDING_MODEL", ""),
+        "category": "AI",
+        "is_encrypted": False,
+    },
     # Deprecated, use LLM_MODEL
     {
         "key": "GPT_ENGINE",
