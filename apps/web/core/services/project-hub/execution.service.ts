@@ -6,10 +6,8 @@
 
 import type {
   TClaimCreate,
-  TClaimCreated,
   TPackageClaim,
   TPackageRun,
-  TPackageRunList,
   TRunCreate,
   TRunnerKind,
   TRunnerProfile,
@@ -17,12 +15,13 @@ import type {
 } from "@plane/types";
 import { ProjectHubBaseService, projectHubProjectPath, projectHubWorkspacePath } from "./base.service";
 
-/** Runners, claims, runs (API §3). Runner-token endpoints (`R/...`) are not called from the browser. */
+/** Runners, claims, runs (API §3). Runner-token endpoints (`R/...`) are never called from the browser. */
 export class ProjectHubExecutionService extends ProjectHubBaseService {
   listRunners(workspaceSlug: string) {
-    return this.getJson<TRunnerProfile[]>(`${projectHubWorkspacePath(workspaceSlug)}/runners/`);
+    return this.getList<TRunnerProfile>(`${projectHubWorkspacePath(workspaceSlug)}/runners/`);
   }
 
+  /** Human only; the token is returned exactly once. */
   registerRunner(workspaceSlug: string, data: { name: string; kind: TRunnerKind }) {
     return this.postJson<TRunnerRegistration>(`${projectHubWorkspacePath(workspaceSlug)}/runners/`, data);
   }
@@ -31,21 +30,22 @@ export class ProjectHubExecutionService extends ProjectHubBaseService {
     return this.deleteJson<void>(`${projectHubWorkspacePath(workspaceSlug)}/runners/${runnerId}/`);
   }
 
-  /**
-   * Claims have no list endpoint in the contract; the server may embed them in the runs listing.
-   * `createClaim` is exposed for completeness (the runner normally claims).
-   */
+  /** Claims with lease + heartbeat (web read projection). */
+  listClaims(workspaceSlug: string, projectId: string, issueId: string) {
+    return this.getList<TPackageClaim>(
+      `${projectHubProjectPath(workspaceSlug, projectId)}/work-items/${issueId}/claims`
+    );
+  }
+
   createClaim(workspaceSlug: string, projectId: string, issueId: string, data: TClaimCreate) {
-    return this.postJson<TClaimCreated>(
+    return this.postJson<TPackageClaim>(
       `${projectHubProjectPath(workspaceSlug, projectId)}/work-items/${issueId}/claims`,
       data
     );
   }
 
   listRuns(workspaceSlug: string, projectId: string, issueId: string) {
-    return this.getJson<TPackageRunList | TPackageRun[] | { runs: TPackageRun[]; claims?: TPackageClaim[] }>(
-      `${projectHubProjectPath(workspaceSlug, projectId)}/work-items/${issueId}/runs`
-    );
+    return this.getList<TPackageRun>(`${projectHubProjectPath(workspaceSlug, projectId)}/work-items/${issueId}/runs`);
   }
 
   startRun(workspaceSlug: string, projectId: string, issueId: string, data: TRunCreate) {
@@ -55,7 +55,8 @@ export class ProjectHubExecutionService extends ProjectHubBaseService {
     );
   }
 
+  /** 202: accepted, run token invalidated. */
   cancelRun(workspaceSlug: string, projectId: string, runId: string) {
-    return this.postJson<unknown>(`${projectHubProjectPath(workspaceSlug, projectId)}/runs/${runId}/cancel`, {});
+    return this.postJson<TPackageRun>(`${projectHubProjectPath(workspaceSlug, projectId)}/runs/${runId}/cancel`, {});
   }
 }

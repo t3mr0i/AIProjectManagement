@@ -4,7 +4,7 @@
  * See the LICENSE file for details.
  */
 
-import type { TPHActivityEvent, TPHActivityGroup } from "@plane/types";
+import type { TPHActivityEntry, TPHActivityFeed, TPHActivityGroup } from "@plane/types";
 
 /** YYYY-MM-DD in the given IANA time zone (default: browser/local). */
 export const toDayKey = (value: string | Date, timeZone?: string): string => {
@@ -20,15 +20,56 @@ export const toDayKey = (value: string | Date, timeZone?: string): string => {
   return `${get("year")}-${get("month")}-${get("day")}`;
 };
 
+const entryStart = (e: TPHActivityEntry) => (e.kind === "summary" ? e.first_at : e.occurred_at);
+const entryCount = (e: TPHActivityEntry) => (e.kind === "summary" ? e.count : 1);
+
+/**
+ * Project the server feed (`groups[].days[].entries[]`) into one UI group per package and day.
+ * The day comes from the server (original event date; imported history keeps its date). Reasons
+ * are the non-empty event reasons; `decision_needed` marks packages with open decisions; an agent
+ * actor marks the group as agent work under human responsibility.
+ */
+export const adaptActivityFeed = (feed: Pick<TPHActivityFeed, "groups" | "open_decisions">): TPHActivityGroup[] => {
+  const openByIssue = new Set((feed.open_decisions ?? []).map((d) => d.issue_id).filter(Boolean));
+  const out: TPHActivityGroup[] = [];
+  for (const group of feed.groups ?? []) {
+    for (const day of group.days ?? []) {
+      const entries = day.entries ?? [];
+      if (entries.length === 0) continue;
+      const times = entries.flatMap((e) => [entryStart(e), e.occurred_at]).filter(Boolean);
+      const sortedTimes = times.toSorted();
+      const reasons = [
+        ...new Set(entries.map((e) => (e.kind === "event" ? e.reason : "")).filter((r): r is string => !!r)),
+      ];
+      const hasAgent = entries.some((e) => e.kind === "event" && e.actor_kind === "agent");
+      const onlySystem = entries.every((e) => e.kind === "event" && e.actor_kind === "system");
+      out.push({
+        issue_id: group.issue_id,
+        package_name: group.issue_name,
+        identifier: group.identifier,
+        day: day.date,
+        summary: entries[0]?.summary ?? "",
+        reasons,
+        decision_needed: !!group.issue_id && openByIssue.has(group.issue_id),
+        responsible_kind: hasAgent ? "agent" : onlySystem ? "system" : "human",
+        event_count: entries.reduce((sum, e) => sum + entryCount(e), 0),
+        first_at: sortedTimes[0] ?? group.last_at,
+        last_at: sortedTimes[sortedTimes.length - 1] ?? group.last_at,
+        entries,
+      });
+    }
+  }
+  return out;
+};
+
 export type TActivityDaySection = {
   day: string;
   groups: TPHActivityGroup[];
 };
 
 /**
- * Arrange server activity groups into day sections (newest day first); inside a day, groups with
- * a needed decision come first, then by latest event. Imported historic events keep their original
- * day because the day is derived from `last_at`/`day` of the server, never from receipt time.
+ * Arrange activity groups into day sections (newest day first); inside a day, groups with a needed
+ * decision come first, then by latest event.
  */
 export const groupActivityByDay = (groups: TPHActivityGroup[]): TActivityDaySection[] => {
   const byDay = new Map<string, TPHActivityGroup[]>();
@@ -47,42 +88,4 @@ export const groupActivityByDay = (groups: TPHActivityGroup[]): TActivityDaySect
         return Date.parse(b.last_at) - Date.parse(a.last_at);
       }),
     }));
-};
-
-/**
- * Client-side fallback: build package/day groups from raw events when the server returns an
- * ungrouped list. Events without a package land in a `null` package group.
- */
-export const buildActivityGroups = (
-  events: (TPHActivityEvent & { issue_id?: string | null; package_name?: string })[],
-  timeZone?: string
-): TPHActivityGroup[] => {
-  const map = new Map<string, TPHActivityGroup>();
-  for (const event of events) {
-    const day = toDayKey(event.occurred_at, timeZone);
-    const key = `${event.issue_id ?? "none"}::${day}`;
-    const existing = map.get(key);
-    if (existing) {
-      existing.events.push(event);
-      existing.event_count += 1;
-      if (event.occurred_at < existing.first_at) existing.first_at = event.occurred_at;
-      if (event.occurred_at > existing.last_at) existing.last_at = event.occurred_at;
-    } else {
-      map.set(key, {
-        issue_id: event.issue_id ?? null,
-        package_name: event.package_name ?? "",
-        day,
-        summary: event.summary,
-        reasons: [],
-        event_count: 1,
-        first_at: event.occurred_at,
-        last_at: event.occurred_at,
-        events: [event],
-      });
-    }
-  }
-  for (const group of map.values()) {
-    group.events.sort((a, b) => Date.parse(a.occurred_at) - Date.parse(b.occurred_at));
-  }
-  return [...map.values()];
 };

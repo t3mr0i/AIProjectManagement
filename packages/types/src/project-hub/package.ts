@@ -26,23 +26,32 @@ export type TPackageFlag =
   | "sync_conflict"
   | "stale_evidence"
   | "integration_offline"
-  | "native_done_without_delivery";
+  | "native_done_without_delivery"
+  | "native_done_without_delivery_evidence"
+  | "merge_pending_confirmation";
 
-export type TPackageCriterion = { id: string; text: string };
+/**
+ * Criterion `verification` decides which evidence trust class can prove it (server `required_trust`):
+ * `ci`/`ci:<name>`/`test` → provider CI, `manual`/`review` → human or CI, `runner` → runner or CI,
+ * `any`/`local` → any class. Unknown values conservatively require CI.
+ */
+export type TPackageCriterion = { id: string; text: string; verification?: string; required?: boolean };
 
-/** Free-form scope object; well known keys are typed, anything else is shown read-only. */
+/**
+ * Scope object. Readiness requires at least one `in_scope` item; `touches` containing
+ * permissions/auth/security adds the security review policy.
+ */
 export type TPackageScope = {
-  summary?: string;
-  repositories?: string[];
-  paths?: string[];
-  touches_permissions?: boolean;
+  in_scope?: string[];
+  touches?: string[];
+  diagram_notes?: unknown[];
   [key: string]: unknown;
 };
 
+/** Deep profiles require `risk.notes` for readiness. */
 export type TPackageRisk = {
+  notes?: string;
   level?: "low" | "medium" | "high";
-  description?: string;
-  mitigation?: string;
   rollback?: string;
   [key: string]: unknown;
 };
@@ -75,6 +84,7 @@ export type TPackageProfile = {
   approved_revision_id: string | null;
   version: number;
   flags: TPackageFlag[];
+  updated_at: string | null;
   native: TPackageNativeSnapshot;
 };
 
@@ -115,6 +125,8 @@ export type TPackageRevision = {
   criteria: TPackageCriterion[];
   decisions: unknown[];
   artifacts: unknown[];
+  profile_kind: TPackageProfileKind;
+  package_type: TPackageType;
   source_versions: Record<string, unknown>;
   content_hash: string;
   created_by: string | null;
@@ -124,18 +136,20 @@ export type TPackageRevision = {
   contract?: Record<string, unknown>;
 };
 
-export type TPackageRevisionFieldDiff = {
-  field: string;
-  from: unknown;
-  to: unknown;
-  change?: "added" | "removed" | "changed";
-};
+export type TPackageRevisionFieldDiff = { field: string; from: unknown; to: unknown };
 
-/** `GET revisions/compare?from=&to=` — field-level diff. */
+type TRevisionRef = { id: string; number: number; content_hash: string };
+
+/** `GET revisions/compare?from=&to=` (ids or numbers) — field-level diff plus criteria diff. */
 export type TPackageRevisionCompare = {
-  from: string;
-  to: string;
+  from: TRevisionRef;
+  to: TRevisionRef;
   changes: TPackageRevisionFieldDiff[];
+  criteria: {
+    added: TPackageCriterion[];
+    removed: TPackageCriterion[];
+    changed: { id: string; from: TPackageCriterion; to: TPackageCriterion }[];
+  };
 };
 
 export type TExecutionRepositoryScope = {
@@ -161,29 +175,26 @@ export type TExecutionApprovalCreate = {
   expires_in_hours?: number;
 };
 
+/** Server-computed approval state; the UI never derives validity on its own. */
+export type TExecutionApprovalState = "valid" | "revoked" | "expired";
+
 export type TExecutionApproval = {
   id: string;
-  work_item_id?: string;
+  work_item_id: string;
   revision_id: string;
-  revision_number?: number;
   revision_hash: string;
   approved_by: string;
   approved_at: string;
   expires_at: string;
-  policy_version?: string;
+  policy_version: string;
   repository_scope: TExecutionRepositoryScope[];
   allowed_actions: string[];
-  runner_profile_id?: string | null;
+  runner_profile_id: string | null;
   limits: TExecutionLimits;
-  checks?: TExecutionCheck[];
-  /** Server-computed state (e.g. `active`, `revoked`, `expired`, `stale`); the UI never derives validity on its own. */
-  state?: string;
+  checks: TExecutionCheck[];
+  state: TExecutionApprovalState;
   revoked_at: string | null;
-  revoked_by?: string | null;
-  revoke_reason?: string;
-  /** Optional server-computed validity flags. */
-  is_valid?: boolean;
-  invalid_reason?: string | null;
+  revoke_reason: string;
   /** execution-authorization 1.1.0 JSON */
   contract?: Record<string, unknown>;
 };
@@ -193,6 +204,8 @@ export type TChangeRecordStatus = "open" | "done" | "dropped";
 
 export type TChangeRecord = {
   id: string;
+  work_item_id: string;
+  created_by: string | null;
   kind: TChangeRecordKind;
   title: string;
   description: string;
@@ -203,34 +216,56 @@ export type TChangeRecord = {
   updated_at?: string;
 };
 
+export type TDeliveryEnvironment = {
+  name: string;
+  state: "deployed" | "rolled_back";
+  commit_sha: string;
+  occurred_at: string;
+};
+
+/** Per repository delivery projection (server `_binding_state`). */
 export type TPackageStatusRepository = {
   binding_id: string;
   name: string;
+  role: string;
+  provider: string;
+  instance_url: string;
   delivery: TPackageDelivery;
-  merge_request_state: string | null;
+  merge_request_state: "open" | "merged" | "closed" | null;
+  integrated_commit_sha: string | null;
+  environments: TDeliveryEnvironment[];
+  pending_merge: boolean;
 };
 
 export type TPackageStatus = {
   work_item_id: string;
-  lifecycle: TPackageLifecycle;
-  phase: TPackagePhase;
+  is_package: boolean;
+  lifecycle: TPackageLifecycle | null;
+  phase: TPackagePhase | null;
   delivery: TPackageDelivery;
   flags: TPackageFlag[];
   native_state_group: string | null;
   repositories: TPackageStatusRepository[];
   explanations: string[];
+  approved_revision_id?: string | null;
+  working_revision_id?: string | null;
 };
 
+/** Row of `GET P/packages/?view=` → `{results, count, view}`. Rows always have a profile. */
 export type TPackageRow = TPackageStatus & {
+  phase: TPackagePhase;
   name: string;
   sequence_id: number | null;
+  project_id: string;
   project_identifier: string | null;
   priority: string | null;
+  is_draft: boolean;
   assignee_ids: string[];
-  updated_at: string;
+  updated_at: string | null;
+  /** Runs waiting for an answer (`pause_reason = question`). */
   open_questions: number;
-  /** Next-work reasons (why this package is startable / what blocks it), when provided. */
-  next_reasons?: string[];
 };
+
+export type TPackageList = { results: TPackageRow[]; count: number; view: string };
 
 export type TPackageView = "drafts" | "ready" | "build" | "review" | "ship" | "done" | "all";

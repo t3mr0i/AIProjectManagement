@@ -441,6 +441,35 @@ class UploadRegisterEndpoint(CollaborationBaseView):
         return Response(knowledge_service.serialize(record), status=status.HTTP_201_CREATED)
 
 
+class UploadListEndpoint(CollaborationBaseView):
+    """``GET P/uploads/`` — registered uploads with scan status and format support.
+
+    Readable by project members with ``project.read`` (also when the extension is
+    disabled — history stays readable). Quarantined files are included and marked.
+    """
+
+    def get(self, request, slug, project_id):
+        project = self.get_project(slug, project_id, allow_archived=True)
+        self.require(project.workspace_id, project.id, Capability.PROJECT_READ, enabled=False)
+        qp = request.query_params
+        records = knowledge_service.list_uploads(
+            project, issue_id=qp.get("issue_id"), scan_status=qp.get("scan_status"), limit=qp.get("limit")
+        )
+        return Response({"results": [knowledge_service.serialize(r) for r in records]})
+
+
+class UploadCandidateListEndpoint(CollaborationBaseView):
+    """``GET P/uploads/candidates`` — native project FileAssets not registered yet (needs ``package.edit``)."""
+
+    def get(self, request, slug, project_id):
+        project = self.get_project(slug, project_id, allow_archived=True)
+        self.require(project.workspace_id, project.id, Capability.PACKAGE_EDIT, enabled=False)
+        qp = request.query_params
+        return Response(
+            {"results": knowledge_service.list_candidates(project, issue_id=qp.get("issue_id"), limit=qp.get("limit"))}
+        )
+
+
 class UploadDetailEndpoint(CollaborationBaseView):
     def get(self, request, slug, project_id, asset_id):
         from ..models import UploadRecord

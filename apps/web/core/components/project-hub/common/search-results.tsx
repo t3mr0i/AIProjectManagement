@@ -15,15 +15,10 @@ import { useProject } from "@/hooks/store/use-project";
 import { ToneBadge } from "./tone-badge";
 import { useHubFormatters } from "./use-relative-time";
 
-const KNOWN_TYPES = new Set(["package", "decision", "page", "message", "event", "upload"]);
-
-/** Normalizes `[results]` and `{results}` payloads. */
-export const normalizeSearch = (payload: TPHSearchResult[] | { results: TPHSearchResult[] }) =>
-  Array.isArray(payload) ? payload : (payload.results ?? []);
+const KNOWN_TYPES = new Set(["package", "issue", "decision", "page", "message", "event", "upload"]);
 
 const resultHref = (workspaceSlug: string, result: TPHSearchResult) => {
-  if (result.url) return result.url;
-  if (result.type === "package" && result.project_id)
+  if ((result.type === "package" || result.type === "issue") && result.project_id)
     return `/${workspaceSlug}/projects/${result.project_id}/issues/${result.issue_id ?? result.id}`;
   if (result.issue_id && result.project_id)
     return `/${workspaceSlug}/projects/${result.project_id}/issues/${result.issue_id}`;

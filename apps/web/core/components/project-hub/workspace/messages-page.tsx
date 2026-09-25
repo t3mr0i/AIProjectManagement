@@ -54,9 +54,10 @@ export const WorkspaceMessagesPage = observer(function WorkspaceMessagesPage({
   const conversations = useHubResource<TPHConversation[]>(PH_KEYS.conversations(workspaceSlug), () =>
     store.collaborationService.listConversations(workspaceSlug)
   );
-  const notifications = useHubResource<TPHNotificationItem[]>(PH_KEYS.notifications(workspaceSlug), () =>
-    store.collaborationService.listNotifications(workspaceSlug)
-  );
+  const notifications = useHubResource<TPHNotificationItem[]>(PH_KEYS.notifications(workspaceSlug), async () => {
+    const n = await store.collaborationService.listNotifications(workspaceSlug);
+    return [...n.targeted, ...n.bundled];
+  });
   const mentions = (notifications.data ?? []).filter((n) => n.category === "mention" && !n.read_at);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [newKind, setNewKind] = useState<"project" | "direct">("project");
@@ -89,7 +90,7 @@ export const WorkspaceMessagesPage = observer(function WorkspaceMessagesPage({
   const labelOf = (c: TPHConversation) => {
     if (c.title) return c.title;
     if (c.kind === "project" && c.project_id) return getPartialProjectById(c.project_id)?.name ?? c.project_id;
-    if (c.kind === "direct") return c.participant_ids.map(displayName).join(", ");
+    if (c.kind === "direct") return (c.participant_ids ?? []).map(displayName).join(", ");
     return c.id;
   };
 
@@ -192,7 +193,7 @@ export const WorkspaceMessagesPage = observer(function WorkspaceMessagesPage({
                       )}
                       <p className="text-caption-sm-regular text-tertiary">
                         {t("project_hub.messages.participants")}:{" "}
-                        {selected.participant_ids.map(displayName).join(", ") || "—"}
+                        {(selected.participant_ids ?? []).map(displayName).join(", ") || "—"}
                       </p>
                     </div>
                     <ConversationView key={selected.id} workspaceSlug={workspaceSlug} conversation={selected} />

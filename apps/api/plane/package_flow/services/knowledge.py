@@ -274,10 +274,17 @@ def register(user, project, asset_id, *, declared_mime="", filename="", issue_id
     return record
 
 
+def _asset_name(asset):
+    if asset is None:
+        return ""
+    return (asset.attributes or {}).get("name") or os.path.basename(getattr(asset.asset, "name", "") or "")
+
+
 def serialize(record):
     return {
         "id": str(record.id),
         "asset_id": str(record.asset_id),
+        "name": _asset_name(getattr(record, "asset", None)),
         "project_id": str(record.project_id) if record.project_id else None,
         "issue_id": str(record.issue_id) if record.issue_id else None,
         "owner_id": str(record.owner_id) if record.owner_id else None,
@@ -289,3 +296,55 @@ def serialize(record):
         "has_extracted_text": bool(record.extracted_text),
         "updated_at": record.updated_at,
     }
+
+
+# ---------------------------------------------------------------------------
+# listing (web UI support) — project read boundary is enforced by the view
+# ---------------------------------------------------------------------------
+REGISTRABLE_ENTITY_TYPES = ("ISSUE_ATTACHMENT", "ISSUE_DESCRIPTION", "PAGE_DESCRIPTION", "COMMENT_DESCRIPTION")
+
+
+def list_uploads(project, *, issue_id=None, scan_status=None, limit=200):
+    """Registered uploads of one project with scan and format state (FR-C05, FR-E04).
+
+    Quarantined records are listed (clearly marked by ``scan_status``) but never
+    expose extracted text; only metadata is returned.
+    """
+    qs = UploadRecord.objects.filter(project=project, deleted_at__isnull=True).select_related("asset")
+    qs = qs.filter(asset__is_deleted=False)
+    if issue_id:
+        qs = qs.filter(issue_id=issue_id)
+    if scan_status:
+        qs = qs.filter(scan_status=scan_status)
+    return list(qs.order_by("-updated_at")[: max(1, min(int(limit or 200), 500))])
+
+
+def list_candidates(project, *, issue_id=None, limit=200):
+    """Native FileAssets of the project that can be registered (not yet registered, uploaded, not deleted).
+
+    No second file store: candidates are the native Plane assets themselves.
+    """
+    registered = UploadRecord.objects.filter(project=project, deleted_at__isnull=True).values_list("asset_id", flat=True)
+    qs = FileAsset.objects.filter(
+        workspace_id=project.workspace_id,
+        project_id=project.id,
+        is_deleted=False,
+        entity_type__in=REGISTRABLE_ENTITY_TYPES,
+    ).exclude(id__in=registered)
+    if issue_id:
+        qs = qs.filter(issue_id=issue_id)
+    out = []
+    for asset in qs.order_by("-created_at")[: max(1, min(int(limit or 200), 500))]:
+        out.append(
+            {
+                "asset_id": str(asset.id),
+                "name": _asset_name(asset),
+                "declared_mime": (asset.attributes or {}).get("type") or "",
+                "size": asset.size,
+                "entity_type": asset.entity_type,
+                "issue_id": str(asset.issue_id) if asset.issue_id else None,
+                "is_uploaded": asset.is_uploaded,
+                "created_at": asset.created_at,
+            }
+        )
+    return out

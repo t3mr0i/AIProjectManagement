@@ -15,6 +15,7 @@ import { useTranslation } from "@plane/i18n";
 import type {
   TPHDateConfidence,
   TPHDependency,
+  TPHGraphNode,
   TPHRoadmap,
   TPHScenario,
   TPHScenarioImpact,
@@ -26,7 +27,6 @@ import {
   getDependencyCyclePath,
   getProjectHubErrorMessageKey,
   getTimelinePosition,
-  hasReliableDate,
   toProjectHubApiError,
 } from "@plane/utils";
 // hooks
@@ -45,9 +45,7 @@ import { ToneBadge } from "../common/tone-badge";
 import { useHubResource } from "../common/use-hub-resource";
 import { useHubFormatters } from "../common/use-relative-time";
 
-type TNode = { key: string; type: "issue" | "milestone" | "project"; id: string; label: string; projectId?: string };
-
-const nodeKey = (type: string, id: string) => `${type}:${id}`;
+type TSelectableNode = { key: string; type: "issue" | "milestone"; id: string; label: string };
 
 type Props = {
   workspaceSlug: string;
@@ -55,10 +53,12 @@ type Props = {
   fixedProjectId?: string;
 };
 
+const isExternal = (node: TPHGraphNode | undefined) => !node || node.type === "external_blocker";
+
 /**
  * Multi-project roadmap (S10, J09): timeline + accessible table view, milestones, package dates,
  * dependencies (confirmed solid vs suggested dashed + label), redacted external prerequisites,
- * scenarios with impact before apply, cycle errors with path and "no reliable date" handling.
+ * scenarios with read-only impact before apply, cycle errors with path and "no reliable date".
  */
 export const RoadmapView = observer(function RoadmapView({ workspaceSlug, fixedProjectId }: Props) {
   const { t } = useTranslation();
@@ -105,37 +105,27 @@ export const RoadmapView = observer(function RoadmapView({ workspaceSlug, fixedP
 
   const refreshRoadmap = () => store.invalidate(`ph:roadmap:${workspaceSlug}:`);
 
-  const nodes = useMemo(() => {
+  /** All nodes that may be connected by a dependency: milestones and packages of visible projects. */
+  const selectable = useMemo(() => {
     const data = roadmap.data;
-    const map = new Map<string, TNode>();
-    if (!data) return map;
-    for (const p of data.projects)
-      map.set(nodeKey("project", p.id), { key: nodeKey("project", p.id), type: "project", id: p.id, label: p.name });
+    const out: TSelectableNode[] = [];
+    if (!data) return out;
     for (const m of data.milestones)
-      map.set(nodeKey("milestone", m.id), {
-        key: nodeKey("milestone", m.id),
-        type: "milestone",
-        id: m.id,
-        label: m.name,
-        projectId: m.project_id,
-      });
-    for (const pkg of data.packages) {
-      const ident = pkg.project_identifier && pkg.sequence_id ? `${pkg.project_identifier}-${pkg.sequence_id} ` : "";
-      map.set(nodeKey("issue", pkg.issue_id), {
-        key: nodeKey("issue", pkg.issue_id),
-        type: "issue",
-        id: pkg.issue_id,
-        label: `${ident}${pkg.name}`,
-        projectId: pkg.project_id,
-      });
-    }
-    return map;
+      out.push({ key: `milestone:${m.id}`, type: "milestone", id: m.id, label: `◆ ${m.name}` });
+    for (const p of data.packages)
+      out.push({ key: `issue:${p.id}`, type: "issue", id: p.id, label: p.label || p.name });
+    return out;
   }, [roadmap.data]);
 
-  const nodeLabel = (type: string, id: string, redacted?: boolean) =>
-    redacted
-      ? t("project_hub.roadmap.external_prerequisite")
-      : (nodes.get(nodeKey(type, id))?.label ?? t("project_hub.roadmap.external_prerequisite"));
+  const graphNodes = useMemo(() => new Map((roadmap.data?.nodes ?? []).map((n) => [n.key, n])), [roadmap.data]);
+
+  const nodeLabel = (key: string | undefined) => {
+    const node = key ? graphNodes.get(key) : undefined;
+    if (isExternal(node)) return t("project_hub.roadmap.external_prerequisite");
+    return (
+      node?.label ?? selectable.find((n) => n.key === key)?.label ?? t("project_hub.roadmap.external_prerequisite")
+    );
+  };
 
   const closeDialog = () => {
     setDialog(null);
@@ -150,7 +140,7 @@ export const RoadmapView = observer(function RoadmapView({ workspaceSlug, fixedP
     try {
       await store.planningService.createMilestone(workspaceSlug, fixedProjectId, {
         name: msName.trim(),
-        target_at: msDate ? new Date(msDate).toISOString() : null,
+        target_at: msDate ? `${msDate}T12:00:00` : null,
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         date_confidence: msDate ? msConfidence : "unknown",
       });
@@ -167,8 +157,8 @@ export const RoadmapView = observer(function RoadmapView({ workspaceSlug, fixedP
   };
 
   const createDependency = async () => {
-    const a = depFrom ? nodes.get(depFrom) : undefined;
-    const b = depTo ? nodes.get(depTo) : undefined;
+    const a = selectable.find((n) => n.key === depFrom);
+    const b = selectable.find((n) => n.key === depTo);
     if (!a || !b) return;
     setBusy(true);
     setDialogError(null);
@@ -183,7 +173,7 @@ export const RoadmapView = observer(function RoadmapView({ workspaceSlug, fixedP
       closeDialog();
       refreshRoadmap();
     } catch (error) {
-      // 422 DEPENDENCY_CYCLE → show the cycle path in the dialog
+      // 422 DEPENDENCY_CYCLE → the cycle path (redacted labels) is shown in the dialog.
       setDialogError(toProjectHubApiError(error));
     } finally {
       setBusy(false);
@@ -206,10 +196,10 @@ export const RoadmapView = observer(function RoadmapView({ workspaceSlug, fixedP
     try {
       const created = await store.planningService.createScenario(workspaceSlug, {
         name: scName.trim(),
-        changes: [{ type: "milestone", id: scMilestone, target_at: scDate ? new Date(scDate).toISOString() : null }],
+        changes: [{ type: "milestone", id: scMilestone, target_at: scDate ? `${scDate}T12:00:00` : null }],
       });
       setScenario(created);
-      setImpact(created.impact ?? (await store.planningService.getScenarioImpact(workspaceSlug, created.id)));
+      setImpact(await store.planningService.getScenarioImpact(workspaceSlug, created.id));
     } catch (error) {
       setDialogError(toProjectHubApiError(error));
     } finally {
@@ -233,9 +223,7 @@ export const RoadmapView = observer(function RoadmapView({ workspaceSlug, fixedP
   };
 
   const milestoneOptions = (roadmap.data?.milestones ?? []).map((m) => ({ value: m.id, label: m.name }));
-  const nodeOptions = [...nodes.values()]
-    .filter((n) => n.type !== "project")
-    .map((n) => ({ value: n.key, label: n.label }));
+  const nodeOptions = selectable.map((n) => ({ value: n.key, label: n.label }));
   const cyclePath = getDependencyCyclePath(dialogError);
 
   return (
@@ -277,7 +265,7 @@ export const RoadmapView = observer(function RoadmapView({ workspaceSlug, fixedP
               variant="secondary"
               size="sm"
               stretch="auto"
-              label={t("project_hub.roadmap.dependencies")}
+              label={t("project_hub.roadmap.dependency_create")}
               onClick={() => setDialog("dependency")}
             />
             <Button
@@ -320,12 +308,13 @@ export const RoadmapView = observer(function RoadmapView({ workspaceSlug, fixedP
           ];
           const window = computeTimelineWindow(dates);
           const todayPos = getTimelinePosition(new Date().toISOString(), window);
-          const unplannedMilestones = data.milestones.filter((m) => !hasReliableDate(m.target_at, m.date_confidence));
-          const unplannedPackages = data.packages.filter((p) => !hasReliableDate(p.target_date));
+          const unplannedMilestones = data.milestones.filter((m) => !m.reliable_date);
+          const unplannedPackages = data.packages.filter((p) => !p.reliable_date);
+          const redacted = data.nodes.filter((n) => n.type === "external_blocker");
           return (
             <div className="flex flex-col gap-5">
               {view === "timeline" ? (
-                <div className="flex flex-col gap-1 overflow-x-auto" aria-hidden={false}>
+                <div className="flex flex-col gap-1 overflow-x-auto">
                   <div className="relative ml-40 h-6 min-w-[480px] border-b border-subtle text-caption-sm-regular text-tertiary">
                     <span className="absolute left-0">{formatDate(new Date(window.start))}</span>
                     <span className="absolute right-0">{formatDate(new Date(window.end))}</span>
@@ -339,16 +328,12 @@ export const RoadmapView = observer(function RoadmapView({ workspaceSlug, fixedP
                     )}
                   </div>
                   {data.projects.map((project) => {
-                    const ms = data.milestones.filter(
-                      (m) => m.project_id === project.id && hasReliableDate(m.target_at, m.date_confidence)
-                    );
-                    const pkgs = data.packages.filter(
-                      (p) => p.project_id === project.id && hasReliableDate(p.target_date)
-                    );
+                    const ms = data.milestones.filter((m) => m.project_id === project.id && m.reliable_date);
+                    const pkgs = data.packages.filter((p) => p.project_id === project.id && p.reliable_date);
                     return (
                       <div key={project.id} className="flex min-w-[640px] items-stretch border-b border-subtle py-2">
                         <div className="w-40 shrink-0 pr-2 text-body-xs-medium text-primary">{project.name}</div>
-                        <div className="relative min-h-8 flex-1">
+                        <div className="relative min-h-14 flex-1">
                           {todayPos !== null && (
                             <div
                               className="absolute inset-y-0 w-px bg-accent-primary"
@@ -361,16 +346,16 @@ export const RoadmapView = observer(function RoadmapView({ workspaceSlug, fixedP
                             const end = getTimelinePosition(p.target_date, window) ?? start;
                             return (
                               <div
-                                key={p.issue_id}
+                                key={p.id}
                                 className="absolute truncate rounded-sm border border-subtle bg-layer-2 px-1 text-caption-sm-regular text-secondary"
                                 style={{
                                   left: `${start}%`,
                                   width: `${Math.max(end - start, 2)}%`,
-                                  top: `${(i % 3) * 18}px`,
+                                  top: `${(i % 2) * 18}px`,
                                 }}
-                                title={`${nodeLabel("issue", p.issue_id)} · ${formatDate(p.start_date)} – ${formatDate(p.target_date)}`}
+                                title={`${p.label || p.name} · ${formatDate(p.start_date)} – ${formatDate(p.target_date)}`}
                               >
-                                {nodeLabel("issue", p.issue_id)}
+                                {p.label || p.name}
                               </div>
                             );
                           })}
@@ -421,9 +406,7 @@ export const RoadmapView = observer(function RoadmapView({ workspaceSlug, fixedP
                             {data.projects.find((p) => p.id === m.project_id)?.name ?? "—"}
                           </td>
                           <td className="py-1.5 pr-3 text-secondary">
-                            {hasReliableDate(m.target_at, m.date_confidence)
-                              ? formatDate(m.target_at)
-                              : t("project_hub.roadmap.no_reliable_date")}
+                            {m.reliable_date ? formatDate(m.target_at) : t("project_hub.roadmap.no_reliable_date")}
                           </td>
                           <td className="py-1.5 text-secondary">
                             {t(`project_hub.roadmap.confidence.${m.date_confidence}`)}
@@ -431,19 +414,19 @@ export const RoadmapView = observer(function RoadmapView({ workspaceSlug, fixedP
                         </tr>
                       ))}
                       {data.packages.map((p) => (
-                        <tr key={p.issue_id} className="border-b border-subtle">
+                        <tr key={p.id} className="border-b border-subtle">
                           <th scope="row" className="py-1.5 pr-3 font-medium text-primary">
-                            {nodeLabel("issue", p.issue_id)}
+                            {p.label || p.name}
                           </th>
                           <td className="py-1.5 pr-3 text-secondary">
                             {data.projects.find((pr) => pr.id === p.project_id)?.name ?? "—"}
                           </td>
                           <td className="py-1.5 pr-3 text-secondary">
-                            {hasReliableDate(p.target_date)
-                              ? `${formatDate(p.start_date)} – ${formatDate(p.target_date)}`
+                            {p.reliable_date
+                              ? `${p.start_date ? formatDate(p.start_date) : t("project_hub.common.unknown")} – ${formatDate(p.target_date)}`
                               : t("project_hub.roadmap.no_reliable_date")}
                           </td>
-                          <td className="py-1.5 text-secondary">{p.phase ? t(`project_hub.phase.${p.phase}`) : "—"}</td>
+                          <td className="py-1.5 text-secondary">{p.state_group ?? "—"}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -464,11 +447,11 @@ export const RoadmapView = observer(function RoadmapView({ workspaceSlug, fixedP
                       </li>
                     ))}
                     {unplannedPackages.map((p) => (
-                      <li key={p.issue_id}>
+                      <li key={p.id}>
                         <ToneBadge
                           tone="neutral"
                           size="xs"
-                          label={`${nodeLabel("issue", p.issue_id)} · ${t("project_hub.roadmap.no_reliable_date")}`}
+                          label={`${p.label || p.name} · ${t("project_hub.roadmap.no_reliable_date")}`}
                         />
                       </li>
                     ))}
@@ -483,6 +466,7 @@ export const RoadmapView = observer(function RoadmapView({ workspaceSlug, fixedP
                   <ul className="flex flex-col gap-2">
                     {data.dependencies.map((dep) => {
                       const confirmed = dep.confirmation === "confirmed";
+                      const external = dep.style === "external";
                       return (
                         <li
                           key={dep.id}
@@ -492,8 +476,8 @@ export const RoadmapView = observer(function RoadmapView({ workspaceSlug, fixedP
                           )}
                         >
                           <span className="inline-flex items-center gap-1 text-primary">
-                            {dep.is_redacted && <Icon icon={LockOutline} tint="tertiary" />}
-                            {nodeLabel(dep.predecessor_type, dep.predecessor_id, dep.is_redacted)}
+                            {external && <Icon icon={LockOutline} tint="tertiary" />}
+                            {nodeLabel(dep.source_key)}
                           </span>
                           <span aria-hidden="true" className="text-tertiary">
                             {confirmed ? "━━▶" : "┅┅▷"}
@@ -501,7 +485,7 @@ export const RoadmapView = observer(function RoadmapView({ workspaceSlug, fixedP
                           <span className="sr-only">
                             {t("project_hub.roadmap.predecessor")} → {t("project_hub.roadmap.successor")}
                           </span>
-                          <span className="text-primary">{nodeLabel(dep.successor_type, dep.successor_id)}</span>
+                          <span className="text-primary">{nodeLabel(dep.target_key)}</span>
                           <ToneBadge
                             tone={confirmed ? "success" : "warning"}
                             size="xs"
@@ -512,10 +496,10 @@ export const RoadmapView = observer(function RoadmapView({ workspaceSlug, fixedP
                             }
                           />
                           <span className="text-caption-sm-regular text-tertiary">
-                            {dep.strength === "hard" ? t("project_hub.roadmap.hard") : t("project_hub.roadmap.soft")} ·{" "}
-                            {dep.source}
+                            {dep.blocking ? t("project_hub.roadmap.hard") : t("project_hub.roadmap.soft")}
+                            {dep.source ? ` · ${dep.source}` : ""}
                           </span>
-                          {!confirmed && canPlan && dep.confirmation === "suggested" && (
+                          {!confirmed && !external && canPlan && dep.confirmation === "suggested" && (
                             <Button
                               variant="secondary"
                               size="sm"
@@ -529,10 +513,10 @@ export const RoadmapView = observer(function RoadmapView({ workspaceSlug, fixedP
                     })}
                   </ul>
                 )}
-                {(data.redacted_nodes ?? []).length > 0 && (
+                {redacted.length > 0 && (
                   <ul className="flex flex-wrap gap-2">
-                    {(data.redacted_nodes ?? []).map((n) => (
-                      <li key={`${n.type}-${n.id}`}>
+                    {redacted.map((n) => (
+                      <li key={n.key}>
                         <ToneBadge
                           tone="neutral"
                           size="xs"
@@ -598,7 +582,7 @@ export const RoadmapView = observer(function RoadmapView({ workspaceSlug, fixedP
         isOpen={dialog === "dependency"}
         onClose={closeDialog}
         isBusy={busy}
-        title={t("project_hub.roadmap.dependencies")}
+        title={t("project_hub.roadmap.dependency_create")}
         onSubmit={() => void createDependency()}
         actions={
           <>
@@ -631,13 +615,7 @@ export const RoadmapView = observer(function RoadmapView({ workspaceSlug, fixedP
         {dialogError && (
           <div role="alert" className="flex flex-col gap-1 text-body-xs-regular text-danger-primary">
             <p>{t(getProjectHubErrorMessageKey(dialogError))}</p>
-            {cyclePath.length > 0 && (
-              <p>
-                {t("project_hub.roadmap.cycle_error", {
-                  path: cyclePath.map((id) => [...nodes.values()].find((n) => n.id === id)?.label ?? id).join(" → "),
-                })}
-              </p>
-            )}
+            {cyclePath.length > 0 && <p>{t("project_hub.roadmap.cycle_error", { path: cyclePath.join(" → ") })}</p>}
           </div>
         )}
       </HubDialog>
@@ -664,6 +642,7 @@ export const RoadmapView = observer(function RoadmapView({ workspaceSlug, fixedP
                 size="md"
                 stretch="auto"
                 loading={busy}
+                disabled={!canPlan}
                 label={t("project_hub.roadmap.apply_scenario")}
               />
             ) : (
@@ -701,31 +680,37 @@ export const RoadmapView = observer(function RoadmapView({ workspaceSlug, fixedP
         {impact && (
           <HubCard className="flex flex-col gap-2">
             <p className="text-caption-md-medium text-tertiary">{t("project_hub.roadmap.impact")}</p>
+            <ul className="flex flex-col gap-1 text-body-xs-regular text-secondary">
+              {impact.changes.map((c) => (
+                <li key={c.id}>
+                  ◆ {c.label ?? c.id}: {formatDate(c.current_target_at)} → {formatDate(c.new_target_at)}
+                </li>
+              ))}
+            </ul>
             {impact.affected.length === 0 ? (
               <p className="text-body-xs-regular text-secondary">{t("project_hub.roadmap.impact_empty")}</p>
             ) : (
               <ul className="flex flex-col gap-1 text-body-xs-regular text-secondary">
                 {impact.affected.map((a) => (
-                  <li key={`${a.type}-${a.id}`}>
-                    {a.name ?? nodeLabel(a.type, a.id)}
-                    {a.shift_days !== null && a.shift_days !== undefined
-                      ? ` · ${t("project_hub.roadmap.shift", { days: a.shift_days })}`
-                      : ` · ${t("project_hub.roadmap.no_reliable_date")}`}
-                    {a.reason && ` — ${a.reason}`}
+                  <li key={a.key}>
+                    {a.label} ·{" "}
+                    {a.current_target === null
+                      ? t("project_hub.roadmap.no_reliable_date")
+                      : a.would_be_late
+                        ? t("project_hub.roadmap.late_by", {
+                            hours: a.shift_hours,
+                            date: formatDate(a.projected_target),
+                          })
+                        : t("project_hub.roadmap.not_late")}
+                    <span className="text-tertiary">
+                      {" "}
+                      — {t("project_hub.roadmap.via", { path: a.via.join(" → ") })}
+                    </span>
                   </li>
                 ))}
               </ul>
             )}
-            {impact.basis && (
-              <p className="text-caption-sm-regular text-tertiary">
-                {t("project_hub.roadmap.impact_basis", { basis: impact.basis })}
-              </p>
-            )}
-            {(impact.uncertain ?? []).length > 0 && (
-              <p className="text-caption-sm-regular text-tertiary">
-                {t("project_hub.roadmap.uncertain")}: {(impact.uncertain ?? []).join(", ")}
-              </p>
-            )}
+            <p className="text-caption-sm-regular text-tertiary">{t("project_hub.roadmap.impact_basis_deps")}</p>
           </HubCard>
         )}
         {dialogError && (

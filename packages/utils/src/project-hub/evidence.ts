@@ -6,16 +6,19 @@
 
 import type { TCriterionEvidenceState, TPackageEvidence } from "@plane/types";
 
-type TEvidenceLike = Pick<TPackageEvidence, "result" | "trust"> & { is_stale?: boolean | undefined };
+type TEvidenceLike = { result: TPackageEvidence["result"]; trust: string; accepted?: boolean; is_stale?: boolean };
 
 /**
- * Trust classes that may prove a criterion. A claim in a commit message is never a proof
- * (J07), and neither is a local self report on its own.
+ * Trust classes that may prove a criterion by default. A claim in a commit message is never a
+ * proof (J07), and neither is a local self report on its own. The review view sends `accepted`
+ * per criterion (server `required_trust`), which takes precedence — except commit messages.
  */
 const PROVING_TRUST = new Set<string>(["runner_reported", "provider_ci", "human"]);
 
-export const canEvidenceProve = (evidence: TEvidenceLike): boolean =>
-  PROVING_TRUST.has(evidence.trust) && !evidence.is_stale;
+export const canEvidenceProve = (evidence: TEvidenceLike): boolean => {
+  if (evidence.trust === "commit_message" || evidence.is_stale) return false;
+  return evidence.accepted ?? PROVING_TRUST.has(evidence.trust);
+};
 
 /**
  * Derive the display state of a criterion from its evidence when the server does not send one.

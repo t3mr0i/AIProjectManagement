@@ -18,6 +18,7 @@ import type {
   TPackageReviewView,
   TProjectHubApiError,
   TReviewApproval,
+  TReviewOpenPoint,
   TReviewDecision,
   TReviewKind,
 } from "@plane/types";
@@ -85,15 +86,6 @@ const EvidenceItem = observer(function EvidenceItem({ evidence }: { evidence: TP
         {evidence.commit_sha && <code className="font-mono">{shortHash(evidence.commit_sha)}</code>} ·{" "}
         {formatDateTime(evidence.occurred_at)}
       </p>
-      {evidence.is_stale && (
-        <p className="text-caption-sm-regular text-secondary">
-          {t("project_hub.flag.stale_evidence")}:{" "}
-          {t("project_hub.review.evidence_stale", {
-            checked: shortHash(evidence.checked_commit ?? evidence.commit_sha),
-            current: shortHash(evidence.current_commit),
-          })}
-        </p>
-      )}
     </li>
   );
 });
@@ -101,9 +93,32 @@ const EvidenceItem = observer(function EvidenceItem({ evidence }: { evidence: TP
 /** Code review decision of an MR is only valid for the reviewed head (INV-05). */
 const getMrReviewState = (mr: TMergeRequestLink, approvals: TReviewApproval[]) => {
   const forMr = approvals.filter((a) => a.kind === "code" && a.merge_request_id === mr.id);
-  const valid = forMr.find((a) => !a.invalidated_at && a.decision === "approved" && a.head_sha === mr.head_sha);
-  const invalidated = forMr.find((a) => !!a.invalidated_at || a.head_sha !== mr.head_sha);
+  const valid = forMr.find((a) => a.valid);
+  const invalidated = forMr.find((a) => a.validity === "invalidated" || a.validity === "stale_head");
   return { valid, needsNewReview: !valid && !!invalidated };
+};
+
+const useOpenPointLabel = () => {
+  const { t } = useTranslation();
+  return (point: TReviewOpenPoint, criteria: TPackageReviewView["criteria"]): string => {
+    switch (point.kind) {
+      case "criterion_not_proven": {
+        const c = criteria.find((x) => x.id === point.criterion_id);
+        return t("project_hub.review.open_point.criterion_not_proven", {
+          criterion: c?.statement ?? point.criterion_id,
+          reason: point.reason,
+        });
+      }
+      case "code_review_required":
+        return point.invalidated
+          ? t("project_hub.review.open_point.code_review_invalidated", { sha: shortHash(point.head_sha) })
+          : t("project_hub.review.open_point.code_review_required", { sha: shortHash(point.head_sha) });
+      case "open_question":
+        return t("project_hub.review.open_point.open_question", { title: point.title });
+      default:
+        return t(`project_hub.review.open_point.${point.kind}`);
+    }
+  };
 };
 
 /** "Review" tab (S06): intent vs change, criteria ↔ evidence, separate technical and business reviews. */
@@ -113,6 +128,7 @@ export const ReviewTab = observer(function ReviewTab({ scope }: { scope: TWorkPa
   const displayName = useMemberDisplayName();
   const { formatDateTime } = useHubFormatters();
   const { has, isHuman } = useProjectHubCapabilities(scope.workspaceSlug, scope.projectId);
+  const openPointLabel = useOpenPointLabel();
   const { workspaceSlug, projectId, issueId } = scope;
 
   const review = useHubResource<TPackageReviewView>(PH_KEYS.review(issueId), () =>
@@ -188,34 +204,47 @@ export const ReviewTab = observer(function ReviewTab({ scope }: { scope: TWorkPa
         <div className="flex flex-col gap-6">
           <div className="grid gap-4 @3xl:grid-cols-2">
             <HubSection title={t("project_hub.review.intent")}>
-              {data.intent ? (
+              {data.revision ? (
                 <HubCard className="flex flex-col gap-2 text-body-xs-regular">
                   <p className="text-caption-sm-regular text-tertiary">
-                    {t("project_hub.revisions.number", { number: data.intent.number })} ·{" "}
-                    <code className="font-mono">{shortHash(data.intent.content_hash)}</code>
+                    {t("project_hub.revisions.number", { number: data.revision.number })} ·{" "}
+                    <code className="font-mono">{shortHash(data.revision.content_hash)}</code>
                   </p>
-                  <p className="whitespace-pre-wrap text-primary">{data.intent.intent || "—"}</p>
-                  {data.intent.outcome && <p className="whitespace-pre-wrap text-secondary">{data.intent.outcome}</p>}
+                  <p className="font-medium text-primary">{data.revision.title}</p>
+                  <p className="whitespace-pre-wrap text-primary">{data.revision.intent || "—"}</p>
+                  {data.revision.outcome && (
+                    <p className="whitespace-pre-wrap text-secondary">{data.revision.outcome}</p>
+                  )}
                 </HubCard>
               ) : (
                 <HubEmpty title={t("project_hub.review.no_intent")} />
               )}
             </HubSection>
             <HubSection title={t("project_hub.review.current_change")}>
-              {data.change_summary?.summary || (data.change_summary?.commits?.length ?? 0) > 0 ? (
+              {data.change_summary.merge_requests > 0 || data.claims.length > 0 ? (
                 <HubCard className="flex flex-col gap-2 text-body-xs-regular">
-                  {data.change_summary?.summary && (
-                    <p className="whitespace-pre-wrap text-primary">{data.change_summary.summary}</p>
+                  <p className="text-secondary">
+                    {t("project_hub.review.change_counts", {
+                      mrs: data.change_summary.merge_requests,
+                      commits: data.change_summary.commits,
+                    })}
+                  </p>
+                  {data.claims.length > 0 && (
+                    <div className="flex flex-col gap-1">
+                      <p className="text-caption-md-medium text-tertiary">
+                        {t("project_hub.review.commit_claims")} — {t("project_hub.review.never_proof")}
+                      </p>
+                      <ul className="flex flex-col gap-0.5 text-caption-sm-regular text-secondary">
+                        {data.claims.map((c) => (
+                          <li key={`${c.merge_request_id}-${c.sha}`}>
+                            <code className="font-mono">{shortHash(c.sha)}</code> {c.message}{" "}
+                            <ToneBadge tone="neutral" size="xs" label={t("project_hub.trust.commit_message")} />
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   )}
-                  {data.change_summary?.commits && data.change_summary.commits.length > 0 && (
-                    <ul className="flex flex-col gap-0.5 text-caption-sm-regular text-secondary">
-                      {data.change_summary.commits.map((c) => (
-                        <li key={c.sha}>
-                          <code className="font-mono">{shortHash(c.sha)}</code> {c.message}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+                  <p className="text-caption-sm-regular text-tertiary">{data.change_summary.note}</p>
                 </HubCard>
               ) : (
                 <HubEmpty title={t("project_hub.review.no_change")} />
@@ -234,16 +263,21 @@ export const ReviewTab = observer(function ReviewTab({ scope }: { scope: TWorkPa
                     <li key={criterion.id}>
                       <HubCard className="flex flex-col gap-2">
                         <div className="flex flex-wrap items-start justify-between gap-2">
-                          <p className="text-body-xs-medium text-primary">{criterion.text}</p>
+                          <p className="text-body-xs-medium text-primary">
+                            {criterion.id}: {criterion.statement}
+                          </p>
                           <ToneBadge
                             tone={CRITERION_TONE[state]}
                             size="xs"
                             label={t(`project_hub.review.state.${state}`)}
                           />
                         </div>
-                        {criterion.explanation && (
-                          <p className="text-caption-sm-regular text-secondary">{criterion.explanation}</p>
-                        )}
+                        <p className="text-caption-sm-regular text-tertiary">
+                          {t("project_hub.review.required_trust", {
+                            trust: t(`project_hub.review.trust_level.${criterion.required_trust}`),
+                          })}
+                          {criterion.reason && ` · ${criterion.reason}`}
+                        </p>
                         {(criterion.evidence ?? []).length === 0 ? (
                           <p className="text-caption-sm-regular text-tertiary">
                             {t("project_hub.review.evidence_none")}
@@ -266,8 +300,9 @@ export const ReviewTab = observer(function ReviewTab({ scope }: { scope: TWorkPa
           {data.open_points.length > 0 && (
             <HubSection title={t("project_hub.review.open_points")}>
               <ul className="list-inside list-disc text-body-xs-regular text-secondary">
-                {data.open_points.map((p) => (
-                  <li key={p}>{p}</li>
+                {data.open_points.map((p, i) => (
+                  // oxlint-disable-next-line react/no-array-index-key -- open points have no id
+                  <li key={`${p.kind}-${i}`}>{openPointLabel(p, data.criteria)}</li>
                 ))}
               </ul>
             </HubSection>
@@ -305,7 +340,7 @@ export const ReviewTab = observer(function ReviewTab({ scope }: { scope: TWorkPa
                           )}
                         </div>
                         <p className="text-caption-sm-regular text-tertiary">
-                          {mr.repository_name ? `${mr.repository_name} · ` : ""}
+                          {mr.repository ? `${mr.repository} · ` : ""}
                           {t("project_hub.review.branches", {
                             source: mr.source_branch,
                             target: mr.target_branch,
@@ -436,13 +471,13 @@ export const ReviewTab = observer(function ReviewTab({ scope }: { scope: TWorkPa
                       </span>
                       <ToneBadge
                         tone={
-                          approval.invalidated_at ? "warning" : approval.decision === "approved" ? "success" : "danger"
+                          approval.valid ? "success" : approval.validity === "changes_requested" ? "danger" : "warning"
                         }
                         size="xs"
                         label={
-                          approval.invalidated_at
+                          approval.validity === "invalidated"
                             ? t("project_hub.review.invalidated", { reason: approval.invalidated_reason })
-                            : t(`project_hub.review.decision.${approval.decision}`)
+                            : t(`project_hub.review.validity.${approval.validity}`)
                         }
                       />
                       {approval.head_sha && (
@@ -453,7 +488,6 @@ export const ReviewTab = observer(function ReviewTab({ scope }: { scope: TWorkPa
                     </div>
                     <p className="text-caption-sm-regular text-tertiary">
                       {displayName(approval.approved_by)} · {formatDateTime(approval.created_at)}
-                      {approval.comment ? ` — ${approval.comment}` : ""}
                     </p>
                   </li>
                 ))}

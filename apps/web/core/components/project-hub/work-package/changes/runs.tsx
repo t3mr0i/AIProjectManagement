@@ -11,7 +11,7 @@ import { Button } from "@makeplane/propel/components/button";
 import { useTranslation } from "@plane/i18n";
 import type { TPackageClaim, TPackageRun, TRunStatus } from "@plane/types";
 import type { TProjectHubTone } from "@plane/utils";
-import { getHeartbeatState } from "@plane/utils";
+import { getHeartbeatState, shortHash } from "@plane/utils";
 import type { THeartbeatState } from "@plane/utils";
 // hooks
 import { useProjectHub } from "@/hooks/store/use-project-hub";
@@ -49,19 +49,16 @@ const HEARTBEAT_TONE: Record<THeartbeatState, TProjectHubTone> = {
   unknown: "neutral",
 };
 
-/** Accepts `{results, claims?}` (contract), `[runs]` and `{runs, claims}` payloads. */
-export const normalizeRuns = (
-  payload: TPackageRun[] | { results?: TPackageRun[]; runs?: TPackageRun[]; claims?: TPackageClaim[] }
-): TRunsData =>
-  Array.isArray(payload)
-    ? { runs: payload, claims: [] }
-    : { runs: payload.results ?? payload.runs ?? [], claims: payload.claims ?? [] };
-
+/** Runs (`{results}`) and claims (`GET .../claims`) are loaded together for one consistent view. */
 export const useRunsResource = (scope: TWorkPackageScope) => {
   const store = useProjectHub();
-  return useHubResource<TRunsData>(PH_KEYS.runs(scope.issueId), async () =>
-    normalizeRuns(await store.executionService.listRuns(scope.workspaceSlug, scope.projectId, scope.issueId))
-  );
+  return useHubResource<TRunsData>(PH_KEYS.runs(scope.issueId), async () => {
+    const [runs, claims] = await Promise.all([
+      store.executionService.listRuns(scope.workspaceSlug, scope.projectId, scope.issueId),
+      store.executionService.listClaims(scope.workspaceSlug, scope.projectId, scope.issueId),
+    ]);
+    return { runs, claims };
+  });
 };
 
 /**
@@ -162,15 +159,18 @@ export const RunsPanel = observer(function RunsPanel({ scope }: { scope: TWorkPa
                             label={t(`project_hub.changes.heartbeat_state.${hb}`)}
                           />
                         )}
-                        {run.revision_number !== undefined && (
-                          <span className="text-caption-sm-regular text-tertiary">
-                            {t("project_hub.changes.revision", { number: run.revision_number })}
-                          </span>
+                        {run.manifest_hash && (
+                          <code className="font-mono text-caption-sm-regular text-tertiary" title={run.manifest_hash}>
+                            {t("project_hub.changes.manifest", { hash: shortHash(run.manifest_hash) })}
+                          </code>
                         )}
                       </div>
                       <p className="text-caption-sm-regular text-secondary">
                         {displayName(run.responsible_id)}
-                        {run.runner_name ? ` · ${run.runner_name}` : ""}
+                        {(() => {
+                          const name = data.claims.find((c) => c.id === run.claim_id)?.runner_name;
+                          return name ? ` · ${name}` : "";
+                        })()}
                         {isActive &&
                           ` · ${t("project_hub.changes.heartbeat", { age: formatAge(run.last_heartbeat_at) })}`}
                       </p>

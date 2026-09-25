@@ -7,9 +7,9 @@
 import { observer } from "mobx-react";
 // plane imports
 import { useTranslation } from "@plane/i18n";
-import type { TDeliveryStage, TPackageDeliveryView, TPHActivityResponse, TPHDecision } from "@plane/types";
+import type { TDeliveryStage, TPackageDeliveryView, TPHActivityFeed, TPHDecision } from "@plane/types";
 import type { TProjectHubTone } from "@plane/utils";
-import { groupActivityByDay, shortHash } from "@plane/utils";
+import { adaptActivityFeed, getDeliveryLabelKey, groupActivityByDay, shortHash } from "@plane/utils";
 // hooks
 import { useProjectHub } from "@/hooks/store/use-project-hub";
 import { PH_KEYS } from "@/store/project-hub";
@@ -41,7 +41,7 @@ export const HistoryTab = observer(function HistoryTab({ scope }: { scope: TWork
   const { formatDateTime, formatDate } = useHubFormatters();
   const { workspaceSlug, projectId, issueId } = scope;
 
-  const activity = useHubResource<TPHActivityResponse>(
+  const activity = useHubResource<TPHActivityFeed>(
     PH_KEYS.activity(workspaceSlug, projectId, `issue:${issueId}`, ""),
     () => store.knowledgeService.getActivity(workspaceSlug, projectId, { since: HISTORY_SINCE(), issue_id: issueId })
   );
@@ -58,30 +58,44 @@ export const HistoryTab = observer(function HistoryTab({ scope }: { scope: TWork
         <HubResourceBoundary
           resource={delivery}
           loadingRows={2}
-          isEmpty={(d) => (d.chains ?? []).length === 0 && (d.history ?? []).length === 0}
+          isEmpty={(d) => d.repositories.length === 0 && d.history.length === 0}
           empty={<HubEmpty title={t("project_hub.history.delivery_empty")} />}
         >
           {(data) => (
             <div className="flex flex-col gap-3">
-              {data.aggregate && (
-                <p className="text-caption-sm-regular text-secondary">
-                  {t("project_hub.history.aggregate", { state: data.aggregate.delivery })}
-                  {data.aggregate.rule &&
-                    ` · ${t("project_hub.history.aggregate_rule", { rule: data.aggregate.rule })}`}
-                </p>
+              <p className="text-caption-sm-regular text-secondary">
+                {t("project_hub.history.aggregate", { state: t(getDeliveryLabelKey(data.delivery)) })} ·{" "}
+                {t("project_hub.history.local_state_unknown")}
+              </p>
+              {data.integrations.length > 0 && (
+                <ul className="flex flex-wrap gap-2">
+                  {data.integrations.map((i) => (
+                    <li key={i.connection_id}>
+                      <ToneBadge
+                        tone="warning"
+                        size="xs"
+                        label={t("project_hub.activity.source_health", {
+                          source: i.provider,
+                          time: formatDateTime(i.last_successful_sync_at),
+                        })}
+                      />
+                    </li>
+                  ))}
+                </ul>
               )}
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-body-xs-regular">
+                  <caption className="sr-only">{t("project_hub.history.delivery")}</caption>
                   <thead>
                     <tr className="border-b border-subtle text-tertiary">
                       <th scope="col" className="py-1.5 pr-3 font-medium">
                         {t("project_hub.changes.repository")}
                       </th>
                       <th scope="col" className="py-1.5 pr-3 font-medium">
-                        {t("project_hub.history.environment")}
+                        {t("project_hub.history.delivery")}
                       </th>
                       <th scope="col" className="py-1.5 pr-3 font-medium">
-                        {t("project_hub.history.delivery")}
+                        {t("project_hub.history.environment")}
                       </th>
                       <th scope="col" className="py-1.5 font-medium">
                         {t("project_hub.history.commit")}
@@ -89,35 +103,43 @@ export const HistoryTab = observer(function HistoryTab({ scope }: { scope: TWork
                     </tr>
                   </thead>
                   <tbody>
-                    {data.chains.map((chain) => {
-                      const last = chain.entries[chain.entries.length - 1];
-                      return (
-                        <tr
-                          key={`${chain.repository_binding_id}-${chain.environment}`}
-                          className="border-b border-subtle align-top"
-                        >
-                          <th scope="row" className="py-1.5 pr-3 font-medium text-primary">
-                            {chain.repository_name ?? "—"}
-                          </th>
-                          <td className="py-1.5 pr-3 text-secondary">{chain.environment ?? "—"}</td>
-                          <td className="py-1.5 pr-3">
-                            <ToneBadge
-                              tone={STAGE_TONE[chain.current_stage] ?? "neutral"}
-                              size="xs"
-                              label={t(`project_hub.history.stage.${chain.current_stage}`)}
-                            />
-                            {chain.current_stage === "deployed" && (
-                              <p className="pt-1 text-caption-sm-regular text-tertiary">
-                                {t("project_hub.history.deployed_not_released")}
-                              </p>
-                            )}
-                          </td>
-                          <td className="py-1.5 text-secondary">
-                            {last?.commit_sha ? <code className="font-mono">{shortHash(last.commit_sha)}</code> : "—"}
-                          </td>
-                        </tr>
-                      );
-                    })}
+                    {data.repositories.map((repo) => (
+                      <tr key={repo.binding_id} className="border-b border-subtle align-top">
+                        <th scope="row" className="py-1.5 pr-3 font-medium text-primary">
+                          {repo.name}
+                          {repo.role && <span className="text-tertiary"> · {repo.role}</span>}
+                        </th>
+                        <td className="py-1.5 pr-3">
+                          <ToneBadge
+                            tone={STAGE_TONE[repo.delivery as TDeliveryStage] ?? "neutral"}
+                            size="xs"
+                            label={t(getDeliveryLabelKey(repo.delivery))}
+                          />
+                          {repo.delivery === "deployed" && (
+                            <p className="pt-1 text-caption-sm-regular text-tertiary">
+                              {t("project_hub.history.deployed_not_released")}
+                            </p>
+                          )}
+                        </td>
+                        <td className="py-1.5 pr-3 text-secondary">
+                          {repo.environments.length === 0
+                            ? "—"
+                            : repo.environments.map((env) => (
+                                <span key={env.name} className="block">
+                                  {env.name}: {t(`project_hub.history.stage.${env.state}`)} ({shortHash(env.commit_sha)}
+                                  )
+                                </span>
+                              ))}
+                        </td>
+                        <td className="py-1.5 text-secondary">
+                          {repo.integrated_commit_sha ? (
+                            <code className="font-mono">{shortHash(repo.integrated_commit_sha)}</code>
+                          ) : (
+                            "—"
+                          )}
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -132,14 +154,15 @@ export const HistoryTab = observer(function HistoryTab({ scope }: { scope: TWork
                           size="xs"
                           label={t(`project_hub.history.stage.${entry.stage}`)}
                         />{" "}
-                        {entry.repository_name ?? ""} {entry.environment && `· ${entry.environment}`}{" "}
+                        {data.repositories.find((r) => r.binding_id === entry.binding_id)?.name ?? ""}{" "}
+                        {entry.environment && `· ${entry.environment}`}{" "}
                         {entry.commit_sha && (
                           <>
                             · <code className="font-mono">{shortHash(entry.commit_sha)}</code>
                           </>
                         )}{" "}
                         · {entry.source} · {formatDateTime(entry.occurred_at)}
-                        {entry.reverts_id && ` · ${t("project_hub.history.rollback")}`}
+                        {entry.reverts && ` · ${t("project_hub.history.rollback")}`}
                       </li>
                     ))}
                   </ol>
@@ -187,12 +210,12 @@ export const HistoryTab = observer(function HistoryTab({ scope }: { scope: TWork
         <HubResourceBoundary
           resource={activity}
           loadingRows={3}
-          isEmpty={(d) => d.groups.filter((g) => g.issue_id === issueId).length === 0}
+          isEmpty={(d) => adaptActivityFeed(d).filter((g) => g.issue_id === issueId).length === 0}
           empty={<HubEmpty title={t("project_hub.history.timeline_empty")} />}
         >
           {(data) => (
             <div className="flex flex-col gap-4">
-              {groupActivityByDay(data.groups.filter((g) => g.issue_id === issueId)).map((section) => (
+              {groupActivityByDay(adaptActivityFeed(data).filter((g) => g.issue_id === issueId)).map((section) => (
                 <div key={section.day} className="flex flex-col gap-2">
                   <h4 className="text-caption-md-medium text-tertiary">{formatDate(section.day)}</h4>
                   {section.groups.map((group) => (

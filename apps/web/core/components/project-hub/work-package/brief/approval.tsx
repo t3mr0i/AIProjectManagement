@@ -167,7 +167,9 @@ export const ApprovalPanel = observer(function ApprovalPanel({ scope, approvals,
       <HubCard key={approval.id} className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-body-xs-medium text-primary">
-            {t("project_hub.revisions.number", { number: approval.revision_number ?? "?" })}
+            {t("project_hub.revisions.number", {
+              number: revisions?.find((r) => r.id === approval.revision_id)?.number ?? "?",
+            })}
           </span>
           {validity.kind === "revoked" ? (
             <ToneBadge

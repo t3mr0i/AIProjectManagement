@@ -51,7 +51,7 @@ export class ProjectHubPackageService extends ProjectHubBaseService {
   }
 
   listCapabilityGrants(workspaceSlug: string) {
-    return this.getJson<TProjectHubCapabilityGrant[]>(`${projectHubWorkspacePath(workspaceSlug)}/capability-grants/`);
+    return this.getList<TProjectHubCapabilityGrant>(`${projectHubWorkspacePath(workspaceSlug)}/capability-grants/`);
   }
 
   createCapabilityGrant(
@@ -69,12 +69,12 @@ export class ProjectHubPackageService extends ProjectHubBaseService {
   }
 
   listAudit(workspaceSlug: string, params?: { project_id?: string; action?: string }) {
-    return this.getJson<TProjectHubAuditEntry[]>(`${projectHubWorkspacePath(workspaceSlug)}/audit/`, params);
+    return this.getList<TProjectHubAuditEntry>(`${projectHubWorkspacePath(workspaceSlug)}/audit/`, params);
   }
 
   // ---- packages (I02)
   listPackages(workspaceSlug: string, projectId: string, view: TPackageView = "all") {
-    return this.getJson<TPackageRow[]>(`${projectHubProjectPath(workspaceSlug, projectId)}/packages/`, { view });
+    return this.getList<TPackageRow>(`${projectHubProjectPath(workspaceSlug, projectId)}/packages/`, { view });
   }
 
   private workItemPath(workspaceSlug: string, projectId: string, issueId: string) {
@@ -98,7 +98,7 @@ export class ProjectHubPackageService extends ProjectHubBaseService {
   }
 
   listRevisions(workspaceSlug: string, projectId: string, issueId: string) {
-    return this.getJson<TPackageRevision[]>(`${this.workItemPath(workspaceSlug, projectId, issueId)}/revisions`);
+    return this.getList<TPackageRevision>(`${this.workItemPath(workspaceSlug, projectId, issueId)}/revisions`);
   }
 
   createRevision(workspaceSlug: string, projectId: string, issueId: string) {
@@ -119,7 +119,7 @@ export class ProjectHubPackageService extends ProjectHubBaseService {
   }
 
   listExecutionApprovals(workspaceSlug: string, projectId: string, issueId: string) {
-    return this.getJson<TExecutionApproval[]>(
+    return this.getList<TExecutionApproval>(
       `${this.workItemPath(workspaceSlug, projectId, issueId)}/execution-approvals`
     );
   }
@@ -145,7 +145,7 @@ export class ProjectHubPackageService extends ProjectHubBaseService {
   }
 
   listChangeRecords(workspaceSlug: string, projectId: string, issueId: string) {
-    return this.getJson<TChangeRecord[]>(`${this.workItemPath(workspaceSlug, projectId, issueId)}/change-records`);
+    return this.getList<TChangeRecord>(`${this.workItemPath(workspaceSlug, projectId, issueId)}/change-records`);
   }
 
   createChangeRecord(

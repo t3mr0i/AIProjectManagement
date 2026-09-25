@@ -5,6 +5,7 @@
  */
 
 import type {
+  TPHClarifyRequest,
   TPHClarifyStep,
   TPHContextPreview,
   TPHContextPreviewRequest,
@@ -15,7 +16,8 @@ import type {
   TPHDecisionPreview,
   TPHDecisionPreviewRequest,
   TPHMessage,
-  TPHNotificationItem,
+  TPHMessageCreated,
+  TPHNotifications,
   TPHProposal,
 } from "@plane/types";
 import { ProjectHubBaseService, projectHubProjectPath, projectHubWorkspacePath } from "./base.service";
@@ -23,10 +25,9 @@ import { ProjectHubBaseService, projectHubProjectPath, projectHubWorkspacePath }
 /** Conversations, messages, decisions, clarification, AI proposals, notifications (API §5). */
 export class ProjectHubCollaborationService extends ProjectHubBaseService {
   listConversations(workspaceSlug: string) {
-    return this.getJson<TPHConversation[]>(`${projectHubWorkspacePath(workspaceSlug)}/conversations/`);
+    return this.getList<TPHConversation>(`${projectHubWorkspacePath(workspaceSlug)}/conversations/`);
   }
 
-  /** Package threads are get-or-create per issue on the server. */
   createConversation(workspaceSlug: string, data: TPHConversationCreate) {
     return this.postJson<TPHConversation>(`${projectHubWorkspacePath(workspaceSlug)}/conversations/`, data);
   }
@@ -35,14 +36,22 @@ export class ProjectHubCollaborationService extends ProjectHubBaseService {
     return this.getJson<TPHConversation>(`${projectHubWorkspacePath(workspaceSlug)}/conversations/${conversationId}/`);
   }
 
+  /** The package's single thread (get-or-create for humans, FR-C01). */
+  getPackageThread(workspaceSlug: string, projectId: string, issueId: string) {
+    return this.getJson<TPHConversation>(
+      `${projectHubProjectPath(workspaceSlug, projectId)}/work-items/${issueId}/thread`
+    );
+  }
+
   listMessages(workspaceSlug: string, conversationId: string) {
-    return this.getJson<TPHMessage[]>(
+    return this.getList<TPHMessage>(
       `${projectHubWorkspacePath(workspaceSlug)}/conversations/${conversationId}/messages/`
     );
   }
 
+  /** `@AI` in the body returns the AI answer as `ai_answer` (never a decision). */
   postMessage(workspaceSlug: string, conversationId: string, data: { body: string; parent_id?: string }) {
-    return this.postJson<TPHMessage>(
+    return this.postJson<TPHMessageCreated>(
       `${projectHubWorkspacePath(workspaceSlug)}/conversations/${conversationId}/messages/`,
       data
     );
@@ -80,28 +89,29 @@ export class ProjectHubCollaborationService extends ProjectHubBaseService {
   }
 
   listDecisions(workspaceSlug: string, projectId: string, issueId?: string) {
-    return this.getJson<TPHDecision[]>(
+    return this.getList<TPHDecision>(
       `${projectHubProjectPath(workspaceSlug, projectId)}/decisions/`,
       issueId ? { issue_id: issueId } : undefined
     );
   }
 
-  clarify(workspaceSlug: string, projectId: string, issueId: string, answer?: string) {
+  clarify(workspaceSlug: string, projectId: string, issueId: string, body: TPHClarifyRequest = {}) {
     return this.postJson<TPHClarifyStep>(
       `${projectHubProjectPath(workspaceSlug, projectId)}/work-items/${issueId}/clarify`,
-      answer ? { answer } : {}
+      body
     );
   }
 
-  listProposals(workspaceSlug: string, projectId: string, issueId?: string) {
-    return this.getJson<TPHProposal[]>(
-      `${projectHubProjectPath(workspaceSlug, projectId)}/proposals/`,
-      issueId ? { issue_id: issueId } : undefined
-    );
+  listProposals(
+    workspaceSlug: string,
+    projectId: string,
+    params?: { issue_id?: string; status?: string; kind?: string }
+  ) {
+    return this.getList<TPHProposal>(`${projectHubProjectPath(workspaceSlug, projectId)}/proposals/`, params);
   }
 
   acceptProposal(workspaceSlug: string, projectId: string, proposalId: string) {
-    return this.postJson<TPHProposal>(
+    return this.postJson<TPHProposal & { applied?: Record<string, unknown> }>(
       `${projectHubProjectPath(workspaceSlug, projectId)}/proposals/${proposalId}/accept`
     );
   }
@@ -113,6 +123,10 @@ export class ProjectHubCollaborationService extends ProjectHubBaseService {
   }
 
   listNotifications(workspaceSlug: string) {
-    return this.getJson<TPHNotificationItem[]>(`${projectHubWorkspacePath(workspaceSlug)}/notifications/`);
+    return this.getJson<TPHNotifications>(`${projectHubWorkspacePath(workspaceSlug)}/notifications/`);
+  }
+
+  markNotificationRead(workspaceSlug: string, notificationId: string) {
+    return this.postJson<unknown>(`${projectHubWorkspacePath(workspaceSlug)}/notifications/${notificationId}/read`);
   }
 }

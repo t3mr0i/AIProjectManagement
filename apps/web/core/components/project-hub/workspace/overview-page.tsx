@@ -58,9 +58,9 @@ const ProjectOverviewCard = observer(function ProjectOverviewCard({
           <>
             <p className="text-caption-sm-regular text-secondary">
               {t("project_hub.overview.counts", {
-                active: overview.data.active.length,
-                review: overview.data.review.length,
-                ready: overview.data.ready.length,
+                active: overview.data.packages.active.length,
+                review: overview.data.packages.review.length,
+                ready: overview.data.packages.ready.length,
               })}
             </p>
             {overview.data.next_work.length > 0 && (
@@ -104,9 +104,10 @@ export const WorkspaceOverviewPage = observer(function WorkspaceOverviewPage({
   const { t } = useTranslation();
   const store = useProjectHub();
   const { joinedProjectIds } = useProject();
-  const notifications = useHubResource<TPHNotificationItem[]>(PH_KEYS.notifications(workspaceSlug), () =>
-    store.collaborationService.listNotifications(workspaceSlug)
-  );
+  const notifications = useHubResource<TPHNotificationItem[]>(PH_KEYS.notifications(workspaceSlug), async () => {
+    const n = await store.collaborationService.listNotifications(workspaceSlug);
+    return [...n.targeted, ...n.bundled];
+  });
 
   return (
     <HubPage title={t("project_hub.overview.title")}>

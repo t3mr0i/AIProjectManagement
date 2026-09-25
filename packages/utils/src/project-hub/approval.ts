@@ -8,21 +8,17 @@ import type { TExecutionApproval } from "@plane/types";
 
 export type TApprovalValidity = { kind: "valid" | "revoked" | "invalid"; reason: string | null };
 
-const VALID_STATES = new Set(["active", "valid", "approved"]);
-
 /**
- * Display validity strictly from server fields: revoked → revoked; a non-valid server `state`
- * or `is_valid === false` → invalid (with reason); otherwise valid. Never inferred optimistically.
+ * Display validity strictly from the server `state` (`valid` | `revoked` | `expired`); anything
+ * unknown is treated as invalid. Never inferred optimistically.
  */
 export const getApprovalValidity = (
-  approval: Pick<TExecutionApproval, "revoked_at" | "revoke_reason" | "state" | "is_valid" | "invalid_reason">
+  approval: Pick<TExecutionApproval, "revoked_at" | "revoke_reason"> & { state?: string }
 ): TApprovalValidity => {
   if (approval.revoked_at || approval.state === "revoked")
-    return { kind: "revoked", reason: approval.revoke_reason ?? null };
-  if (approval.state && !VALID_STATES.has(approval.state))
-    return { kind: "invalid", reason: approval.invalid_reason ?? approval.state };
-  if (approval.is_valid === false) return { kind: "invalid", reason: approval.invalid_reason ?? null };
-  return { kind: "valid", reason: null };
+    return { kind: "revoked", reason: approval.revoke_reason || null };
+  if (approval.state === "valid") return { kind: "valid", reason: null };
+  return { kind: "invalid", reason: approval.state ?? null };
 };
 
 const CHECK_NAME = /^[a-z0-9][a-z0-9_.-]{0,63}$/;

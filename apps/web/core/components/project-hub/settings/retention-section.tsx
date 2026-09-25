@@ -26,10 +26,9 @@ const CATEGORIES = ["messages", "audit", "run_logs", "raw_events", "ai_outputs",
 export const RetentionSection = observer(function RetentionSection({ workspaceSlug }: { workspaceSlug: string }) {
   const { t } = useTranslation();
   const store = useProjectHub();
-  const retention = useHubResource<TPHRetentionPolicy[]>(PH_KEYS.retention(workspaceSlug), async () => {
-    const payload = await store.knowledgeService.getRetention(workspaceSlug);
-    return Array.isArray(payload) ? payload : (payload.policies ?? []);
-  });
+  const retention = useHubResource<TPHRetentionPolicy[]>(PH_KEYS.retention(workspaceSlug), () =>
+    store.knowledgeService.getRetention(workspaceSlug)
+  );
   const [draft, setDraft] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState<string | null>(null);
 

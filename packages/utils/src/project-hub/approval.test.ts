@@ -8,18 +8,22 @@ import { describe, expect, it } from "vitest";
 import { getApprovalValidity, parseCheckLines } from "./approval";
 
 describe("project-hub approval helpers", () => {
-  it("derives validity only from server fields", () => {
-    expect(getApprovalValidity({ revoked_at: null })).toEqual({ kind: "valid", reason: null });
-    expect(getApprovalValidity({ revoked_at: "2026-09-24T00:00:00Z", revoke_reason: "scope" })).toEqual({
+  it("derives validity only from the server state", () => {
+    expect(getApprovalValidity({ revoked_at: null, revoke_reason: "", state: "valid" })).toEqual({
+      kind: "valid",
+      reason: null,
+    });
+    expect(
+      getApprovalValidity({ revoked_at: "2026-09-24T00:00:00Z", revoke_reason: "scope", state: "revoked" })
+    ).toEqual({
       kind: "revoked",
       reason: "scope",
     });
-    expect(getApprovalValidity({ revoked_at: null, state: "expired" })).toEqual({ kind: "invalid", reason: "expired" });
-    expect(getApprovalValidity({ revoked_at: null, state: "active" }).kind).toBe("valid");
-    expect(getApprovalValidity({ revoked_at: null, is_valid: false, invalid_reason: "stale" })).toEqual({
+    expect(getApprovalValidity({ revoked_at: null, revoke_reason: "", state: "expired" })).toEqual({
       kind: "invalid",
-      reason: "stale",
+      reason: "expired",
     });
+    expect(getApprovalValidity({ revoked_at: null, revoke_reason: "" }).kind).toBe("invalid");
   });
 
   it("parses check lines into argv lists", () => {

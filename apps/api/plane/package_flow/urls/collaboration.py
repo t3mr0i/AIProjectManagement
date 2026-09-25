@@ -60,6 +60,8 @@ urlpatterns = [
         "pf-proposal-decision",
     ),
     # uploads
+    *both(P + "uploads/", v.UploadListEndpoint.as_view(), "pf-uploads"),
+    *both(P + "uploads/candidates", v.UploadCandidateListEndpoint.as_view(), "pf-upload-candidates"),
     *both(P + "uploads/<uuid:asset_id>/register", v.UploadRegisterEndpoint.as_view(), "pf-upload-register"),
     *both(P + "uploads/<uuid:asset_id>/", v.UploadDetailEndpoint.as_view(), "pf-upload"),
     # activity + overview

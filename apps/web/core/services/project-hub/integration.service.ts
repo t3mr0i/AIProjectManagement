@@ -21,17 +21,22 @@ import type {
   TSpecImport,
   TSpecState,
   TSyncConflict,
+  TSyncConflictResolution,
 } from "@plane/types";
 import { ProjectHubBaseService, projectHubProjectPath, projectHubWorkspacePath } from "./base.service";
 
 /** Integrations, delivery, review, spec sync (API §4, §6 spec). */
 export class ProjectHubIntegrationService extends ProjectHubBaseService {
   listProviders(workspaceSlug: string) {
-    return this.getJson<TProviderDeclaration[]>(`${projectHubWorkspacePath(workspaceSlug)}/providers/`);
+    return this.getList<TProviderDeclaration>(
+      `${projectHubWorkspacePath(workspaceSlug)}/providers/`,
+      undefined,
+      "providers"
+    );
   }
 
   listConnections(workspaceSlug: string) {
-    return this.getJson<TIntegrationConnection[]>(`${projectHubWorkspacePath(workspaceSlug)}/connections/`);
+    return this.getList<TIntegrationConnection>(`${projectHubWorkspacePath(workspaceSlug)}/connections/`);
   }
 
   createConnection(workspaceSlug: string, data: TIntegrationConnectionCreate) {
@@ -61,7 +66,7 @@ export class ProjectHubIntegrationService extends ProjectHubBaseService {
   }
 
   listRepositories(workspaceSlug: string, projectId: string) {
-    return this.getJson<TRepositoryBinding[]>(`${projectHubProjectPath(workspaceSlug, projectId)}/repositories/`);
+    return this.getList<TRepositoryBinding>(`${projectHubProjectPath(workspaceSlug, projectId)}/repositories/`);
   }
 
   private workItemPath(workspaceSlug: string, projectId: string, issueId: string) {
@@ -69,15 +74,15 @@ export class ProjectHubIntegrationService extends ProjectHubBaseService {
   }
 
   listExternalLinks(workspaceSlug: string, projectId: string, issueId: string) {
-    return this.getJson<TExternalLink[]>(`${this.workItemPath(workspaceSlug, projectId, issueId)}/external-links`);
+    return this.getList<TExternalLink>(`${this.workItemPath(workspaceSlug, projectId, issueId)}/external-links`);
   }
 
   listMergeRequests(workspaceSlug: string, projectId: string, issueId: string) {
-    return this.getJson<TMergeRequestLink[]>(`${this.workItemPath(workspaceSlug, projectId, issueId)}/merge-requests`);
+    return this.getList<TMergeRequestLink>(`${this.workItemPath(workspaceSlug, projectId, issueId)}/merge-requests`);
   }
 
   listEvidence(workspaceSlug: string, projectId: string, issueId: string) {
-    return this.getJson<TPackageEvidence[]>(`${this.workItemPath(workspaceSlug, projectId, issueId)}/evidence`);
+    return this.getList<TPackageEvidence>(`${this.workItemPath(workspaceSlug, projectId, issueId)}/evidence`);
   }
 
   getReview(workspaceSlug: string, projectId: string, issueId: string) {
@@ -104,7 +109,7 @@ export class ProjectHubIntegrationService extends ProjectHubBaseService {
   }
 
   listSyncConflicts(workspaceSlug: string, projectId: string, issueId: string) {
-    return this.getJson<TSyncConflict[]>(`${this.workItemPath(workspaceSlug, projectId, issueId)}/sync-conflicts`);
+    return this.getList<TSyncConflict>(`${this.workItemPath(workspaceSlug, projectId, issueId)}/sync-conflicts`);
   }
 
   resolveSyncConflict(
@@ -112,7 +117,7 @@ export class ProjectHubIntegrationService extends ProjectHubBaseService {
     projectId: string,
     issueId: string,
     conflictId: string,
-    resolution: "platform" | "external"
+    resolution: TSyncConflictResolution
   ) {
     return this.postJson<TSyncConflict>(
       `${this.workItemPath(workspaceSlug, projectId, issueId)}/sync-conflicts/${conflictId}/resolve`,
@@ -125,14 +130,14 @@ export class ProjectHubIntegrationService extends ProjectHubBaseService {
   }
 
   exportSpec(workspaceSlug: string, projectId: string, issueId: string, data: TSpecExport) {
-    return this.postJson<{ content?: string; path?: string }>(
+    return this.postJson<Record<string, unknown>>(
       `${this.workItemPath(workspaceSlug, projectId, issueId)}/spec/export`,
       data
     );
   }
 
   importSpec(workspaceSlug: string, projectId: string, issueId: string, data: TSpecImport) {
-    return this.postJson<{ revision_id?: string; conflict?: unknown }>(
+    return this.postJson<Record<string, unknown>>(
       `${this.workItemPath(workspaceSlug, projectId, issueId)}/spec/import`,
       data
     );

@@ -144,7 +144,9 @@
       "sync_conflict": "Sync-Konflikt",
       "stale_evidence": "Veraltete Nachweise",
       "integration_offline": "Integration offline",
-      "native_done_without_delivery": "Erledigt ohne Liefernachweis"
+      "native_done_without_delivery": "Erledigt ohne Liefernachweis",
+      "native_done_without_delivery_evidence": "Erledigt ohne Liefernachweis",
+      "merge_pending_confirmation": "Merge wartet auf Bestätigung"
     },
     "trust": {
       "local_self_report": "Lokale Selbstauskunft",
@@ -228,7 +230,16 @@
       "draft_saved": "Entwurf gespeichert",
       "unsaved_changes": "Ungespeicherte Änderungen",
       "version": "Entwurfsversion {version}",
-      "readonly": "Sie können diesen Auftrag lesen, aber nicht bearbeiten."
+      "readonly": "Sie können diesen Auftrag lesen, aber nicht bearbeiten.",
+      "scope_hint": "Ein Punkt pro Zeile. Für die Bereitschaft ist mindestens ein Punkt im Umfang nötig.",
+      "verification": "Nachweis für Kriterium {index}",
+      "verifications": {
+        "ci": "CI-Prüfung",
+        "manual": "Manuelle Prüfung",
+        "runner": "Runner",
+        "any": "Beliebiger Nachweis"
+      },
+      "risk_notes_hint": "Pflicht bei tiefen Paketen: Was kann schiefgehen und wie wird es abgefangen?"
     },
     "readiness": {
       "title": "Bereitschaft",
@@ -309,7 +320,8 @@
       "continue": "Fortsetzen",
       "closed": "Klärung abgeschlossen.",
       "open_blockers": "Offene Blocker",
-      "summary": "Zusammenfassung"
+      "summary": "Zusammenfassung",
+      "draft_ready": "Ein Vorschlagsentwurf ist bereit. Prüfe ihn unten – es wurde noch nichts übernommen."
     },
     "proposals": {
       "title": "KI-Vorschläge",
@@ -329,7 +341,8 @@
         "accepted": "Angenommen",
         "rejected": "Abgelehnt",
         "stale": "Veraltet"
-      }
+      },
+      "patch_field": "Feld: {field}"
     },
     "changes": {
       "records": "Änderungseinträge",
@@ -425,7 +438,8 @@
       "external_value": "Externer Wert",
       "keep_platform": "Plattformwert behalten",
       "keep_external": "Externen Wert übernehmen",
-      "changed_at": "geändert {time}"
+      "changed_at": "geändert {time}",
+      "manifest": "Manifest {hash}"
     },
     "review": {
       "intent": "Freigegebene Absicht",
@@ -472,7 +486,32 @@
       "no_capability_review": "Ihnen fehlt die Fähigkeit für dieses Review.",
       "no_capability_merge": "Ihnen fehlt die Fähigkeit, einen Merge anzufordern.",
       "recorded": "Review-Entscheidung gespeichert",
-      "select_mr": "Merge Request"
+      "select_mr": "Merge Request",
+      "change_counts": "{mrs} Merge Requests · {commits} Commits",
+      "commit_claims": "Commit-Nachrichten (Behauptungen, keine Nachweise)",
+      "required_trust": "Nachweis erforderlich von: {trust}",
+      "trust_level": {
+        "trusted_ci": "vertrauenswürdiger CI",
+        "human": "menschlicher Prüfung",
+        "runner": "Runner",
+        "any": "beliebiger Quelle"
+      },
+      "open_point": {
+        "criterion_not_proven": "Kriterium nicht nachgewiesen: {criterion} ({reason})",
+        "code_review_required": "Code-Review für Head {sha} erforderlich",
+        "code_review_invalidated": "Code-Review durch neue Commits ungültig (Head {sha})",
+        "open_question": "Offene Frage: {title}",
+        "outcome_acceptance_missing": "Ergebnisabnahme fehlt",
+        "no_approved_revision": "Keine freigegebene Revision",
+        "revision_changed_since_approval": "Die Revision hat sich seit der Freigabe geändert"
+      },
+      "validity": {
+        "valid": "Gültig",
+        "changes_requested": "Änderungen angefordert",
+        "invalidated": "Ungültig",
+        "stale_revision": "Für eine ältere Revision",
+        "stale_head": "Für einen älteren Commit"
+      }
     },
     "history": {
       "timeline": "Paketaktivität",
@@ -498,7 +537,8 @@
       "aggregate": "Gesamt: {state}",
       "aggregate_rule": "Regel: {rule}",
       "deployed_not_released": "Bereitgestellt ohne bekannte Freischaltung — nicht zwingend für alle Nutzer verfügbar.",
-      "history_title": "Historie (inkl. Rollbacks)"
+      "history_title": "Historie (inkl. Rollbacks)",
+      "local_state_unknown": "Der Stand auf Entwicklerrechnern ist unbekannt."
     },
     "discussion": {
       "title": "Diskussion",
@@ -533,7 +573,8 @@
       "ai_badge": "KI",
       "ai_answer_hint": "KI-Antwort — keine Entscheidung",
       "mark_read": "Als gelesen markieren",
-      "system": "System"
+      "system": "System",
+      "private_source": "Beruht auf einer privaten Quelle; geteilt wird nur der bestätigte Text."
     },
     "activity": {
       "title": "Aktivität",
@@ -620,7 +661,12 @@
       "successor": "Nachfolger",
       "project_filter": "Projekte",
       "created": "Meilenstein erstellt",
-      "uncertain": "Unsicher"
+      "uncertain": "Unsicher",
+      "dependency_create": "Abhängigkeit hinzufügen",
+      "late_by": "{hours} h verspätet (voraussichtlich {date})",
+      "not_late": "Nicht verspätet",
+      "via": "Über {path}",
+      "impact_basis_deps": "Berechnet nur aus Abhängigkeiten und verlässlichen Terminen. Der Plan wird nicht geändert."
     },
     "knowledge": {
       "title": "Wissen",
@@ -643,7 +689,20 @@
       "decisions": "Entscheidungen",
       "decisions_empty": "Noch keine Entscheidungen.",
       "search_placeholder": "In diesem Projekt suchen",
-      "search_empty": "Keine zugänglichen Ergebnisse."
+      "search_empty": "Keine zugänglichen Ergebnisse.",
+      "register": "Anhang registrieren",
+      "register_submit": "Registrieren",
+      "register_hint": "Wähle einen vorhandenen Anhang dieses Projekts. Er wird geprüft und eingeordnet; es wird nichts erneut hochgeladen.",
+      "candidates": "Anhänge",
+      "candidates_empty": "Keine unregistrierten Anhänge in diesem Projekt.",
+      "filename": "Dateiname",
+      "declared_mime": "Angegebener Typ (MIME)",
+      "declared_mime_hint": "Der beim Scan erkannte Typ hat Vorrang.",
+      "not_uploaded": "Upload unvollständig",
+      "registered": "{name} registriert",
+      "quarantined_warning": "In Quarantäne – nicht öffnen oder teilen. Der Inhalt ist gesperrt.",
+      "format_blocked": "Gesperrt (Quarantäne)",
+      "mime": "MIME-Typ"
     },
     "overview": {
       "title": "Übersicht",
@@ -689,7 +748,8 @@
         "page": "Seite",
         "message": "Nachricht",
         "event": "Ereignis",
-        "upload": "Upload"
+        "upload": "Upload",
+        "issue": "Arbeitselement"
       }
     },
     "settings": {
@@ -732,7 +792,8 @@
         "supported": "Unterstützt",
         "partial": "Teilweise",
         "unsupported": "Nicht unterstützt",
-        "unknown": "Unbekannt"
+        "unknown": "Unbekannt",
+        "requires_configuration": "Konfiguration erforderlich"
       },
       "connections": "Verbindungen",
       "connections_empty": "Keine Verbindungen.",
@@ -752,7 +813,8 @@
         "active": "Aktiv",
         "degraded": "Eingeschränkt",
         "offline": "Offline",
-        "disabled": "Deaktiviert"
+        "disabled": "Deaktiviert",
+        "stale": "Veraltet"
       },
       "reconcile": "Abgleichen",
       "reconcile_started": "Abgleich angenommen (läuft im Hintergrund)",
@@ -790,6 +852,52 @@
       "project_plan": "Projekt planen",
       "integration_manage": "Integrationen verwalten",
       "workspace_admin": "Project Hub administrieren"
+    },
+    "diagram": {
+      "title": "Diagramme",
+      "description": "Strukturierte Diagramme: Knoten und Kanten tragen Bedeutung, Positionen sind nur Layout.",
+      "create": "Neues Diagramm",
+      "name": "Name",
+      "empty": "Noch keine Diagramme.",
+      "counts": "{nodes} Knoten · {edges} Kanten",
+      "unlinked": "Mit keinem Arbeitspaket verknüpft",
+      "open": "Editor öffnen",
+      "close": "Editor schließen",
+      "canvas_label": "Diagrammfläche",
+      "node_label": "{label} ({type}). Ziehen oder mit den Pfeiltasten verschieben.",
+      "canvas_help": "Knoten ziehen oder fokussieren und mit den Pfeiltasten verschieben (Umschalt = größere Schritte). Verschieben ändert nur das Layout.",
+      "version": "Version {version}",
+      "no_change": "Nichts geändert.",
+      "layout_only": "Gespeichert – nur Layout. Die Bedeutung des Diagramms hat sich nicht geändert.",
+      "semantic_change": "Gespeichert – die Bedeutung hat sich geändert. Ein Interpretationsvorschlag wurde erstellt.",
+      "diff_summary": "Knoten: +{nodesAdded} −{nodesRemoved} ~{nodesChanged} · Kanten: +{edgesAdded} −{edgesRemoved} ~{edgesChanged}",
+      "pending_interpretation": "Offene Interpretation",
+      "not_a_requirement": "Nur eine Interpretation – nichts wird zur Anforderung, bevor ein Mensch es annimmt.",
+      "uncertainty": "Unsicherheit: {level}",
+      "questions": "Fragen zu mehrdeutigen Kanten",
+      "suggested_criteria": "Vorgeschlagene Abnahmekriterien",
+      "impacts": "Mögliche Auswirkungen",
+      "needs_package": "Verknüpfe das Diagramm mit einem Arbeitspaket, um Kriterien zu übernehmen.",
+      "accept": "Auswahl annehmen",
+      "accepted": "Interpretation angenommen",
+      "nodes": "Knoten",
+      "add_node": "Knoten hinzufügen",
+      "new_node": "Neuer Knoten",
+      "label": "Bezeichnung",
+      "type": "Typ",
+      "remove_node": "{label} entfernen",
+      "edges": "Kanten",
+      "add_edge": "Kante hinzufügen",
+      "remove_edge": "Kante entfernen",
+      "direction": "Richtung",
+      "directions": {
+        "forward": "Eine Richtung (→)",
+        "both": "Beide Richtungen (↔)",
+        "unknown": "Unklar (?)"
+      },
+      "ambiguous_edge": "Mehrdeutig: Typ oder Bezeichnung und eine klare Richtung ergänzen.",
+      "source": "Von",
+      "target": "Nach"
     }
   }
 }

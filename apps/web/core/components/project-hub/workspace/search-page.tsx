@@ -17,7 +17,7 @@ import { PH_KEYS } from "@/store/project-hub";
 // local imports
 import { HubTextField } from "../common/field";
 import { HubPage } from "../common/page";
-import { HubSearchResults, normalizeSearch } from "../common/search-results";
+import { HubSearchResults } from "../common/search-results";
 import { HubEmpty, HubResourceBoundary } from "../common/states";
 import { useHubResource } from "../common/use-hub-resource";
 
@@ -32,8 +32,7 @@ export const WorkspaceSearchPage = observer(function WorkspaceSearchPage({ works
   const [submitted, setSubmitted] = useState<{ q: string; types: string[] } | null>(null);
   const results = useHubResource<TPHSearchResult[]>(
     submitted ? PH_KEYS.search(workspaceSlug, submitted.q, submitted.types.join(",")) : null,
-    async () =>
-      normalizeSearch(await store.knowledgeService.search(workspaceSlug, submitted?.q ?? "", submitted?.types))
+    async () => await store.knowledgeService.search(workspaceSlug, submitted?.q ?? "", submitted?.types)
   );
 
   return (

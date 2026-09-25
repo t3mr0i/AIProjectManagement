@@ -80,6 +80,12 @@ class RunnerDetailView(PackageFlowBaseView):
 
 
 class ClaimCreateView(PackageFlowBaseView):
+    def get(self, request, slug, project_id, issue_id):
+        """``GET P/work-items/{issue_id}/claims`` — claims with lease/heartbeat for the web UI (read-only)."""
+        issue = self.get_issue(slug, project_id, issue_id, allow_archived=True)
+        self.require(issue.workspace_id, issue.project_id, Capability.PROJECT_READ, enabled=False)
+        return Response({"results": svc.list_claims(issue, status=request.query_params.get("status"))})
+
     def post(self, request, slug, project_id, issue_id):
         issue = self.get_issue(slug, project_id, issue_id)
         self.require(issue.workspace_id, issue.project_id, Capability.RUN_START)

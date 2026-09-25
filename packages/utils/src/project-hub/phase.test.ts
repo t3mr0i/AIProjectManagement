@@ -50,4 +50,19 @@ describe("project-hub phase helpers", () => {
     expect(groups.drafts.map((r) => r.id)).toEqual(["b"]);
     expect(groups.done).toEqual([]);
   });
+
+  it("treats a missing phase as drafts and tones server-only flags", () => {
+    const indicator = buildPackageIndicator({
+      phase: null,
+      delivery: "unknown",
+      flags: ["merge_pending_confirmation", "native_done_without_delivery_evidence"],
+    });
+    expect(indicator.phase).toBe("drafts");
+    expect(indicator.step).toBe(1);
+    expect(indicator.flags.map((f) => f.key)).toEqual([
+      "native_done_without_delivery_evidence",
+      "merge_pending_confirmation",
+    ]);
+    expect(indicator.flags[1]?.tone).toBe("info");
+  });
 });

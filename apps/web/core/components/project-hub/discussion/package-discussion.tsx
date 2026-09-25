@@ -27,11 +27,7 @@ export const PackageDiscussion = observer(function PackageDiscussion({
 }) {
   const store = useProjectHub();
   const thread = useHubResource<TPHConversation>(PH_KEYS.thread(issueId), () =>
-    store.collaborationService.createConversation(workspaceSlug, {
-      kind: "package",
-      project_id: projectId,
-      issue_id: issueId,
-    })
+    store.collaborationService.getPackageThread(workspaceSlug, projectId, issueId)
   );
   return (
     <HubResourceBoundary resource={thread} loadingRows={3}>

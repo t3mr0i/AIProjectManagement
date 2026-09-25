@@ -33,23 +33,24 @@ import { useHubFormatters } from "../common/use-relative-time";
 
 const PROVIDERS: TIntegrationProvider[] = ["gitlab", "github", "jira", "linear", "azure_devops", "generic_git"];
 
-const STATUS_TONE: Record<TConnectionStatus, TProjectHubTone> = {
+const STATUS_TONE: Record<TConnectionStatus | "stale", TProjectHubTone> = {
+  stale: "warning",
   active: "success",
   degraded: "warning",
   offline: "danger",
   disabled: "neutral",
 };
 
-const supportOf = (value: unknown): "supported" | "partial" | "unsupported" | "unknown" => {
-  if (value === true || value === "supported") return "supported";
-  if (value === "partial") return "partial";
-  if (value === false || value === "unsupported") return "unsupported";
+const supportOf = (value: unknown): "supported" | "partial" | "unsupported" | "requires_configuration" | "unknown" => {
+  if (value === "supported" || value === "partial" || value === "unsupported" || value === "requires_configuration")
+    return value;
   return "unknown";
 };
 
 const SUPPORT_TONE: Record<string, TProjectHubTone> = {
   supported: "success",
   partial: "warning",
+  requires_configuration: "info",
   unsupported: "neutral",
   unknown: "neutral",
 };

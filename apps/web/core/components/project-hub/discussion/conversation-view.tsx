@@ -10,7 +10,7 @@ import { observer } from "mobx-react";
 import { Button } from "@makeplane/propel/components/button";
 import { Checkbox } from "@makeplane/propel/components/checkbox";
 import { useTranslation } from "@plane/i18n";
-import type { TPHAiContext, TPHContextPreview, TPHConversation, TPHMessage } from "@plane/types";
+import type { TPHAiContext, TPHContextPreview, TPHConversation, TPHMessage, TPHSourceRef } from "@plane/types";
 import { cn } from "@plane/utils";
 // hooks
 import { useProjectHub } from "@/hooks/store/use-project-hub";
@@ -27,18 +27,29 @@ import { DecisionFlowDialog } from "./decision-flow";
 
 const AI_MENTION = /@ai\b/i;
 
+const refLabel = (ref: TPHSourceRef, title?: string | null) => title || `${ref.type}:${ref.id.slice(0, 8)}`;
+
+/** Used and blocked sources for the audience (FR-C02). Blocked sources never show content. */
 function SourcesList({ context }: { context: TPHAiContext | TPHContextPreview }) {
   const { t } = useTranslation();
-  const used = "used_sources" in context ? context.used_sources : (context as TPHContextPreview).allowed;
-  const blocked = "blocked_sources" in context ? context.blocked_sources : (context as TPHContextPreview).blocked;
+  const visible = context.visible ?? [];
+  const used =
+    "allowed" in context
+      ? context.allowed.map((a) => refLabel(a.ref, a.title))
+      : (context.sources_used ?? []).map((ref) => {
+          const v = visible.find((x) => x.ref.type === ref.type && x.ref.id === ref.id);
+          return refLabel(ref, v?.title);
+        });
+  const blocked = context.blocked ?? [];
   return (
     <div className="flex flex-col gap-1 text-caption-sm-regular">
       <p className="text-tertiary">
-        {t("project_hub.discussion.used_sources")}: {(used ?? []).map((s) => s.title ?? s.id).join(", ") || "—"}
+        {t("project_hub.discussion.used_sources")}: {used.join(", ") || "—"}
       </p>
-      {(blocked ?? []).length > 0 && (
+      {blocked.length > 0 && (
         <p className="text-tertiary">
-          {t("project_hub.discussion.blocked_sources")}: {(blocked ?? []).length}
+          {t("project_hub.discussion.blocked_sources")}: {blocked.length} (
+          {[...new Set(blocked.map((b) => b.reason))].join(", ")})
         </p>
       )}
     </div>
@@ -88,7 +99,9 @@ const MessageItem = observer(function MessageItem({ message, replies, selected, 
           {m.edited_at && <span>({t("project_hub.discussion.edited")})</span>}
         </div>
         <p className="text-body-xs-regular break-words whitespace-pre-wrap text-primary">{m.body}</p>
-        {m.author_kind === "ai" && m.ai_context && <SourcesList context={m.ai_context} />}
+        {m.author_kind === "ai" && m.ai_context && "visible" in m.ai_context && (
+          <SourcesList context={m.ai_context as TPHAiContext} />
+        )}
       </div>
     </div>
   );

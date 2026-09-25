@@ -7,11 +7,13 @@
 import type {
   TPHDependency,
   TPHDependencyCreate,
+  TPHDependencyGraph,
   TPHMilestone,
   TPHMilestoneCreate,
   TPHRisk,
   TPHRoadmap,
   TPHScenario,
+  TPHScenarioApplied,
   TPHScenarioChange,
   TPHScenarioImpact,
 } from "@plane/types";
@@ -20,7 +22,7 @@ import { ProjectHubBaseService, projectHubProjectPath, projectHubWorkspacePath }
 /** Milestones, dependencies, roadmap, scenarios, risks (API §6). */
 export class ProjectHubPlanningService extends ProjectHubBaseService {
   listMilestones(workspaceSlug: string, projectId: string) {
-    return this.getJson<TPHMilestone[]>(`${projectHubProjectPath(workspaceSlug, projectId)}/milestones/`);
+    return this.getList<TPHMilestone>(`${projectHubProjectPath(workspaceSlug, projectId)}/milestones/`);
   }
 
   createMilestone(workspaceSlug: string, projectId: string, data: TPHMilestoneCreate) {
@@ -39,10 +41,10 @@ export class ProjectHubPlanningService extends ProjectHubBaseService {
   }
 
   listDependencies(workspaceSlug: string, params?: { project_ids?: string }) {
-    return this.getJson<TPHDependency[]>(`${projectHubWorkspacePath(workspaceSlug)}/dependencies/`, params);
+    return this.getJson<TPHDependencyGraph>(`${projectHubWorkspacePath(workspaceSlug)}/dependencies/`, params);
   }
 
-  /** 422 `DEPENDENCY_CYCLE` with `detail.path`. */
+  /** 422 `DEPENDENCY_CYCLE` with `detail.path` (labels) and `detail.readable_path`. */
   createDependency(workspaceSlug: string, data: TPHDependencyCreate) {
     return this.postJson<TPHDependency>(`${projectHubWorkspacePath(workspaceSlug)}/dependencies/`, data);
   }
@@ -57,6 +59,7 @@ export class ProjectHubPlanningService extends ProjectHubBaseService {
     return this.getJson<TPHRoadmap>(`${projectHubWorkspacePath(workspaceSlug)}/roadmap/`, params);
   }
 
+  /** Only milestone date changes are supported by the server. */
   createScenario(workspaceSlug: string, data: { name: string; changes: TPHScenarioChange[] }) {
     return this.postJson<TPHScenario>(`${projectHubWorkspacePath(workspaceSlug)}/scenarios/`, data);
   }
@@ -66,10 +69,10 @@ export class ProjectHubPlanningService extends ProjectHubBaseService {
   }
 
   applyScenario(workspaceSlug: string, scenarioId: string) {
-    return this.postJson<TPHScenario>(`${projectHubWorkspacePath(workspaceSlug)}/scenarios/${scenarioId}/apply`);
+    return this.postJson<TPHScenarioApplied>(`${projectHubWorkspacePath(workspaceSlug)}/scenarios/${scenarioId}/apply`);
   }
 
   listRisks(workspaceSlug: string, projectId: string) {
-    return this.getJson<TPHRisk[]>(`${projectHubProjectPath(workspaceSlug, projectId)}/risks/`);
+    return this.getList<TPHRisk>(`${projectHubProjectPath(workspaceSlug, projectId)}/risks/`);
   }
 }

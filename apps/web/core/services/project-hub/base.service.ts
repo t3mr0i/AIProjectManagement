@@ -66,6 +66,17 @@ export abstract class ProjectHubBaseService extends APIService {
     return this.unwrap<T>(this.get(url, params ? { params } : {}));
   }
 
+  /**
+   * List endpoints answer either with a bare array or with an envelope (`{results}`,
+   * `{providers}`, `{policies}` …). Returns the array in both cases.
+   */
+  protected async getList<T>(url: string, params?: Record<string, unknown>, key = "results"): Promise<T[]> {
+    const data = await this.getJson<T[] | Record<string, unknown>>(url, params);
+    if (Array.isArray(data)) return data;
+    const value = data?.[key];
+    return Array.isArray(value) ? (value as T[]) : [];
+  }
+
   /** Writes always carry an `Idempotency-Key`; retries of the same UI action reuse it. */
   protected postJson<T>(url: string, data: unknown = {}, idempotencyKey: string = createIdempotencyKey()): Promise<T> {
     const config: AxiosRequestConfig = { headers: { "Idempotency-Key": idempotencyKey } };

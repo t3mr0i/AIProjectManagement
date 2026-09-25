@@ -144,7 +144,9 @@
       "sync_conflict": "Sync conflict",
       "stale_evidence": "Stale evidence",
       "integration_offline": "Integration offline",
-      "native_done_without_delivery": "Done without delivery evidence"
+      "native_done_without_delivery": "Done without delivery evidence",
+      "native_done_without_delivery_evidence": "Done without delivery evidence",
+      "merge_pending_confirmation": "Merge awaiting confirmation"
     },
     "trust": {
       "local_self_report": "Local self report",
@@ -228,7 +230,16 @@
       "draft_saved": "Draft saved",
       "unsaved_changes": "Unsaved changes",
       "version": "Draft version {version}",
-      "readonly": "You can read this brief but not edit it."
+      "readonly": "You can read this brief but not edit it.",
+      "scope_hint": "One item per line. Readiness needs at least one in-scope item.",
+      "verification": "Verification for criterion {index}",
+      "verifications": {
+        "ci": "CI check",
+        "manual": "Manual review",
+        "runner": "Runner",
+        "any": "Any evidence"
+      },
+      "risk_notes_hint": "Required for deep packages: what could go wrong and how it is mitigated."
     },
     "readiness": {
       "title": "Readiness",
@@ -309,7 +320,8 @@
       "continue": "Continue",
       "closed": "Clarification finished.",
       "open_blockers": "Open blockers",
-      "summary": "Summary"
+      "summary": "Summary",
+      "draft_ready": "A draft proposal is ready. Review it below — nothing has been applied yet."
     },
     "proposals": {
       "title": "AI proposals",
@@ -329,7 +341,8 @@
         "accepted": "Accepted",
         "rejected": "Rejected",
         "stale": "Stale"
-      }
+      },
+      "patch_field": "Field: {field}"
     },
     "changes": {
       "records": "Change records",
@@ -425,7 +438,8 @@
       "external_value": "External value",
       "keep_platform": "Keep platform value",
       "keep_external": "Keep external value",
-      "changed_at": "changed {time}"
+      "changed_at": "changed {time}",
+      "manifest": "Manifest {hash}"
     },
     "review": {
       "intent": "Approved intent",
@@ -472,7 +486,32 @@
       "no_capability_review": "You don't have the capability for this review.",
       "no_capability_merge": "You don't have the capability to request a merge.",
       "recorded": "Review decision recorded",
-      "select_mr": "Merge request"
+      "select_mr": "Merge request",
+      "change_counts": "{mrs} merge requests · {commits} commits",
+      "commit_claims": "Commit messages (claims, not evidence)",
+      "required_trust": "Requires evidence from: {trust}",
+      "trust_level": {
+        "trusted_ci": "trusted CI",
+        "human": "human review",
+        "runner": "runner",
+        "any": "any source"
+      },
+      "open_point": {
+        "criterion_not_proven": "Criterion not proven: {criterion} ({reason})",
+        "code_review_required": "Code review required for head {sha}",
+        "code_review_invalidated": "Code review invalidated by new commits (head {sha})",
+        "open_question": "Open question: {title}",
+        "outcome_acceptance_missing": "Outcome acceptance is missing",
+        "no_approved_revision": "No approved revision",
+        "revision_changed_since_approval": "The revision changed since approval"
+      },
+      "validity": {
+        "valid": "Valid",
+        "changes_requested": "Changes requested",
+        "invalidated": "Invalidated",
+        "stale_revision": "For an older revision",
+        "stale_head": "For an older commit"
+      }
     },
     "history": {
       "timeline": "Package activity",
@@ -498,7 +537,8 @@
       "aggregate": "Overall: {state}",
       "aggregate_rule": "Rule: {rule}",
       "deployed_not_released": "Deployed without a known release — not necessarily available to all users.",
-      "history_title": "History (incl. rollbacks)"
+      "history_title": "History (incl. rollbacks)",
+      "local_state_unknown": "The state on developer machines is unknown."
     },
     "discussion": {
       "title": "Discussion",
@@ -533,7 +573,8 @@
       "ai_badge": "AI",
       "ai_answer_hint": "AI answer — not a decision",
       "mark_read": "Mark as read",
-      "system": "System"
+      "system": "System",
+      "private_source": "Based on a private source; only the confirmed text is shared."
     },
     "activity": {
       "title": "Activity",
@@ -620,7 +661,12 @@
       "successor": "Successor",
       "project_filter": "Projects",
       "created": "Milestone created",
-      "uncertain": "Uncertain"
+      "uncertain": "Uncertain",
+      "dependency_create": "Add dependency",
+      "late_by": "Late by {hours} h (projected {date})",
+      "not_late": "Not late",
+      "via": "Via {path}",
+      "impact_basis_deps": "Calculated from dependencies and reliable dates only. The plan is not changed."
     },
     "knowledge": {
       "title": "Knowledge",
@@ -643,7 +689,20 @@
       "decisions": "Decisions",
       "decisions_empty": "No decisions yet.",
       "search_placeholder": "Search in this project",
-      "search_empty": "No accessible results."
+      "search_empty": "No accessible results.",
+      "register": "Register attachment",
+      "register_submit": "Register",
+      "register_hint": "Choose an existing attachment of this project. It is scanned and classified; nothing is uploaded again.",
+      "candidates": "Attachments",
+      "candidates_empty": "No unregistered attachments in this project.",
+      "filename": "File name",
+      "declared_mime": "Declared type (MIME)",
+      "declared_mime_hint": "The type detected by the scan takes precedence.",
+      "not_uploaded": "upload incomplete",
+      "registered": "{name} registered",
+      "quarantined_warning": "Quarantined — do not open or share. Content is blocked.",
+      "format_blocked": "Blocked (quarantined)",
+      "mime": "MIME type"
     },
     "overview": {
       "title": "Overview",
@@ -689,7 +748,8 @@
         "page": "Page",
         "message": "Message",
         "event": "Event",
-        "upload": "Upload"
+        "upload": "Upload",
+        "issue": "Work item"
       }
     },
     "settings": {
@@ -732,7 +792,8 @@
         "supported": "Supported",
         "partial": "Partial",
         "unsupported": "Not supported",
-        "unknown": "Unknown"
+        "unknown": "Unknown",
+        "requires_configuration": "Requires configuration"
       },
       "connections": "Connections",
       "connections_empty": "No connections.",
@@ -752,7 +813,8 @@
         "active": "Active",
         "degraded": "Degraded",
         "offline": "Offline",
-        "disabled": "Disabled"
+        "disabled": "Disabled",
+        "stale": "Stale"
       },
       "reconcile": "Reconcile",
       "reconcile_started": "Reconcile accepted (runs in the background)",
@@ -790,6 +852,52 @@
       "project_plan": "Plan project",
       "integration_manage": "Manage integrations",
       "workspace_admin": "Administer Project Hub"
+    },
+    "diagram": {
+      "title": "Diagrams",
+      "description": "Structured diagrams: nodes and edges carry meaning, positions are layout only.",
+      "create": "New diagram",
+      "name": "Name",
+      "empty": "No diagrams yet.",
+      "counts": "{nodes} nodes · {edges} edges",
+      "unlinked": "Not linked to a work package",
+      "open": "Open editor",
+      "close": "Close editor",
+      "canvas_label": "Diagram canvas",
+      "node_label": "{label} ({type}). Drag or use the arrow keys to move.",
+      "canvas_help": "Drag nodes, or focus one and use the arrow keys (Shift = larger steps). Moving only changes the layout.",
+      "version": "Version {version}",
+      "no_change": "Nothing changed.",
+      "layout_only": "Saved — layout only. The meaning of the diagram did not change.",
+      "semantic_change": "Saved — the meaning changed. An interpretation proposal was created.",
+      "diff_summary": "Nodes: +{nodesAdded} −{nodesRemoved} ~{nodesChanged} · Edges: +{edgesAdded} −{edgesRemoved} ~{edgesChanged}",
+      "pending_interpretation": "Pending interpretation",
+      "not_a_requirement": "Interpretation only — nothing becomes a requirement until a person accepts it.",
+      "uncertainty": "Uncertainty: {level}",
+      "questions": "Questions about ambiguous edges",
+      "suggested_criteria": "Suggested acceptance criteria",
+      "impacts": "Possible impacts",
+      "needs_package": "Link the diagram to a work package to accept criteria.",
+      "accept": "Accept selected",
+      "accepted": "Interpretation accepted",
+      "nodes": "Nodes",
+      "add_node": "Add node",
+      "new_node": "New node",
+      "label": "Label",
+      "type": "Type",
+      "remove_node": "Remove {label}",
+      "edges": "Edges",
+      "add_edge": "Add edge",
+      "remove_edge": "Remove edge",
+      "direction": "Direction",
+      "directions": {
+        "forward": "One way (→)",
+        "both": "Both ways (↔)",
+        "unknown": "Unclear (?)"
+      },
+      "ambiguous_edge": "Ambiguous: add a type or label and a clear direction.",
+      "source": "From",
+      "target": "To"
     }
   }
 }

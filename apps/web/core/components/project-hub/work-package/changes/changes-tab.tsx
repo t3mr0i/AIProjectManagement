@@ -18,6 +18,7 @@ import { HubSection } from "../../common/section";
 import { HubEmpty } from "../../common/states";
 import { ToneBadge } from "../../common/tone-badge";
 import { useHubResource } from "../../common/use-hub-resource";
+import { DiagramsPanel } from "../../diagrams/diagrams-panel";
 import type { TWorkPackageScope } from "../types";
 import { ChangeRecordsPanel } from "./change-records";
 import { OpenInIdePanel } from "./open-in-ide";
@@ -70,6 +71,12 @@ export const ChangesTab = observer(function ChangesTab({
       </HubSection>
       <ChangeRecordsPanel scope={scope} canEdit={canEdit} />
       <SpecSyncPanel scope={scope} canEdit={canEdit} />
+      <DiagramsPanel
+        workspaceSlug={scope.workspaceSlug}
+        projectId={scope.projectId}
+        issueId={scope.issueId}
+        readOnly={scope.readOnly}
+      />
     </div>
   );
 });

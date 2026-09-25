@@ -38,11 +38,17 @@ type TDraft = {
   intent: string;
   outcome: string;
   non_goals: string;
-  scope_summary: string;
+  in_scope: string;
   touches_permissions: boolean;
   criteria: TPackageCriterion[];
   risk: TPackageRisk;
 };
+
+const SECURITY_TOUCHES = new Set(["permissions", "permission", "auth", "authentication", "authorization", "security"]);
+/** Local ids for criteria not yet saved; the server assigns stable `C-n` ids. */
+const NEW_PREFIX = "new-";
+const omitId = <T extends { id: string }>({ id: _id, ...rest }: T) => rest;
+const VERIFICATIONS = ["ci", "manual", "runner", "any"] as const;
 
 const toDraft = (profile: TPackageProfile): TDraft => ({
   profile_kind: profile.profile_kind,
@@ -50,14 +56,20 @@ const toDraft = (profile: TPackageProfile): TDraft => ({
   intent: profile.intent ?? "",
   outcome: profile.outcome ?? "",
   non_goals: (profile.non_goals ?? []).join("\n"),
-  scope_summary: typeof profile.scope?.summary === "string" ? profile.scope.summary : "",
-  touches_permissions: !!profile.scope?.touches_permissions,
+  in_scope: (profile.scope?.in_scope ?? []).join("\n"),
+  touches_permissions: (profile.scope?.touches ?? []).some((x) => SECURITY_TOUCHES.has(String(x).toLowerCase())),
   criteria: profile.criteria ?? [],
   risk: profile.risk ?? {},
 });
 
 const newCriterionId = () =>
-  typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `c-${Date.now()}-${Math.random()}`;
+  `${NEW_PREFIX}${typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`}`;
+
+const lines = (value: string) =>
+  value
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean);
 
 type Props = TWorkPackageScope & { profile: TPackageProfile; canEdit: boolean };
 
@@ -104,12 +116,18 @@ export const BriefForm = observer(function BriefForm({ workspaceSlug, projectId,
         package_type: draft.package_type,
         intent: draft.intent,
         outcome: draft.outcome,
-        non_goals: draft.non_goals
-          .split("\n")
-          .map((l) => l.trim())
-          .filter(Boolean),
-        scope: { ...profile.scope, summary: draft.scope_summary, touches_permissions: draft.touches_permissions },
-        criteria: draft.criteria.filter((c) => c.text.trim().length > 0),
+        non_goals: lines(draft.non_goals),
+        scope: {
+          ...profile.scope,
+          in_scope: lines(draft.in_scope),
+          touches: [
+            ...(profile.scope?.touches ?? []).filter((x) => !SECURITY_TOUCHES.has(String(x).toLowerCase())),
+            ...(draft.touches_permissions ? ["permissions"] : []),
+          ],
+        },
+        criteria: draft.criteria
+          .filter((c) => c.text.trim().length > 0)
+          .map((c) => (c.id.startsWith(NEW_PREFIX) ? omitId(c) : c)) as TPackageCriterion[],
         risk: draft.profile_kind === "deep" ? draft.risk : profile.risk,
       });
       adopt(updated);
@@ -223,9 +241,10 @@ export const BriefForm = observer(function BriefForm({ workspaceSlug, projectId,
       <HubTextAreaField
         label={t("project_hub.brief.scope")}
         placeholder={t("project_hub.brief.scope_placeholder")}
-        value={draft.scope_summary}
+        hint={t("project_hub.brief.scope_hint")}
+        value={draft.in_scope}
         disabled={readOnly}
-        onChange={(v) => update("scope_summary", v)}
+        onChange={(v) => update("in_scope", v)}
       />
       <label className="flex items-start gap-2 text-body-xs-regular text-secondary">
         <Checkbox
@@ -266,6 +285,23 @@ export const BriefForm = observer(function BriefForm({ workspaceSlug, projectId,
                   }
                 />
               </div>
+              <div className="w-40 shrink-0">
+                <HubSelect
+                  label={t("project_hub.brief.verification", { index: index + 1 })}
+                  hideLabel
+                  value={
+                    VERIFICATIONS.find((v) => (criterion.verification ?? "ci").toLowerCase().startsWith(v)) ?? "ci"
+                  }
+                  disabled={readOnly}
+                  onChange={(v) =>
+                    update(
+                      "criteria",
+                      draft.criteria.map((c) => (c.id === criterion.id ? { ...c, verification: v } : c))
+                    )
+                  }
+                  options={VERIFICATIONS.map((v) => ({ value: v, label: t(`project_hub.brief.verifications.${v}`) }))}
+                />
+              </div>
               {!readOnly && (
                 <IconButton
                   variant="ghost"
@@ -291,7 +327,9 @@ export const BriefForm = observer(function BriefForm({ workspaceSlug, projectId,
               stretch="auto"
               icon={<AddOutline className="size-3.5" />}
               label={t("project_hub.brief.add_criterion")}
-              onClick={() => update("criteria", [...draft.criteria, { id: newCriterionId(), text: "" }])}
+              onClick={() =>
+                update("criteria", [...draft.criteria, { id: newCriterionId(), text: "", verification: "ci" }])
+              }
             />
           </div>
         )}
@@ -314,19 +352,15 @@ export const BriefForm = observer(function BriefForm({ workspaceSlug, projectId,
           </div>
           <HubTextAreaField
             label={t("project_hub.brief.risk_description")}
-            value={draft.risk.description ?? ""}
+            hint={t("project_hub.brief.risk_notes_hint")}
+            value={String(draft.risk.notes ?? "")}
             disabled={readOnly}
-            onChange={(v) => update("risk", { ...draft.risk, description: v })}
-          />
-          <HubTextAreaField
-            label={t("project_hub.brief.risk_mitigation")}
-            value={draft.risk.mitigation ?? ""}
-            disabled={readOnly}
-            onChange={(v) => update("risk", { ...draft.risk, mitigation: v })}
+            required
+            onChange={(v) => update("risk", { ...draft.risk, notes: v })}
           />
           <HubTextAreaField
             label={t("project_hub.brief.risk_rollback")}
-            value={draft.risk.rollback ?? ""}
+            value={String(draft.risk.rollback ?? "")}
             disabled={readOnly}
             onChange={(v) => update("risk", { ...draft.risk, rollback: v })}
           />

@@ -20,6 +20,12 @@ describe("project-hub evidence helpers", () => {
     expect(deriveCriterionState([{ trust: "human", result: "passed" }])).toBe("proven");
   });
 
+  it("honours the per-criterion accepted flag from the review view", () => {
+    expect(deriveCriterionState([{ trust: "local_self_report", result: "passed", accepted: true }])).toBe("proven");
+    expect(deriveCriterionState([{ trust: "provider_ci", result: "passed", accepted: false }])).toBe("not_proven");
+    expect(deriveCriterionState([{ trust: "commit_message", result: "passed", accepted: true }])).toBe("not_proven");
+  });
+
   it("reports failures before passes", () => {
     expect(
       deriveCriterionState([

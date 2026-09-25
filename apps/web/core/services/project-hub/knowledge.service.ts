@@ -5,28 +5,45 @@
  */
 
 import type {
-  TPHActivityResponse,
+  TPHActivityEntry,
+  TPHActivityFeed,
+  TPHDiagramCreate,
+  TPHDiagramDetail,
   TPHDiagramDocument,
+  TPHDiagramProposalAccepted,
+  TPHDiagramSemantic,
+  TPHDiagramLayout,
   TPHDiagramUpdateResult,
   TPHOverview,
+  TPHProposal,
   TPHRetentionPolicy,
   TPHSearchResult,
+  TPHUploadCandidate,
   TPHUploadRecord,
+  TPHUploadRegister,
 } from "@plane/types";
 import { ProjectHubBaseService, projectHubProjectPath, projectHubWorkspacePath } from "./base.service";
 
 /** Activity, overview, search, uploads, diagrams, retention (API §5). */
 export class ProjectHubKnowledgeService extends ProjectHubBaseService {
-  /** `since` is `last_visit` or an ISO timestamp. Grouped by package & day. */
+  /** `since` = `last_visit` | `today` | ISO. Grouped by package & day, technical events compacted. */
   getActivity(workspaceSlug: string, projectId: string, params: { since: string; until?: string; issue_id?: string }) {
-    return this.getJson<TPHActivityResponse>(`${projectHubProjectPath(workspaceSlug, projectId)}/activity/`, {
-      ...params,
-      group: "package",
-    });
+    return this.getJson<TPHActivityFeed>(`${projectHubProjectPath(workspaceSlug, projectId)}/activity/`, params);
+  }
+
+  /** Expand compacted entries to their raw events. */
+  getRawEvents(workspaceSlug: string, projectId: string, ids: string[]) {
+    return this.getList<TPHActivityEntry>(
+      `${projectHubProjectPath(workspaceSlug, projectId)}/activity/`,
+      { ids: ids.join(",") },
+      "raw"
+    );
   }
 
   setVisitMarker(workspaceSlug: string, projectId: string) {
-    return this.postJson<unknown>(`${projectHubProjectPath(workspaceSlug, projectId)}/activity/visit`);
+    return this.postJson<{ last_visited_at: string; previous_visited_at: string | null }>(
+      `${projectHubProjectPath(workspaceSlug, projectId)}/activity/visit`
+    );
   }
 
   getOverview(workspaceSlug: string, projectId: string) {
@@ -34,33 +51,53 @@ export class ProjectHubKnowledgeService extends ProjectHubBaseService {
   }
 
   search(workspaceSlug: string, q: string, types?: string[]) {
-    return this.getJson<TPHSearchResult[] | { results: TPHSearchResult[] }>(
-      `${projectHubWorkspacePath(workspaceSlug)}/search/`,
-      { q, ...(types?.length ? { types: types.join(",") } : {}) }
+    return this.getList<TPHSearchResult>(`${projectHubWorkspacePath(workspaceSlug)}/search/`, {
+      q,
+      ...(types?.length ? { types: types.join(",") } : {}),
+    });
+  }
+
+  listUploads(workspaceSlug: string, projectId: string, params?: { issue_id?: string; scan_status?: string }) {
+    return this.getList<TPHUploadRecord>(`${projectHubProjectPath(workspaceSlug, projectId)}/uploads/`, params);
+  }
+
+  /** Native FileAssets (attachments …) of the project that are not registered yet. */
+  listUploadCandidates(workspaceSlug: string, projectId: string, params?: { issue_id?: string }) {
+    return this.getList<TPHUploadCandidate>(
+      `${projectHubProjectPath(workspaceSlug, projectId)}/uploads/candidates`,
+      params
     );
   }
 
-  registerUpload(workspaceSlug: string, projectId: string, assetId: string, issueId?: string) {
+  /** Scan + format classification of an existing native FileAsset (no second file store). */
+  registerUpload(workspaceSlug: string, projectId: string, assetId: string, data: TPHUploadRegister = {}) {
     return this.postJson<TPHUploadRecord>(
       `${projectHubProjectPath(workspaceSlug, projectId)}/uploads/${assetId}/register`,
-      issueId ? { issue_id: issueId } : {}
+      data
     );
   }
 
-  /** Not in the contract table; the server may expose uploads as a list — tolerated as optional. */
-  listUploads(workspaceSlug: string, projectId: string) {
-    return this.getJson<TPHUploadRecord[]>(`${projectHubProjectPath(workspaceSlug, projectId)}/uploads/`);
+  listDiagrams(workspaceSlug: string, projectId: string, issueId?: string) {
+    return this.getList<TPHDiagramDocument>(
+      `${projectHubProjectPath(workspaceSlug, projectId)}/diagrams/`,
+      issueId ? { issue_id: issueId } : undefined
+    );
   }
 
-  listDiagrams(workspaceSlug: string, projectId: string) {
-    return this.getJson<TPHDiagramDocument[]>(`${projectHubProjectPath(workspaceSlug, projectId)}/diagrams/`);
+  getDiagram(workspaceSlug: string, projectId: string, diagramId: string) {
+    return this.getJson<TPHDiagramDetail>(`${projectHubProjectPath(workspaceSlug, projectId)}/diagrams/${diagramId}/`);
   }
 
+  createDiagram(workspaceSlug: string, projectId: string, data: TPHDiagramCreate) {
+    return this.postJson<TPHDiagramDocument>(`${projectHubProjectPath(workspaceSlug, projectId)}/diagrams/`, data);
+  }
+
+  /** 409 `VERSION_CONFLICT` when `expected_version` is outdated. */
   updateDiagram(
     workspaceSlug: string,
     projectId: string,
     diagramId: string,
-    data: { semantic: unknown; layout: unknown; expected_version: number }
+    data: { semantic: TPHDiagramSemantic; layout: TPHDiagramLayout; expected_version: number }
   ) {
     return this.putJson<TPHDiagramUpdateResult>(
       `${projectHubProjectPath(workspaceSlug, projectId)}/diagrams/${diagramId}/`,
@@ -68,14 +105,37 @@ export class ProjectHubKnowledgeService extends ProjectHubBaseService {
     );
   }
 
+  acceptDiagramProposal(
+    workspaceSlug: string,
+    projectId: string,
+    diagramId: string,
+    proposalId: string,
+    criteriaEdgeIds?: string[]
+  ) {
+    return this.postJson<TPHDiagramProposalAccepted>(
+      `${projectHubProjectPath(workspaceSlug, projectId)}/diagrams/${diagramId}/proposals/${proposalId}/accept`,
+      criteriaEdgeIds ? { criteria_edge_ids: criteriaEdgeIds } : {}
+    );
+  }
+
+  rejectDiagramProposal(workspaceSlug: string, projectId: string, diagramId: string, proposalId: string) {
+    return this.postJson<{ proposal: TPHProposal }>(
+      `${projectHubProjectPath(workspaceSlug, projectId)}/diagrams/${diagramId}/proposals/${proposalId}/reject`
+    );
+  }
+
   getRetention(workspaceSlug: string) {
-    return this.getJson<TPHRetentionPolicy[] | { policies: TPHRetentionPolicy[] }>(
-      `${projectHubWorkspacePath(workspaceSlug)}/retention/`
+    return this.getList<TPHRetentionPolicy>(
+      `${projectHubWorkspacePath(workspaceSlug)}/retention/`,
+      undefined,
+      "policies"
     );
   }
 
   updateRetention(workspaceSlug: string, policies: TPHRetentionPolicy[]) {
-    return this.putJson<TPHRetentionPolicy[]>(`${projectHubWorkspacePath(workspaceSlug)}/retention/`, { policies });
+    return this.putJson<{ policies: TPHRetentionPolicy[] }>(`${projectHubWorkspacePath(workspaceSlug)}/retention/`, {
+      policies,
+    });
   }
 
   applyRetention(workspaceSlug: string) {

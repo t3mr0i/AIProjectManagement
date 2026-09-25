@@ -840,3 +840,36 @@ def pause_runs_for_scope_change(issue_id, new_native_hash):
 
 def expire_leases():
     return expire_stale_claims()
+
+
+# ---------------------------------------------------------------------------
+# claim listing (web UI support; read-only projection)
+# ---------------------------------------------------------------------------
+def list_claims(issue, *, status=None, limit=100):
+    """Claims of a work item for the "Changes" view: lease, heartbeat and holder.
+
+    Expired leases are reported as stored; the UI derives "stale heartbeat" from
+    ``last_heartbeat_at`` and never infers local work without a runner report (INV-09).
+    """
+    from ..serializers_packages import claim_data
+
+    qs = Claim.objects.filter(issue_id=issue.id, deleted_at__isnull=True).select_related(
+        "runner", "repository_binding"
+    )
+    if status:
+        qs = qs.filter(status=status)
+    out = []
+    for claim in qs.order_by("-created_at")[: max(1, min(int(limit or 100), 500))]:
+        out.append(
+            {
+                **claim_data(claim),
+                "last_heartbeat_at": claim.last_heartbeat_at.isoformat() if claim.last_heartbeat_at else None,
+                "released_at": claim.released_at.isoformat() if claim.released_at else None,
+                "created_at": claim.created_at.isoformat() if claim.created_at else None,
+                "runner_name": claim.runner.name if claim.runner_id else None,
+                "repository_name": claim.repository_binding.path_with_namespace
+                if claim.repository_binding_id
+                else None,
+            }
+        )
+    return out

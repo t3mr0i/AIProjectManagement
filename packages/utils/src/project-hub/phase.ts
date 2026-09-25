@@ -50,6 +50,8 @@ const FLAG_TONES: Record<TPackageFlag, TProjectHubTone> = {
   stale_evidence: "warning",
   integration_offline: "warning",
   native_done_without_delivery: "warning",
+  native_done_without_delivery_evidence: "warning",
+  merge_pending_confirmation: "info",
 };
 
 export const getFlagTone = (flag: TPackageFlag): TProjectHubTone => FLAG_TONES[flag] ?? "neutral";
@@ -58,6 +60,8 @@ const FLAG_PRIORITY: TPackageFlag[] = [
   "blocked",
   "sync_conflict",
   "native_done_without_delivery",
+  "native_done_without_delivery_evidence",
+  "merge_pending_confirmation",
   "scope_changed",
   "stale_evidence",
   "integration_offline",
@@ -98,11 +102,13 @@ export const buildPackageIndicator = (
     flags.push({ key: "delivery_unknown", labelKey: getDeliveryLabelKey("unknown"), tone: "neutral" });
   }
 
+  // `phase` is null only for work items without a package profile; show them as drafts.
+  const phase: TPackagePhase = status.phase ?? "drafts";
   return {
-    phase: status.phase,
-    phaseLabelKey: getPhaseLabelKey(status.phase),
-    phaseTone: getPhaseTone(status.phase),
-    step: getPhaseStep(status.phase),
+    phase,
+    phaseLabelKey: getPhaseLabelKey(phase),
+    phaseTone: getPhaseTone(phase),
+    step: getPhaseStep(phase),
     totalSteps: PROJECT_HUB_PHASES.length,
     flags,
   };

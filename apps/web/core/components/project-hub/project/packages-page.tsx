@@ -8,7 +8,7 @@ import { observer } from "mobx-react";
 import Link from "next/link";
 // plane imports
 import { useTranslation } from "@plane/i18n";
-import type { TPackageRow } from "@plane/types";
+import type { TPackageRow, TPHOverview } from "@plane/types";
 import {
   PROJECT_HUB_PHASES,
   generateWorkItemLink,
@@ -31,10 +31,12 @@ const PackageRowItem = observer(function PackageRowItem({
   row,
   workspaceSlug,
   projectId,
+  nextReasons,
 }: {
   row: TPackageRow;
   workspaceSlug: string;
   projectId: string;
+  nextReasons?: string[];
 }) {
   const { t } = useTranslation();
   const displayName = useMemberDisplayName();
@@ -66,10 +68,10 @@ const PackageRowItem = observer(function PackageRowItem({
         {row.assignee_ids.length > 0 && <span>{row.assignee_ids.map(displayName).join(", ")}</span>}
         <span>{t("project_hub.packages.updated", { time: formatAge(row.updated_at) })}</span>
       </div>
-      {row.phase === "ready" && row.next_reasons && row.next_reasons.length > 0 && (
+      {nextReasons && nextReasons.length > 0 && (
         <p className="text-caption-sm-regular text-secondary sm:basis-full">
           <span className="text-tertiary">{t("project_hub.packages.next_reasons")}: </span>
-          {row.next_reasons.join(" · ")}
+          {nextReasons.join(" · ")}
         </p>
       )}
     </li>
@@ -92,6 +94,11 @@ export const ProjectPackagesPage = observer(function ProjectPackagesPage({
   const rows = useHubResource<TPackageRow[]>(PH_KEYS.rows(workspaceSlug, projectId), () =>
     store.packageService.listPackages(workspaceSlug, projectId, "all")
   );
+  // "Next" reasons (approval, blockers, native priority) come from the project overview.
+  const overview = useHubResource<TPHOverview>(PH_KEYS.overview(workspaceSlug, projectId), () =>
+    store.knowledgeService.getOverview(workspaceSlug, projectId)
+  );
+  const reasonsByIssue = new Map((overview.data?.next_work ?? []).map((w) => [w.issue_id, w.reasons]));
 
   return (
     <HubPage title={t("project_hub.packages.title")}>
@@ -129,6 +136,7 @@ export const ProjectPackagesPage = observer(function ProjectPackagesPage({
                             row={row}
                             workspaceSlug={workspaceSlug}
                             projectId={projectId}
+                            nextReasons={phase === "ready" ? reasonsByIssue.get(row.work_item_id) : undefined}
                           />
                         ))}
                       </ul>

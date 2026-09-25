@@ -10,8 +10,8 @@ import Link from "next/link";
 // plane imports
 import { Button } from "@makeplane/propel/components/button";
 import { useTranslation } from "@plane/i18n";
-import type { TPHActivityResponse } from "@plane/types";
-import { cn, groupActivityByDay } from "@plane/utils";
+import type { TPHActivityFeed } from "@plane/types";
+import { adaptActivityFeed, cn, groupActivityByDay } from "@plane/utils";
 // hooks
 import { useProjectHub } from "@/hooks/store/use-project-hub";
 import { PH_KEYS } from "@/store/project-hub";
@@ -28,12 +28,6 @@ import { useHubFormatters } from "../common/use-relative-time";
 
 type TRange = "last_visit" | "today" | "7d" | "custom";
 
-const startOfToday = () => {
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  return d.toISOString();
-};
-
 /**
  * S02 Project activity (J08): "Since my last visit" by default, grouped by package and day with
  * reasons and open decisions; expanding shows raw events and sources.
@@ -47,7 +41,7 @@ export const ProjectActivityPage = observer(function ProjectActivityPage({
 }) {
   const { t } = useTranslation();
   const store = useProjectHub();
-  const { formatDate, formatAge } = useHubFormatters();
+  const { formatDate, formatDateTime } = useHubFormatters();
   const [range, setRange] = useState<TRange>("last_visit");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
@@ -56,7 +50,7 @@ export const ProjectActivityPage = observer(function ProjectActivityPage({
   const { since, until } = useMemo(() => {
     switch (range) {
       case "today":
-        return { since: startOfToday(), until: "" };
+        return { since: "today", until: "" };
       case "7d":
         return { since: new Date(Date.now() - 7 * 86_400_000).toISOString(), until: "" };
       case "custom":
@@ -69,7 +63,7 @@ export const ProjectActivityPage = observer(function ProjectActivityPage({
     }
   }, [range, from, to]);
 
-  const activity = useHubResource<TPHActivityResponse>(PH_KEYS.activity(workspaceSlug, projectId, since, until), () =>
+  const activity = useHubResource<TPHActivityFeed>(PH_KEYS.activity(workspaceSlug, projectId, since, until), () =>
     store.knowledgeService.getActivity(workspaceSlug, projectId, { since, ...(until ? { until } : {}) })
   );
 
@@ -142,27 +136,14 @@ export const ProjectActivityPage = observer(function ProjectActivityPage({
       <HubResourceBoundary resource={activity} loadingRows={5}>
         {(data) => (
           <div className="flex flex-col gap-5">
-            {(data.source_health ?? []).length > 0 && (
-              <ul className="flex flex-wrap gap-2" aria-label={t("project_hub.settings.health")}>
-                {(data.source_health ?? []).map((source) => (
-                  <li key={source.source}>
-                    <ToneBadge
-                      tone={source.status && source.status !== "active" ? "warning" : "neutral"}
-                      size="xs"
-                      label={t("project_hub.activity.source_health", {
-                        source: source.source,
-                        time: formatAge(source.last_synced_at),
-                      })}
-                    />
-                  </li>
-                ))}
-              </ul>
-            )}
-            {(data.open_decisions ?? []).length > 0 && (
+            <p className="text-caption-sm-regular text-tertiary">
+              {t("project_hub.activity.period", { from: formatDateTime(data.since), to: formatDateTime(data.until) })}
+            </p>
+            {data.open_decisions.length > 0 && (
               <HubSection title={t("project_hub.activity.open_decisions")} as="h2">
                 <HubCard>
                   <ul className="flex flex-col gap-1">
-                    {(data.open_decisions ?? []).map((d) => (
+                    {data.open_decisions.map((d) => (
                       <li key={d.id} className="flex items-center gap-2 text-body-xs-regular text-primary">
                         <ToneBadge tone="warning" size="xs" label={t("project_hub.activity.decision_needed")} />
                         {d.issue_id ? (
@@ -184,7 +165,7 @@ export const ProjectActivityPage = observer(function ProjectActivityPage({
             {data.groups.length === 0 ? (
               <HubEmpty title={t("project_hub.activity.empty")} />
             ) : (
-              groupActivityByDay(data.groups).map((section) => (
+              groupActivityByDay(adaptActivityFeed(data)).map((section) => (
                 <section key={section.day} className="flex flex-col gap-2" aria-label={formatDate(section.day)}>
                   <h2 className="text-caption-md-medium text-tertiary">{formatDate(section.day)}</h2>
                   {section.groups.map((group) => (
