@@ -1023,6 +1023,108 @@
       "edge": "连线",
       "ambiguous_short": "不明确",
       "read_only": "只读 — 更改此图表需要“编辑工作包”权限。"
+    },
+    "ai": {
+      "status": {
+        "llm": "{provider} · {model}",
+        "rule_based": "基于规则（未配置模型）",
+        "rule_based_hint": "未配置语言模型，因此回答来自内置规则。实例管理员可以在管理应用中设置提供商。",
+        "embeddings": "语义搜索：{model}"
+      },
+      "task": {
+        "concretize": "具体化",
+        "interpret": "解读",
+        "report": "状态报告",
+        "answer": "回答"
+      },
+      "result_status": {
+        "ok": "已完成",
+        "timeout": "已超时",
+        "budget_exceeded": "超出预算",
+        "cancelled": "已取消",
+        "error": "错误",
+        "unavailable": "不可用"
+      },
+      "result_failed": "AI 未能完成：{status}",
+      "needs_clarification": "AI 需要更多信息才能继续。",
+      "flags_title": "发现",
+      "flag": {
+        "unverified_claim": "未经验证的陈述",
+        "missing_evidence": "缺少证据",
+        "contradiction": "矛盾",
+        "unknown_intent": "目标不明确",
+        "scope_change_requires_new_approval": "范围变更需要重新审批",
+        "instruction_like_content": "已忽略类似指令的内容"
+      },
+      "notes_title": "备注",
+      "generated_by": "由 {model} 生成",
+      "statement_sources": "{count, plural, one {# 个来源} other {# 个来源}}",
+      "sources_used": "使用的来源",
+      "sources_retrieved": "通过语义搜索找到",
+      "sources_blocked": "{count, plural, one {# 个未使用的来源} other {# 个未使用的来源}}",
+      "source_stale": "已过时",
+      "no_sources": "未使用任何来源。",
+      "no_statements": "AI 未返回任何陈述。",
+      "block_reason": {
+        "unavailable": "不可用",
+        "private_source": "私有来源",
+        "audience_mismatch": "并非所有受众都可见",
+        "quarantined": "已隔离的文件",
+        "scan_pending": "等待病毒扫描"
+      },
+      "dismiss": "忽略",
+      "patch": {
+        "new": "新增",
+        "verification": "验证：{method}"
+      },
+      "assist": {
+        "title": "AI 助手",
+        "description": "让 AI 对此任务说明进行具体化、解读或生成报告。结果显示在“AI 建议”中；在您接受之前不会有任何更改。",
+        "instruction": "指令",
+        "instruction_placeholder": "例如：重点关注 API 的验收标准",
+        "concretize": "具体化",
+        "concretize_hint": "提出结果、目标、非目标和验收标准",
+        "interpret": "解读",
+        "interpret_hint": "解释此任务说明的含义以及仍不明确之处",
+        "report": "报告",
+        "report_hint": "总结此工作包的当前状态",
+        "requested": "AI 建议已就绪"
+      },
+      "ask": {
+        "title": "询问 AI",
+        "description": "针对您可读取的所有项目提问。只有您能看到回答。",
+        "label": "您的问题",
+        "placeholder": "例如：哪些工作包被阻塞了，原因是什么？",
+        "submit": "提问",
+        "clear": "清除",
+        "shortcut": "按 Ctrl/⌘ + Enter 发送",
+        "answer": "回答"
+      },
+      "report": {
+        "title": "AI 状态报告",
+        "description": "根据所有项目成员均可读取的数据生成的状态摘要。",
+        "empty": "暂无状态报告",
+        "generate": "生成报告",
+        "regenerate": "重新生成",
+        "snapshot": "报告所依据的事实"
+      },
+      "usage": {
+        "title": "AI 使用情况",
+        "description": "过去 {days} 天内此工作区的 AI 调用和 token。",
+        "calls": "调用",
+        "input_tokens": "输入 token",
+        "output_tokens": "输出 token",
+        "errors": "错误",
+        "by_feature": "按功能",
+        "by_model": "按模型",
+        "row": "调用：{calls} · 输入：{input} · 输出：{output}",
+        "empty": "此期间没有 AI 调用。",
+        "reindex": "语义索引",
+        "reindex_action": "重建",
+        "reindex_description": "使用 {model} 重新生成页面、工作包和决策的嵌入，以便“询问 AI”能够找到它们。在后台运行。",
+        "reindex_unavailable": "未配置嵌入模型。“询问 AI”将使用关键词搜索。",
+        "reindex_queued": "已开始重建语义索引"
+      }
     }
   }
 }

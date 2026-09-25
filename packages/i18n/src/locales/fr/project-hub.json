@@ -1023,6 +1023,108 @@
       "edge": "Lien",
       "ambiguous_short": "Incertain",
       "read_only": "Lecture seule — « Modifier les lots » est requis pour modifier ce diagramme."
+    },
+    "ai": {
+      "status": {
+        "llm": "{provider} · {model}",
+        "rule_based": "Basé sur des règles (aucun modèle configuré)",
+        "rule_based_hint": "Aucun modèle de langage n’est configuré : les réponses proviennent de règles intégrées. Un administrateur de l’instance peut configurer un fournisseur dans l’application d’administration.",
+        "embeddings": "Recherche sémantique : {model}"
+      },
+      "task": {
+        "concretize": "Concrétisation",
+        "interpret": "Interprétation",
+        "report": "Rapport d’état",
+        "answer": "Réponse"
+      },
+      "result_status": {
+        "ok": "Terminé",
+        "timeout": "Délai dépassé",
+        "budget_exceeded": "Budget dépassé",
+        "cancelled": "Annulé",
+        "error": "Erreur",
+        "unavailable": "Indisponible"
+      },
+      "result_failed": "L’IA n’a pas pu terminer : {status}",
+      "needs_clarification": "L’IA a besoin de plus d’informations pour continuer.",
+      "flags_title": "Constats",
+      "flag": {
+        "unverified_claim": "Affirmation non vérifiée",
+        "missing_evidence": "Preuve manquante",
+        "contradiction": "Contradiction",
+        "unknown_intent": "Objectif flou",
+        "scope_change_requires_new_approval": "Le changement de périmètre nécessite une nouvelle approbation",
+        "instruction_like_content": "Contenu de type instruction ignoré"
+      },
+      "notes_title": "Remarques",
+      "generated_by": "Généré par {model}",
+      "statement_sources": "{count, plural, one {# source} many {# de sources} other {# sources}}",
+      "sources_used": "Sources utilisées",
+      "sources_retrieved": "Trouvée par recherche sémantique",
+      "sources_blocked": "{count, plural, one {# source non utilisée} many {# de sources non utilisées} other {# sources non utilisées}}",
+      "source_stale": "Obsolète",
+      "no_sources": "Aucune source n’a été utilisée.",
+      "no_statements": "L’IA n’a renvoyé aucune affirmation.",
+      "block_reason": {
+        "unavailable": "Indisponible",
+        "private_source": "Source privée",
+        "audience_mismatch": "Non visible par tous les destinataires",
+        "quarantined": "Fichier en quarantaine",
+        "scan_pending": "Analyse antivirus en attente"
+      },
+      "dismiss": "Ignorer",
+      "patch": {
+        "new": "Nouveau",
+        "verification": "Vérification : {method}"
+      },
+      "assist": {
+        "title": "Assistant IA",
+        "description": "Laissez l’IA concrétiser, interpréter ou résumer ce brief. Les résultats apparaissent dans les propositions de l’IA ; rien ne change tant que vous n’acceptez pas.",
+        "instruction": "Consigne",
+        "instruction_placeholder": "p. ex. Se concentrer sur les critères d’acceptation de l’API",
+        "concretize": "Concrétiser",
+        "concretize_hint": "Proposer le résultat, l’objectif, les hors objectifs et les critères d’acceptation",
+        "interpret": "Interpréter",
+        "interpret_hint": "Expliquer ce que signifie ce brief et ce qui reste flou",
+        "report": "Rapport",
+        "report_hint": "Résumer l’état actuel de ce lot de travail",
+        "requested": "La proposition de l’IA est prête"
+      },
+      "ask": {
+        "title": "Demander à l’IA",
+        "description": "Posez une question sur tous les projets que vous pouvez lire. Vous seul voyez la réponse.",
+        "label": "Votre question",
+        "placeholder": "p. ex. Quels lots de travail sont bloqués et pourquoi ?",
+        "submit": "Demander",
+        "clear": "Effacer",
+        "shortcut": "Ctrl/⌘ + Enter pour envoyer",
+        "answer": "Réponse"
+      },
+      "report": {
+        "title": "Rapport d’état IA",
+        "description": "Un résumé de l’état construit à partir des données lisibles par tous les membres du projet.",
+        "empty": "Aucun rapport d’état pour l’instant",
+        "generate": "Générer le rapport",
+        "regenerate": "Régénérer",
+        "snapshot": "Faits sur lesquels repose le rapport"
+      },
+      "usage": {
+        "title": "Utilisation de l’IA",
+        "description": "Appels et jetons d’IA dans cet espace de travail au cours des {days} derniers jours.",
+        "calls": "Appels",
+        "input_tokens": "Jetons en entrée",
+        "output_tokens": "Jetons en sortie",
+        "errors": "Erreurs",
+        "by_feature": "Par fonctionnalité",
+        "by_model": "Par modèle",
+        "row": "Appels : {calls} · Entrée : {input} · Sortie : {output}",
+        "empty": "Aucun appel d’IA sur cette période.",
+        "reindex": "Index sémantique",
+        "reindex_action": "Reconstruire",
+        "reindex_description": "Recalcule les embeddings des pages, lots de travail et décisions avec {model} pour que « Demander à l’IA » les trouve. S’exécute en arrière-plan.",
+        "reindex_unavailable": "Aucun modèle d’embedding configuré. « Demander à l’IA » utilise la recherche par mots-clés.",
+        "reindex_queued": "Reconstruction de l’index sémantique lancée"
+      }
     }
   }
 }

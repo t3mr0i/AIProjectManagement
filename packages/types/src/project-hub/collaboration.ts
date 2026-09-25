@@ -6,6 +6,8 @@
 
 /** Collaboration, AI, knowledge (API §5). Shapes follow the Django serializers. */
 
+import type { TPHAIContext, TPHAIResult, TPHAIRetrievedRef } from "./ai";
+
 export type TConversationKind = "project" | "package" | "direct";
 
 export type TPHConversation = {
@@ -53,6 +55,8 @@ export type TPHAiContext = {
   explicit_selection?: TPHSourceRef[];
   statements?: { text: string; status: string; sources: unknown[] }[];
   notes?: string[];
+  model?: string;
+  retrieved?: TPHAIRetrievedRef[];
 };
 
 export type TPHMessage = {
@@ -200,7 +204,13 @@ export type TPHProposalContent = {
   statements?: TPHProposalStatement[];
   note?: string;
   task?: string;
-  result?: { text?: string; status?: string; [key: string]: unknown };
+  instruction?: string;
+  /** Full AI result (status, error, flags, notes, provider/model). Partial for older proposals. */
+  result?: Partial<TPHAIResult> & { text?: string; status?: string };
+  /** Project report: aggregated facts the report was built from. */
+  snapshot?: string;
+  context?: Partial<TPHAIContext>;
+  retrieved?: TPHAIRetrievedRef[];
   // diagram interpretation
   interpretation?: string;
   affected_areas?: string[];

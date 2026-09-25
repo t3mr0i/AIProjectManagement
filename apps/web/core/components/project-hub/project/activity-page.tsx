@@ -17,6 +17,7 @@ import { adaptActivityFeed, groupActivityByDay } from "@plane/utils";
 import { useProjectHub } from "@/hooks/store/use-project-hub";
 import { PH_KEYS } from "@/store/project-hub";
 // local imports
+import { HubProjectAIReportCard } from "../ai/report-card";
 import { ActivityGroupItem } from "../common/activity-group";
 import { HubTextField } from "../common/field";
 import { HubList, HubListGroup, HubListRow, useHubListNavigation } from "../common/list";
@@ -120,6 +121,9 @@ export const ProjectActivityPage = observer(function ProjectActivityPage({
         />
       }
     >
+      <div className="border-b border-subtle px-4 py-4 md:px-6">
+        <HubProjectAIReportCard workspaceSlug={workspaceSlug} projectId={projectId} className="max-w-3xl" />
+      </div>
       {range === "custom" && (
         <div className="flex flex-wrap items-end gap-2 border-b border-subtle px-4 py-2 md:px-6">
           <HubTextField type="date" label={t("project_hub.activity.from")} value={from} onChange={setFrom} />

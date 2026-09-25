@@ -15,6 +15,7 @@ import { PageHead } from "@/components/core/page-title";
 import { useProjectHubCapabilities } from "../common/gate";
 import { HubNotice } from "../common/states";
 import { ActivationSection } from "./activation-section";
+import { AIUsageSection } from "./ai-usage-section";
 import { GrantsSection } from "./grants-section";
 import { IntegrationsSection } from "./integrations-section";
 import { RetentionSection } from "./retention-section";
@@ -52,6 +53,7 @@ export const ProjectHubSettingsPage = observer(function ProjectHubSettingsPage({
         )}
       </div>
       <ActivationSection workspaceSlug={workspaceSlug} />
+      <AIUsageSection workspaceSlug={workspaceSlug} />
       <GrantsSection workspaceSlug={workspaceSlug} />
       <RunnersSection workspaceSlug={workspaceSlug} />
       <IntegrationsSection workspaceSlug={workspaceSlug} />

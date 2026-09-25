@@ -1023,6 +1023,108 @@
       "edge": "Krawędź",
       "ambiguous_short": "Niejasne",
       "read_only": "Tylko do odczytu — do zmiany tego diagramu wymagane jest uprawnienie „Edycja pakietów”."
+    },
+    "ai": {
+      "status": {
+        "llm": "{provider} · {model}",
+        "rule_based": "Oparte na regułach (brak skonfigurowanego modelu)",
+        "rule_based_hint": "Nie skonfigurowano modelu językowego, więc odpowiedzi pochodzą z wbudowanych reguł. Administrator instancji może skonfigurować dostawcę w aplikacji administracyjnej.",
+        "embeddings": "Wyszukiwanie semantyczne: {model}"
+      },
+      "task": {
+        "concretize": "Doprecyzowanie",
+        "interpret": "Interpretacja",
+        "report": "Raport stanu",
+        "answer": "Odpowiedź"
+      },
+      "result_status": {
+        "ok": "Gotowe",
+        "timeout": "Przekroczono limit czasu",
+        "budget_exceeded": "Przekroczono budżet",
+        "cancelled": "Anulowano",
+        "error": "Błąd",
+        "unavailable": "Niedostępne"
+      },
+      "result_failed": "AI nie mogła dokończyć: {status}",
+      "needs_clarification": "AI potrzebuje więcej informacji, aby kontynuować.",
+      "flags_title": "Ustalenia",
+      "flag": {
+        "unverified_claim": "Niezweryfikowane twierdzenie",
+        "missing_evidence": "Brak dowodu",
+        "contradiction": "Sprzeczność",
+        "unknown_intent": "Niejasny cel",
+        "scope_change_requires_new_approval": "Zmiana zakresu wymaga nowej akceptacji",
+        "instruction_like_content": "Zignorowano treść przypominającą polecenie"
+      },
+      "notes_title": "Uwagi",
+      "generated_by": "Wygenerowano przez {model}",
+      "statement_sources": "{count, plural, one {# źródło} few {# źródła} many {# źródeł} other {# źródła}}",
+      "sources_used": "Użyte źródła",
+      "sources_retrieved": "Znalezione przez wyszukiwanie semantyczne",
+      "sources_blocked": "{count, plural, one {# źródło nieużyte} few {# źródła nieużyte} many {# źródeł nieużytych} other {# źródła nieużytego}}",
+      "source_stale": "Nieaktualne",
+      "no_sources": "Nie użyto żadnych źródeł.",
+      "no_statements": "AI nie zwróciła żadnych stwierdzeń.",
+      "block_reason": {
+        "unavailable": "Niedostępne",
+        "private_source": "Prywatne źródło",
+        "audience_mismatch": "Niewidoczne dla wszystkich odbiorców",
+        "quarantined": "Plik w kwarantannie",
+        "scan_pending": "Oczekuje na skanowanie antywirusowe"
+      },
+      "dismiss": "Odrzuć",
+      "patch": {
+        "new": "Nowe",
+        "verification": "Weryfikacja: {method}"
+      },
+      "assist": {
+        "title": "Asystent AI",
+        "description": "AI może doprecyzować, zinterpretować lub podsumować to zlecenie. Wyniki pojawiają się w Propozycjach AI; nic się nie zmienia bez akceptacji.",
+        "instruction": "Polecenie",
+        "instruction_placeholder": "np. Skup się na kryteriach akceptacji dla API",
+        "concretize": "Doprecyzuj",
+        "concretize_hint": "Zaproponuj rezultat, cel, elementy poza celem i kryteria akceptacji",
+        "interpret": "Zinterpretuj",
+        "interpret_hint": "Wyjaśnij, co oznacza to zlecenie i co jest jeszcze niejasne",
+        "report": "Raport",
+        "report_hint": "Podsumuj bieżący stan tego pakietu roboczego",
+        "requested": "Propozycja AI jest gotowa"
+      },
+      "ask": {
+        "title": "Zapytaj AI",
+        "description": "Zadaj pytanie dotyczące wszystkich projektów, które możesz czytać. Tylko Ty widzisz odpowiedź.",
+        "label": "Pytanie",
+        "placeholder": "np. Które pakiety robocze są zablokowane i dlaczego?",
+        "submit": "Zapytaj",
+        "clear": "Wyczyść",
+        "shortcut": "Ctrl/⌘ + Enter, aby wysłać",
+        "answer": "Odpowiedź"
+      },
+      "report": {
+        "title": "Raport stanu AI",
+        "description": "Podsumowanie stanu utworzone z danych, które mogą czytać wszyscy członkowie projektu.",
+        "empty": "Brak raportu stanu",
+        "generate": "Wygeneruj raport",
+        "regenerate": "Wygeneruj ponownie",
+        "snapshot": "Fakty, na których opiera się raport"
+      },
+      "usage": {
+        "title": "Użycie AI",
+        "description": "Wywołania i tokeny AI w tym obszarze roboczym w ciągu ostatnich {days} dni.",
+        "calls": "Wywołania",
+        "input_tokens": "Tokeny wejściowe",
+        "output_tokens": "Tokeny wyjściowe",
+        "errors": "Błędy",
+        "by_feature": "Według funkcji",
+        "by_model": "Według modelu",
+        "row": "Wywołania: {calls} · Wejście: {input} · Wyjście: {output}",
+        "empty": "Brak wywołań AI w tym okresie.",
+        "reindex": "Indeks semantyczny",
+        "reindex_action": "Przebuduj",
+        "reindex_description": "Ponownie tworzy embeddingi stron, pakietów roboczych i decyzji za pomocą {model}, aby „Zapytaj AI” je znajdowało. Działa w tle.",
+        "reindex_unavailable": "Nie skonfigurowano modelu embeddingów. „Zapytaj AI” używa wyszukiwania słów kluczowych.",
+        "reindex_queued": "Rozpoczęto przebudowę indeksu semantycznego"
+      }
     }
   }
 }

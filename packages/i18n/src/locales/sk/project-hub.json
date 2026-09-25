@@ -1023,6 +1023,108 @@
       "edge": "Hrana",
       "ambiguous_short": "Nejasné",
       "read_only": "Iba na čítanie — na zmenu tohto diagramu je potrebná schopnosť „Upravovať balíky“."
+    },
+    "ai": {
+      "status": {
+        "llm": "{provider} · {model}",
+        "rule_based": "Založené na pravidlách (nie je nastavený žiadny model)",
+        "rule_based_hint": "Nie je nastavený žiadny jazykový model, odpovede preto pochádzajú zo vstavaných pravidiel. Správca inštancie môže poskytovateľa nastaviť v administračnej aplikácii.",
+        "embeddings": "Sémantické vyhľadávanie: {model}"
+      },
+      "task": {
+        "concretize": "Spresnenie",
+        "interpret": "Interpretácia",
+        "report": "Správa o stave",
+        "answer": "Odpoveď"
+      },
+      "result_status": {
+        "ok": "Hotovo",
+        "timeout": "Vypršal časový limit",
+        "budget_exceeded": "Rozpočet prekročený",
+        "cancelled": "Zrušené",
+        "error": "Chyba",
+        "unavailable": "Nedostupné"
+      },
+      "result_failed": "AI nemohla dokončiť: {status}",
+      "needs_clarification": "AI potrebuje pred pokračovaním viac informácií.",
+      "flags_title": "Zistenia",
+      "flag": {
+        "unverified_claim": "Neoverené tvrdenie",
+        "missing_evidence": "Chýbajúci dôkaz",
+        "contradiction": "Rozpor",
+        "unknown_intent": "Nejasný cieľ",
+        "scope_change_requires_new_approval": "Zmena rozsahu vyžaduje nové schválenie",
+        "instruction_like_content": "Obsah podobný pokynu bol ignorovaný"
+      },
+      "notes_title": "Poznámky",
+      "generated_by": "Vygenerované pomocou {model}",
+      "statement_sources": "{count, plural, one {# zdroj} few {# zdroje} many {# zdroja} other {# zdrojov}}",
+      "sources_used": "Použité zdroje",
+      "sources_retrieved": "Nájdené sémantickým vyhľadávaním",
+      "sources_blocked": "{count, plural, one {# zdroj nepoužitý} few {# zdroje nepoužité} many {# zdroja nepoužitého} other {# zdrojov nepoužitých}}",
+      "source_stale": "Zastarané",
+      "no_sources": "Neboli použité žiadne zdroje.",
+      "no_statements": "AI nevrátila žiadne tvrdenia.",
+      "block_reason": {
+        "unavailable": "Nedostupné",
+        "private_source": "Súkromný zdroj",
+        "audience_mismatch": "Nie je viditeľné pre všetkých príjemcov",
+        "quarantined": "Súbor v karanténe",
+        "scan_pending": "Čaká na antivírusovú kontrolu"
+      },
+      "dismiss": "Zahodiť",
+      "patch": {
+        "new": "Nové",
+        "verification": "Overenie: {method}"
+      },
+      "assist": {
+        "title": "Asistent AI",
+        "description": "Nechajte AI toto zadanie spresniť, interpretovať alebo o ňom podať správu. Výsledky sa zobrazia v Návrhoch AI; nič sa nezmení, kým ich neprijmete.",
+        "instruction": "Pokyn",
+        "instruction_placeholder": "napr. Zamerať sa na kritériá prijatia pre API",
+        "concretize": "Spresniť",
+        "concretize_hint": "Navrhnúť výsledok, cieľ, položky mimo cieľov a kritériá prijatia",
+        "interpret": "Interpretovať",
+        "interpret_hint": "Vysvetliť, čo toto zadanie znamená a čo je stále nejasné",
+        "report": "Správa",
+        "report_hint": "Zhrnúť aktuálny stav tohto pracovného balíka",
+        "requested": "Návrh AI je pripravený"
+      },
+      "ask": {
+        "title": "Opýtať sa AI",
+        "description": "Položte otázku naprieč všetkými projektmi, ktoré môžete čítať. Odpoveď vidíte iba Vy.",
+        "label": "Vaša otázka",
+        "placeholder": "napr. Ktoré pracovné balíky sú blokované a prečo?",
+        "submit": "Opýtať sa",
+        "clear": "Vymazať",
+        "shortcut": "Ctrl/⌘ + Enter na odoslanie",
+        "answer": "Odpoveď"
+      },
+      "report": {
+        "title": "Správa o stave od AI",
+        "description": "Zhrnutie stavu zostavené z údajov, ktoré môžu čítať všetci členovia projektu.",
+        "empty": "Zatiaľ žiadna správa o stave",
+        "generate": "Vytvoriť správu",
+        "regenerate": "Vytvoriť znova",
+        "snapshot": "Fakty, z ktorých správa vychádza"
+      },
+      "usage": {
+        "title": "Využitie AI",
+        "description": "Volania AI a tokeny v tomto pracovnom priestore za posledných {days} dní.",
+        "calls": "Volania",
+        "input_tokens": "Vstupné tokeny",
+        "output_tokens": "Výstupné tokeny",
+        "errors": "Chyby",
+        "by_feature": "Podľa funkcie",
+        "by_model": "Podľa modelu",
+        "row": "Volania: {calls} · Vstup: {input} · Výstup: {output}",
+        "empty": "V tomto období žiadne volania AI.",
+        "reindex": "Sémantický index",
+        "reindex_action": "Znova zostaviť",
+        "reindex_description": "Znova vytvorí embeddingy stránok, pracovných balíkov a rozhodnutí pomocou {model}, aby ich „Opýtať sa AI“ našlo. Beží na pozadí.",
+        "reindex_unavailable": "Nie je nastavený žiadny embeddingový model. „Opýtať sa AI“ používa vyhľadávanie podľa kľúčových slov.",
+        "reindex_queued": "Opätovné zostavenie sémantického indexu bolo spustené"
+      }
     }
   }
 }
