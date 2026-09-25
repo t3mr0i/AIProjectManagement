@@ -119,7 +119,8 @@ class PageListCreateAPIEndpoint(BaseAPIView):
         Create a new page in a project with content, labels, and hierarchy.
         Automatically assigns the requesting user as the page owner.
         """
-        project = Project.objects.get(pk=project_id, workspace__slug=slug)
+        # Raises Project.DoesNotExist (404) for an unknown project
+        Project.objects.get(pk=project_id, workspace__slug=slug)
         serializer = PageCreateSerializer(
             data=request.data,
             context={"project_id": project_id, "owned_by_id": request.user.id},

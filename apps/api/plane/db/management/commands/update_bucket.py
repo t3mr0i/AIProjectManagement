@@ -11,6 +11,9 @@ import json
 # Django imports
 from django.core.management import BaseCommand
 
+# Module imports
+from plane.settings.storage import is_gcs_backend
+
 
 class Command(BaseCommand):
     help = "Create the default bucket for the instance"
@@ -132,6 +135,11 @@ class Command(BaseCommand):
         return
 
     def handle(self, *args, **options):
+        # Bucket policies are S3 specific; GCS buckets are private and served through signed URLs
+        if is_gcs_backend():
+            self.stdout.write(self.style.NOTICE("STORAGE_BACKEND is gcs, nothing to update. Use configure_gcs_bucket."))
+            return
+
         # Create a session using the credentials from Django settings
 
         # Check if the bucket exists

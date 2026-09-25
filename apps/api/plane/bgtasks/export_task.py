@@ -20,6 +20,7 @@ from django.db.models import Prefetch
 
 # Module imports
 from plane.db.models import ExporterHistory, Issue, IssueComment, IssueRelation, IssueSubscriber
+from plane.settings.storage import get_storage, is_gcs_backend
 from plane.utils.exception_logger import log_exception
 from plane.utils.porters.exporter import DataExporter
 from plane.utils.porters.serializers.issue import IssueExportSerializer
@@ -46,7 +47,17 @@ def upload_to_s3(zip_file: io.BytesIO, workspace_id: UUID, token_id: str, slug: 
     file_name = f"{workspace_id}/export-{slug}-{token_id[:6]}-{str(timezone.now().date())}.zip"
     expires_in = 7 * 24 * 60 * 60
 
-    if settings.USE_MINIO:
+    if is_gcs_backend():
+        storage = get_storage()
+        presigned_url = None
+        if storage.upload_file(zip_file, file_name, content_type="application/zip"):
+            presigned_url = storage.generate_presigned_url(
+                file_name,
+                expiration=expires_in,
+                disposition="attachment",
+                filename=file_name.split("/")[-1],
+            )
+    elif settings.USE_MINIO:
         upload_s3 = boto3.client(
             "s3",
             endpoint_url=settings.AWS_S3_ENDPOINT_URL,

@@ -29,9 +29,11 @@ from plane.app.serializers import (
     DraftIssueDetailSerializer,
 )
 from plane.db.models import (
+    Cycle,
     Issue,
     DraftIssue,
     CycleIssue,
+    Module,
     ModuleIssue,
     DraftIssueCycle,
     Workspace,

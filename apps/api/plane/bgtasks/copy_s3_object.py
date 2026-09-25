@@ -14,7 +14,7 @@ from django.conf import settings
 # Module imports
 from plane.db.models import FileAsset, Page, Issue
 from plane.utils.exception_logger import log_exception
-from plane.settings.storage import S3Storage
+from plane.settings.storage import get_storage
 from celery import shared_task
 from plane.utils.url import normalize_url_path
 
@@ -88,7 +88,7 @@ def sync_with_external_service(entity_name, description_html):
 def copy_assets(entity, entity_identifier, project_id, asset_ids, user_id):
     duplicated_assets = []
     workspace = entity.workspace
-    storage = S3Storage()
+    storage = get_storage()
     original_assets = FileAsset.objects.filter(workspace=workspace, project_id=project_id, id__in=asset_ids)
 
     for original_asset in original_assets:
