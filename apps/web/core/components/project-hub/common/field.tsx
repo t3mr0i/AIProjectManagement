@@ -6,7 +6,7 @@
 
 import { useId } from "react";
 // plane imports
-import { Input } from "@makeplane/propel/components/input";
+import { Input, InputGroup } from "@makeplane/propel/components/input";
 import { TextArea } from "@makeplane/propel/components/text-area";
 
 type TBase = {
@@ -39,17 +39,20 @@ export function HubTextField({
       <label htmlFor={id} className={hideLabel ? "sr-only" : "text-caption-md-medium text-tertiary"}>
         {label}
       </label>
-      <Input
-        id={id}
-        size="md"
-        type={type}
-        value={value}
-        placeholder={placeholder}
-        disabled={disabled}
-        required={required}
-        aria-describedby={hint ? hintId : undefined}
-        onChange={(e) => onChange(e.target.value)}
-      />
+      {/* The bare propel Input has no frame; InputGroup provides the bordered field. */}
+      <InputGroup size="md">
+        <Input
+          id={id}
+          size="md"
+          type={type}
+          value={value}
+          placeholder={placeholder}
+          disabled={disabled}
+          required={required}
+          aria-describedby={hint ? hintId : undefined}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      </InputGroup>
       {hint && (
         <p id={hintId} className="text-caption-sm-regular text-tertiary">
           {hint}
