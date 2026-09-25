@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "installCommand": "pnpm install --frozen-lockfile",
+  "installCommand": "corepack enable pnpm && pnpm install --frozen-lockfile",
   "buildCommand": "bash deployments/vercel/build.sh",
   "outputDirectory": ".vercel-dist",
   "redirects": [{ "source": "/god-mode", "destination": "/god-mode/", "permanent": true }],

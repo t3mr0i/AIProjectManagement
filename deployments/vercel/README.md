@@ -28,12 +28,12 @@ be hosted elsewhere (e.g. with `docker-compose.yml` on any Docker host).
 - Node.js version: 22.x
 - Environment variables:
 
-| Variable                       | Required | Notes                                                                                                          |
-| ------------------------------ | -------- | -------------------------------------------------------------------------------------------------------------- |
-| `ENABLE_EXPERIMENTAL_COREPACK` | yes      | `1`, so Vercel uses the pnpm version pinned in `package.json`                                                  |
-| `PLANE_API_URL`                | yes      | Public URL of the Plane API, e.g. `https://api.example.com`. Until it is set, `/api` and `/auth` answer `503`. |
-| `VITE_LIVE_BASE_URL`           | no       | Public URL of the `live` server. Vercel cannot proxy WebSockets, so it must be reachable directly.             |
-| `VITE_SPACE_BASE_URL`          | no       | URL of a separately hosted `space` app (public pages).                                                         |
+| Variable                       | Required    | Notes                                                                                                          |
+| ------------------------------ | ----------- | -------------------------------------------------------------------------------------------------------------- |
+| `ENABLE_EXPERIMENTAL_COREPACK` | recommended | `1`, so Vercel uses the pnpm version pinned in `package.json`                                                  |
+| `PLANE_API_URL`                | yes         | Public URL of the Plane API, e.g. `https://api.example.com`. Until it is set, `/api` and `/auth` answer `503`. |
+| `VITE_LIVE_BASE_URL`           | no          | Public URL of the `live` server. Vercel cannot proxy WebSockets, so it must be reachable directly.             |
+| `VITE_SPACE_BASE_URL`          | no          | URL of a separately hosted `space` app (public pages).                                                         |
 
 `VITE_*` variables are baked in at build time — redeploy after changing them.
 `PLANE_API_URL` is read at request time; redeploy once after changing it so the
