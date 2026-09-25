@@ -34,7 +34,10 @@ class Command(BaseCommand):
                 return
 
             # Scoped cache clear using KEY_PREFIX
-            key_prefix = getattr(cache, "key_prefix", None) or getattr(settings, "REDIS_KEY_PREFIX", None)
+            _unset = object()
+            key_prefix = getattr(cache, "key_prefix", _unset)
+            if key_prefix is _unset:
+                key_prefix = getattr(settings, "REDIS_KEY_PREFIX", None)
 
             if not key_prefix:
                 self.stdout.write(
