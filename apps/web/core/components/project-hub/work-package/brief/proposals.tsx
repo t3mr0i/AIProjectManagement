@@ -97,8 +97,7 @@ function PatchView({
               {criteria.map((criterion, i) => {
                 const isNew = !criterion.id || !existingCriterionIds.has(criterion.id);
                 return (
-                  // oxlint-disable-next-line react/no-array-index-key -- new criteria have no id yet
-                  <li key={criterion.id ?? `new-${i}`} className="flex min-w-0 items-start gap-2">
+                  <li key={criterion.id ?? `new:${criterion.text}`} className="flex min-w-0 items-start gap-2">
                     <span className="w-4 shrink-0 text-right text-caption-md-regular text-tertiary tabular-nums">
                       {i + 1}.
                     </span>

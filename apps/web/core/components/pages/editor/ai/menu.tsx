@@ -72,7 +72,7 @@ const TONES_LIST = [
 ];
 
 export function EditorAIMenu(props: Props) {
-  const { editorRef, isOpen, onClose, workspaceId, workspaceSlug } = props;
+  const { editorRef, onClose, workspaceId, workspaceSlug } = props;
   const { t } = useTranslation();
   // states
   const [activeTask, setActiveTask] = useState<AI_EDITOR_TASKS | null>(null);
@@ -180,18 +180,9 @@ export function EditorAIMenu(props: Props) {
     onClose();
   };
 
-  // reset on close
-  useEffect(() => {
-    if (!isOpen) {
-      abortRef.current?.abort();
-      abortRef.current = null;
-      setActiveTask(null);
-      setResponse(undefined);
-      setStreamingText(undefined);
-      setAskError(undefined);
-      setLastQuery("");
-    }
-  }, [isOpen]);
+  // The parent remounts this menu on open/close (`key`), which resets all state;
+  // a request still running when it unmounts is cancelled.
+  useEffect(() => () => abortRef.current?.abort(), []);
 
   return (
     <div

@@ -4,7 +4,7 @@
  * See the LICENSE file for details.
  */
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { observer } from "mobx-react";
 // plane imports
 import { Button } from "@makeplane/propel/components/button";
@@ -62,6 +62,7 @@ export const AIUsageSection = observer(function AIUsageSection({ workspaceSlug }
     store.aiService.getUsage(workspaceSlug, USAGE_DAYS)
   );
   const [isReindexing, setIsReindexing] = useState(false);
+  const numberFormat = useMemo(() => new Intl.NumberFormat(currentLocale), [currentLocale]);
 
   if (!usage.data) {
     if (usage.error && getProjectHubErrorKind(usage.error) === "permission") return null;
@@ -69,7 +70,6 @@ export const AIUsageSection = observer(function AIUsageSection({ workspaceSlug }
     if (!usage.error && !has("workspace.admin")) return null;
   }
 
-  const numberFormat = new Intl.NumberFormat(currentLocale);
   const format = (n: number) => numberFormat.format(n ?? 0);
   const canReindex = !!aiStatus.data?.embeddings;
 

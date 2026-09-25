@@ -69,18 +69,31 @@ export function HubAIStatementBadge({ status }: { status: string }) {
   );
 }
 
+/**
+ * Stable React keys for id-less items: derived from content, with an occurrence
+ * counter for identical items, so keys survive reordering (unlike array indexes).
+ */
+function withContentKeys<T>(items: T[], describe: (item: T) => string): { key: string; item: T }[] {
+  const seen = new Map<string, number>();
+  return items.map((item) => {
+    const base = describe(item);
+    const n = seen.get(base) ?? 0;
+    seen.set(base, n + 1);
+    return { key: n === 0 ? base : `${base}#${n}`, item };
+  });
+}
+
 /** AI statements, each with its status badge; the number of cited sources is shown quietly. */
 export function HubAIStatements({ statements, className }: { statements: TStatementLike[]; className?: string }) {
   const { t } = useTranslation();
   if (statements.length === 0) return null;
   return (
     <ul className={cn("flex min-w-0 flex-col gap-1.5", className)}>
-      {statements.map((statement, i) => {
+      {withContentKeys(statements, (s) => `${s.status ?? s.kind ?? ""}:${s.text}`).map(({ key, item: statement }) => {
         const status = statement.status ?? statement.kind;
         const sourceCount = statement.sources?.length ?? 0;
         return (
-          // oxlint-disable-next-line react/no-array-index-key -- statements have no id
-          <li key={i} className="flex min-w-0 items-start gap-2 text-body-xs-regular text-secondary">
+          <li key={key} className="flex min-w-0 items-start gap-2 text-body-xs-regular text-secondary">
             {status && (
               <span className="shrink-0 pt-px">
                 <HubAIStatementBadge status={status} />
@@ -145,11 +158,10 @@ export function HubAIFindings({ flags = [], notes = [] }: { flags?: TPHAIFlag[];
     <div className="flex min-w-0 flex-col gap-1">
       {flags.length > 0 && (
         <ul className="flex min-w-0 flex-col gap-1" aria-label={t("project_hub.ai.flags_title")}>
-          {flags.map((flag, i) => {
+          {withContentKeys(flags, (f) => JSON.stringify(f)).map(({ key, item: flag }) => {
             const detail = flagDetail(flag);
             return (
-              // oxlint-disable-next-line react/no-array-index-key -- flags have no id
-              <li key={i} className="flex min-w-0 items-start gap-2 text-caption-md-regular text-secondary">
+              <li key={key} className="flex min-w-0 items-start gap-2 text-caption-md-regular text-secondary">
                 <FlagOutline className="mt-0.5 size-3 shrink-0 text-warning-primary" aria-hidden="true" />
                 <span className="min-w-0 break-words">
                   <span className="font-medium text-primary">
