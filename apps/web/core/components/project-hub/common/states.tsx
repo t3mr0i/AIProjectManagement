@@ -4,15 +4,14 @@
  * See the LICENSE file for details.
  */
 
-import type { ReactNode } from "react";
+import type { ComponentType, ReactNode, SVGProps } from "react";
 import { observer } from "mobx-react";
 // plane imports
-import { Banner } from "@makeplane/propel/components/banner";
 import { Button } from "@makeplane/propel/components/button";
-import { Icon } from "@makeplane/propel/components/icon";
 import {
   AlertCircleOutline,
   CloudOffOutline,
+  InboxOutline,
   InfoOutline,
   LockOutline,
   SearchOutline,
@@ -27,13 +26,15 @@ import type { THubResource } from "./use-hub-resource";
 import { useOnlineStatus } from "./use-online-status";
 import { useHubFormatters } from "./use-relative-time";
 
-/** Loading skeleton with an accessible busy label. */
+type TGlyph = ComponentType<SVGProps<SVGSVGElement>>;
+
+/** Loading skeleton: 36px row ghosts with an accessible busy label. */
 export function HubLoading({ rows = 3, className }: { rows?: number; className?: string }) {
   const { t } = useTranslation();
   return (
     <div role="status" aria-busy="true" aria-live="polite" className={cn("w-full", className)}>
       <span className="sr-only">{t("project_hub.states.loading")}</span>
-      <Loader className="flex flex-col gap-2">
+      <Loader className="flex flex-col gap-1">
         {Array.from({ length: rows }, (_, i) => (
           <Loader.Item key={i} height="36px" width="100%" />
         ))}
@@ -42,113 +43,230 @@ export function HubLoading({ rows = 3, className }: { rows?: number; className?:
   );
 }
 
-/** Compact empty state (no illustration — dense work tool). */
-export function HubEmpty({ title, description, action }: { title?: string; description?: string; action?: ReactNode }) {
+export type THubEmptyStateProps = {
+  /** Outline glyph (propel icon). Defaults to an inbox. */
+  icon?: TGlyph;
+  title?: ReactNode;
+  /** Second muted line (keep it to one sentence). */
+  description?: ReactNode;
+  /** At most one quiet action (a `Button` variant="secondary"/"tertiary" or a link). */
+  action?: ReactNode;
+  /** `sm` for panes and sidebar cards, `md` (default) for page/section bodies. */
+  size?: "sm" | "md";
+  /** Accessible role: `status` for empty results, `alert` for errors. */
+  role?: "status" | "alert";
+  className?: string;
+};
+
+/** Centered outline icon + one muted line + optional quiet action (no boxes, no dashed borders). */
+export function HubEmptyState({
+  icon: Glyph = InboxOutline as TGlyph,
+  title,
+  description,
+  action,
+  size = "md",
+  role = "status",
+  className,
+}: THubEmptyStateProps) {
   const { t } = useTranslation();
   return (
-    <div className="flex flex-col items-start gap-2 rounded-md border border-dashed border-subtle px-4 py-5">
-      <p className="text-body-sm-medium text-secondary">{title ?? t("project_hub.states.empty_title")}</p>
-      {description && <p className="text-body-xs-regular text-tertiary">{description}</p>}
-      {action}
+    <div
+      role={role}
+      className={cn(
+        "flex w-full flex-col items-center justify-center text-center",
+        size === "md" ? "gap-2 px-4 py-10" : "gap-1.5 px-3 py-6",
+        className
+      )}
+    >
+      <Glyph className={cn("shrink-0 text-placeholder", size === "md" ? "size-6" : "size-5")} aria-hidden="true" />
+      <div className="flex max-w-sm flex-col gap-0.5">
+        <p className="text-13 text-secondary">{title ?? t("project_hub.states.empty_title")}</p>
+        {description && <p className="text-caption-md-regular text-tertiary">{description}</p>}
+      </div>
+      {action && <div className="pt-1">{action}</div>}
     </div>
+  );
+}
+
+/** Compat alias for the previous empty component (same props, new look). */
+export function HubEmpty({
+  title,
+  description,
+  action,
+  icon,
+  size,
+  className,
+}: {
+  title?: string;
+  description?: string;
+  action?: ReactNode;
+  icon?: TGlyph;
+  size?: "sm" | "md";
+  className?: string;
+}) {
+  return (
+    <HubEmptyState
+      title={title}
+      description={description}
+      action={action}
+      icon={icon}
+      size={size}
+      className={className}
+    />
   );
 }
 
 type TErrorProps = {
   error: TProjectHubApiError | null;
   onRetry?: () => void;
+  /** `sm` for panes and sidebar cards. */
+  size?: "sm" | "md";
   className?: string;
 };
 
 /**
- * Full error state for a section. Distinguishes permission-denied, extension-disabled, not-found,
- * offline and generic failures — each with a concrete next step (DESIGN_BRIEF S05).
+ * Error state for a section, styled like the empty state. Distinguishes permission-denied,
+ * extension-disabled, not-found, offline and generic failures — each with a concrete next step.
  */
-export function HubErrorState({ error, onRetry, className }: TErrorProps) {
+export function HubErrorState({ error, onRetry, size = "md", className }: TErrorProps) {
   const { t } = useTranslation();
   const kind = getProjectHubErrorKind(error);
   const config = (() => {
     switch (kind) {
       case "permission":
         return {
-          icon: LockOutline,
+          icon: LockOutline as TGlyph,
           title: t("project_hub.states.permission_title"),
           description: t("project_hub.states.permission_description"),
           retry: false,
         };
       case "disabled":
         return {
-          icon: LockOutline,
+          icon: LockOutline as TGlyph,
           title: t("project_hub.states.disabled_title"),
           description: t("project_hub.states.disabled_description"),
           retry: false,
         };
       case "not_found":
         return {
-          icon: SearchOutline,
+          icon: SearchOutline as TGlyph,
           title: t("project_hub.states.not_found_title"),
           description: t("project_hub.states.not_found_description"),
           retry: false,
         };
       case "offline":
         return {
-          icon: CloudOffOutline,
+          icon: CloudOffOutline as TGlyph,
           title: t("project_hub.states.offline_title"),
           description: t("project_hub.errors.kind.offline"),
           retry: true,
         };
       default:
         return {
-          icon: AlertCircleOutline,
+          icon: AlertCircleOutline as TGlyph,
           title: t("project_hub.states.error_title"),
           description: t(getProjectHubErrorMessageKey(error)),
           retry: true,
         };
     }
   })();
+  const detail = error?.error && kind !== "permission" ? error.error : undefined;
 
   return (
-    <div
+    <HubEmptyState
       role="alert"
-      className={cn("flex items-start gap-3 rounded-md border border-subtle bg-layer-1 px-4 py-4", className)}
+      size={size}
+      icon={config.icon}
+      title={config.title}
+      description={
+        detail ? (
+          <>
+            {config.description}
+            <span className="block truncate text-caption-sm-regular text-placeholder">{detail}</span>
+          </>
+        ) : (
+          config.description
+        )
+      }
+      action={
+        config.retry && onRetry ? (
+          <Button
+            variant="secondary"
+            size="sm"
+            stretch="auto"
+            label={t("project_hub.common.retry")}
+            onClick={onRetry}
+          />
+        ) : undefined
+      }
+      className={className}
+    />
+  );
+}
+
+type TNoticeProps = {
+  icon: TGlyph;
+  tone?: "neutral" | "warning";
+  title: ReactNode;
+  description?: ReactNode;
+  action?: ReactNode;
+  onDismiss?: () => void;
+  role?: "status" | "alert";
+  className?: string;
+};
+
+/**
+ * One-line inline notice (stale / offline / conflict / partial): 32px, icon + text + quiet action.
+ * Calm by design — no filled banner, just a subtle layer with a hairline.
+ */
+export function HubNotice({
+  icon: Glyph,
+  tone = "neutral",
+  title,
+  description,
+  action,
+  onDismiss,
+  role = "status",
+  className,
+}: TNoticeProps) {
+  const { t } = useTranslation();
+  return (
+    <div
+      role={role}
+      className={cn(
+        "flex min-h-8 w-full min-w-0 items-center gap-2 rounded-md border border-subtle bg-layer-2 py-1 pr-1 pl-2.5 text-caption-md-regular",
+        className
+      )}
     >
-      <Icon icon={config.icon} size="md" tint="secondary" />
-      <div className="flex flex-col gap-1">
-        <p className="text-body-sm-medium text-primary">{config.title}</p>
-        <p className="text-body-xs-regular text-secondary">{config.description}</p>
-        {error?.error && kind !== "permission" && (
-          <p className="text-caption-sm-regular text-tertiary">{error.error}</p>
-        )}
-        {config.retry && onRetry && (
-          <div className="pt-1">
-            <Button
-              variant="secondary"
-              size="sm"
-              stretch="auto"
-              label={t("project_hub.common.retry")}
-              onClick={onRetry}
-            />
-          </div>
-        )}
-      </div>
+      <Glyph
+        className={cn("size-3.5 shrink-0", tone === "warning" ? "text-warning-primary" : "text-tertiary")}
+        aria-hidden="true"
+      />
+      <p className="min-w-0 flex-1 truncate text-secondary">
+        <span className="font-medium text-primary">{title}</span>
+        {description && <span className="text-tertiary"> · {description}</span>}
+      </p>
+      {action && <div className="flex shrink-0 items-center">{action}</div>}
+      {onDismiss && (
+        <Button variant="ghost" size="sm" stretch="auto" label={t("project_hub.common.close")} onClick={onDismiss} />
+      )}
     </div>
   );
 }
 
-/** Conflict (409) banner: never silently overwrite; offer reloading the latest server state. */
+/** Conflict (409): never silently overwrite; offer reloading the latest server state. */
 export function HubConflictBanner({ onReload, onDismiss }: { onReload: () => void; onDismiss?: () => void }) {
   const { t } = useTranslation();
   return (
-    <Banner
-      placement="inline"
-      variant="warning"
+    <HubNotice
       role="alert"
-      icon={<Icon icon={WarningTriangleOutline} />}
+      tone="warning"
+      icon={WarningTriangleOutline as TGlyph}
       title={t("project_hub.states.conflict_title")}
       description={t("project_hub.states.conflict_description")}
-      actions={
+      action={
         <Button
-          variant="secondary"
+          variant="ghost"
           size="sm"
           stretch="auto"
           label={t("project_hub.states.reload_latest")}
@@ -156,7 +274,6 @@ export function HubConflictBanner({ onReload, onDismiss }: { onReload: () => voi
         />
       }
       onDismiss={onDismiss}
-      dismissLabel={t("project_hub.common.close")}
     />
   );
 }
@@ -166,11 +283,8 @@ export function HubPartialBanner({ sections }: { sections: string[] }) {
   const { t } = useTranslation();
   if (sections.length === 0) return null;
   return (
-    <Banner
-      placement="inline"
-      variant="neutral"
-      role="status"
-      icon={<Icon icon={InfoOutline} />}
+    <HubNotice
+      icon={InfoOutline as TGlyph}
       title={t("project_hub.states.partial_title")}
       description={t("project_hub.states.partial_description", { sections: sections.join(", ") })}
     />
@@ -178,7 +292,7 @@ export function HubPartialBanner({ sections }: { sections: string[] }) {
 }
 
 /**
- * Offline / stale banner. Shown when the browser is offline or when a refresh failed while older
+ * Offline / stale notice. Shown when the browser is offline or when a refresh failed while older
  * data is still displayed — the view is then never presented as live.
  */
 export const HubFreshnessBanner = observer(function HubFreshnessBanner({
@@ -192,11 +306,9 @@ export const HubFreshnessBanner = observer(function HubFreshnessBanner({
   const hasData = resource.data !== undefined;
   if (!online) {
     return (
-      <Banner
-        placement="inline"
-        variant="warning"
-        role="status"
-        icon={<Icon icon={CloudOffOutline} />}
+      <HubNotice
+        tone="warning"
+        icon={CloudOffOutline as TGlyph}
         title={t("project_hub.states.offline_title")}
         description={t("project_hub.states.offline_description")}
       />
@@ -204,18 +316,16 @@ export const HubFreshnessBanner = observer(function HubFreshnessBanner({
   }
   if (hasData && resource.error && getProjectHubErrorKind(resource.error) !== "conflict") {
     return (
-      <Banner
-        placement="inline"
-        variant="warning"
-        role="status"
-        icon={<Icon icon={WarningTriangleOutline} />}
+      <HubNotice
+        tone="warning"
+        icon={WarningTriangleOutline as TGlyph}
         title={t("project_hub.states.stale_title")}
         description={t("project_hub.states.stale_description", { time: formatDateTime(resource.fetchedAt) })}
-        actions={
+        action={
           <Button
-            stretch="auto"
-            variant="secondary"
+            variant="ghost"
             size="sm"
+            stretch="auto"
             label={t("project_hub.common.retry")}
             onClick={() => void resource.refresh()}
           />
@@ -233,11 +343,13 @@ type TBoundaryProps<T> = {
   /** Treat as empty (render `empty` instead of children). */
   isEmpty?: (data: T) => boolean;
   empty?: ReactNode;
+  /** `sm` for panes and sidebar cards (compact error state). */
+  size?: "sm" | "md";
 };
 
 /**
  * Renders the designed states for one resource: Loading → Error (incl. permission/disabled/offline)
- * → Empty → content, plus Stale/Offline banner above content when a refresh failed.
+ * → Empty → content, plus Stale/Offline notice above content when a refresh failed.
  */
 export const HubResourceBoundary = observer(function HubResourceBoundary<T>({
   resource,
@@ -245,16 +357,18 @@ export const HubResourceBoundary = observer(function HubResourceBoundary<T>({
   loadingRows,
   isEmpty,
   empty,
+  size,
 }: TBoundaryProps<T>) {
   if (resource.data === undefined) {
-    if (resource.error) return <HubErrorState error={resource.error} onRetry={() => void resource.refresh()} />;
+    if (resource.error)
+      return <HubErrorState error={resource.error} size={size} onRetry={() => void resource.refresh()} />;
     return <HubLoading rows={loadingRows} />;
   }
   const data = resource.data;
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex min-w-0 flex-col gap-3">
       <HubFreshnessBanner resource={resource} />
-      {isEmpty?.(data) ? (empty ?? <HubEmpty />) : children(data)}
+      {isEmpty?.(data) ? (empty ?? <HubEmptyState size={size} />) : children(data)}
     </div>
   );
 }) as <T>(props: TBoundaryProps<T>) => ReactNode;
