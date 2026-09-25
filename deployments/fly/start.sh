@@ -67,7 +67,7 @@ if [ -z "${REDIS_URL:-}" ]; then
   export REDIS_URL="redis://127.0.0.1:6379/0"
 fi
 # Celery accepts a redis:// broker URL, so RabbitMQ is not needed.
-export AMQP_URL="${AMQP_URL:-${REDIS_URL%/*}/1}"
+export AMQP_URL="${AMQP_URL:-$REDIS_URL}"
 
 # --- Object storage (Tigris via `fly storage create`, or any S3) -----------------
 export AWS_S3_ENDPOINT_URL="${AWS_S3_ENDPOINT_URL:-${AWS_ENDPOINT_URL_S3:-}}"

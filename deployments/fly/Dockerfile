@@ -81,7 +81,9 @@ ENV INSTANCE_CHANGELOG_URL=https://sites.plane.so/pages/691ef037bcfe416a902e48cb
 ARG APK_SECURITY_PATCH=2026-09-07
 RUN echo "apk-security-patch ${APK_SECURITY_PATCH}" && apk update && apk upgrade --no-cache --available \
     && apk add --no-cache libpq libxslt xmlsec libffi bash curl libstdc++ libgcc \
-       postgresql17 postgresql17-contrib redis su-exec tzdata \
+       postgresql17 postgresql17-contrib su-exec tzdata \
+    && (apk add --no-cache redis \
+        || (apk add --no-cache valkey && ln -s /usr/bin/valkey-server /usr/bin/redis-server)) \
     && pip install --no-cache-dir supervisor
 
 # Node runtime for space (SSR) and live
