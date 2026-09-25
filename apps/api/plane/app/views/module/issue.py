@@ -24,6 +24,7 @@ from plane.db.models import (
     Issue,
     FileAsset,
     IssueLink,
+    Module,
     ModuleIssue,
     Project,
     CycleIssue,
