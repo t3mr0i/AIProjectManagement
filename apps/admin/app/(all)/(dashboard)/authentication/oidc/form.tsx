@@ -12,7 +12,7 @@ import { Controller, useForm } from "react-hook-form";
 import { API_BASE_URL } from "@plane/constants";
 import { Button } from "@makeplane/propel/components/button";
 import { Switch } from "@makeplane/propel/components/switch";
-import { TOAST_TYPE, setToast } from "@/providers/toast";
+import { setToast } from "@plane/blocks/toast";
 import type { IFormattedInstanceConfiguration, TInstanceOIDCAuthenticationConfigurationKeys } from "@plane/types";
 // components
 import { CodeBlock } from "@/components/common/code-block";
@@ -133,7 +133,7 @@ export function InstanceOIDCConfigForm(props: Props) {
     try {
       const response = await updateInstanceConfigurations(payload);
       setToast({
-        type: TOAST_TYPE.SUCCESS,
+        type: "success",
         title: "Done!",
         message: "Your OpenID Connect authentication is configured. You should test it now.",
       });

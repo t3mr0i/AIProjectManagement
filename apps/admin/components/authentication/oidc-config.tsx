@@ -34,17 +34,11 @@ export const OIDCConfiguration = observer(function OIDCConfiguration(props: Prop
     <>
       {oidcConfigured ? (
         <div className="flex items-center gap-4">
-          <AnchorButton
-            variant="primary"
-            size="sm"
-            nativeButton={false}
-            render={<Link href="/authentication/oidc" />}
-            label="Edit"
-          />
+          <AnchorButton variant="primary" size="sm" render={<Link href="/authentication/oidc" />} label="Edit" />
           <Switch
             checked={Boolean(parseInt(oidcConfig))}
             onCheckedChange={() => {
-              updateConfig("IS_OIDC_ENABLED", Boolean(parseInt(oidcConfig)) ? "0" : "1");
+              updateConfig("IS_OIDC_ENABLED", parseInt(oidcConfig) ? "0" : "1");
             }}
             size="sm"
             disabled={disabled}
