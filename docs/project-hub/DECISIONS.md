@@ -1,0 +1,27 @@
+# Open decisions and implementation defaults
+
+PRD §4 and §20 keep some product decisions explicitly open. None of them were decided silently. The code supports every option and ships a conservative default. Each default is a **working assumption, not a product decision**. Revisit these before a pilot.
+
+| ID  | Open question                                                     | What the code supports                                                                                                                        | Default shipped                                                                                                                   | Who decides            |
+| --- | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
+| O01 | Where does execution run?                                         | Runner kinds `local`, `customer`, `managed`; outbound-only runner (`apps/runner`)                                                             | None pre-registered; admins register runners in settings. `local` runners can only produce `local_self_report` evidence.          | Product + operations   |
+| O02 | Integration order                                                 | Adapters for GitLab, GitHub, Jira, Linear, Azure DevOps and generic Git behind one contract; native Plane UUIDs are the only package identity | None configured; A04 (GitLab + Jira Cloud) is only a suggestion                                                                   | Product                |
+| O03 | Operating model (SaaS, self-hosting, air gap, region)             | Plane's existing compose/k8s artifacts; no cloud-only dependency added                                                                        | Not decided; no production deployment was made                                                                                    | Operations / customer  |
+| O04 | Who may approve execution, confirm code review or trigger merges? | Separate capabilities: `package.approve_execution`, `review.approve_code`, `review.accept_outcome`, `merge.request`, …                        | No capability granted by default except `project.read`/`package.edit` via membership, and `workspace.admin` via native admin role | Team leads per pilot   |
+| O05 | Scope, capacity, dates                                            | Increments I00–I15 are all implemented to the extent listed in VERIFICATION.md                                                                | No dates or cost claims                                                                                                           | Product                |
+| O06 | Fork start commit                                                 | `docs/project-hub/upstream-lock.json`, verified by `tools/project-hub/verify_upstream_lock.py`                                                | `d616636…`, identical to the analysis commit                                                                                      | Engineering (recorded) |
+| O07 | Commercial Plane components                                       | Community source only; `plane.package_flow.editions` refuses marketing/cloud docs as evidence                                                 | Enterprise SSO/SCIM/portfolio stay `needs_verification`                                                                           | Legal + product        |
+| L01 | Distribution / license path                                       | Nothing in the code grants distribution rights; AGPL notices kept; license inventory generated                                                | `licensePathApproved: false`. No external distribution or public hosting is authorized.                                           | Legal                  |
+
+## Defaults chosen by the implementation, not by the PRD
+
+- **Human principal.** Only an interactive Plane session of a non-bot user counts as human. API keys, bot users and runner tokens are agents (INV-03).
+- **Policy version.** `pf-policy-1`, stamped on approvals.
+- **Approval expiry and limits.** Approvals expire; limits default to the values in `services/packages.py` (`DEFAULT_LIMITS`).
+- **Code packages** need at least one repository scope entry to be approved. Non-code packages need none.
+- **Human-created planning dependencies** default to confirmed. Agent-created ones are always suggestions and never block.
+- **Merge gate** refuses provider editions that cannot prove human approval (GitHub Free private repos, GitLab Free), returning `CAPABILITY_MISSING` (FR-G10).
+- **Realtime revocation.** Checked every 30 s (`LIVE_ACCESS_RECHECK_INTERVAL_MS`), which bounds revocation at about 50 s (NFR-04 target: 60 s).
+- **Webhooks.** Limited to 600 per minute per connection; events older than 7 days are stored as ignored.
+- **Exports** expire after 7 days (`PACKAGE_FLOW_EXPORT_TTL_DAYS`).
+- **Offline AI.** Without `LLM_API_KEY` the offline rule-based AI provider is used. It never writes; every AI output is a proposal.
