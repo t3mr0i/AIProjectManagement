@@ -22,8 +22,9 @@ import { Spinner } from "@plane/blocks/spinner";
 import { cn, generateWorkItemLink } from "@plane/utils";
 // components
 import { MultipleSelectEntityAction } from "@/components/core/multiple-select";
-import { IssueProperties } from "@/components/issues/issue-layouts/properties";
 import { IssueIdentifier } from "@/components/issues/issue-detail/issue-identifier";
+import { IssueProperties } from "@/components/issues/issue-layouts/properties";
+import { WithDisplayPropertiesHOC } from "@/components/issues/issue-layouts/properties/with-display-properties-HOC";
 // hooks
 import { useAppTheme } from "@/hooks/store/use-app-theme";
 import { useIssueDetail } from "@/hooks/store/use-issue-detail";
@@ -229,7 +230,7 @@ export const IssueBlock = observer(function IssueBlock(props: IssueBlockProps) {
                   </div>
                 </Tooltip>
               )}
-              {displayProperties && (displayProperties.key || displayProperties.issue_type) && (
+              <WithDisplayPropertiesHOC displayProperties={displayProperties || {}} displayPropertyKey="key">
                 <div className="flex-shrink-0" style={{ minWidth: `${keyMinWidth}px` }}>
                   {issue.project_id && (
                     <IssueIdentifier
@@ -241,7 +242,7 @@ export const IssueBlock = observer(function IssueBlock(props: IssueBlockProps) {
                     />
                   )}
                 </div>
-              )}
+              </WithDisplayPropertiesHOC>
 
               {/* sub-issues chevron */}
               <div className="grid size-4 flex-shrink-0 place-items-center">
