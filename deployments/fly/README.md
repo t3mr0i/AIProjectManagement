@@ -23,6 +23,18 @@ fly storage create -a ai-project-management      # Tigris bucket; sets AWS_* + B
 fly deploy
 ```
 
+If `fly deploy` reports "Failed to provision IP addresses", allocate them by hand:
+
+```bash
+fly ips allocate-v6 -a ai-project-management
+fly ips allocate-v4 --shared -a ai-project-management
+```
+
+On the first boot the migrator applies all ~165 migrations, which takes about
+30 minutes on a shared CPU. The API only starts afterwards, so `fly deploy` may
+time out waiting for health checks even though the machine keeps running. Watch
+progress with `fly logs` and check `/api/instances/`; later deploys are fast.
+
 The app is then available at `https://ai-project-management.fly.dev`.
 Open `/god-mode/` first to create the instance admin.
 
