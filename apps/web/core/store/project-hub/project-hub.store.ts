@@ -17,6 +17,7 @@ import type {
 } from "@plane/types";
 // services
 import {
+  ProjectHubAIService,
   ProjectHubCollaborationService,
   ProjectHubExecutionService,
   ProjectHubIntegrationService,
@@ -47,6 +48,7 @@ export interface IProjectHubStore {
   collaborationService: ProjectHubCollaborationService;
   planningService: ProjectHubPlanningService;
   knowledgeService: ProjectHubKnowledgeService;
+  aiService: ProjectHubAIService;
   // generic cache
   getResource: <T>(key: string) => T | undefined;
   setResource: <T>(key: string, value: T) => void;
@@ -86,6 +88,7 @@ export class ProjectHubStore implements IProjectHubStore {
   collaborationService = new ProjectHubCollaborationService();
   planningService = new ProjectHubPlanningService();
   knowledgeService = new ProjectHubKnowledgeService();
+  aiService = new ProjectHubAIService();
 
   constructor() {
     makeObservable(this, {

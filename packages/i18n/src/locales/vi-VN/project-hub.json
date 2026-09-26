@@ -1023,6 +1023,108 @@
       "edge": "Cạnh",
       "ambiguous_short": "Không rõ",
       "read_only": "Chỉ đọc — cần có \"Chỉnh sửa gói\" để thay đổi sơ đồ này."
+    },
+    "ai": {
+      "status": {
+        "llm": "{provider} · {model}",
+        "rule_based": "Dựa trên quy tắc (chưa cấu hình mô hình)",
+        "rule_based_hint": "Chưa cấu hình mô hình ngôn ngữ nên câu trả lời đến từ các quy tắc tích hợp sẵn. Quản trị viên phiên bản có thể thiết lập nhà cung cấp trong ứng dụng quản trị.",
+        "embeddings": "Tìm kiếm ngữ nghĩa: {model}"
+      },
+      "task": {
+        "concretize": "Cụ thể hóa",
+        "interpret": "Diễn giải",
+        "report": "Báo cáo trạng thái",
+        "answer": "Câu trả lời"
+      },
+      "result_status": {
+        "ok": "Hoàn tất",
+        "timeout": "Hết thời gian",
+        "budget_exceeded": "Vượt ngân sách",
+        "cancelled": "Đã hủy",
+        "error": "Lỗi",
+        "unavailable": "Không khả dụng"
+      },
+      "result_failed": "AI không thể hoàn tất: {status}",
+      "needs_clarification": "AI cần thêm thông tin để tiếp tục.",
+      "flags_title": "Phát hiện",
+      "flag": {
+        "unverified_claim": "Khẳng định chưa được xác minh",
+        "missing_evidence": "Thiếu bằng chứng",
+        "contradiction": "Mâu thuẫn",
+        "unknown_intent": "Mục tiêu không rõ",
+        "scope_change_requires_new_approval": "Thay đổi phạm vi cần phê duyệt mới",
+        "instruction_like_content": "Đã bỏ qua nội dung giống chỉ dẫn"
+      },
+      "notes_title": "Ghi chú",
+      "generated_by": "Được tạo bởi {model}",
+      "statement_sources": "{count, plural, one {# nguồn} other {# nguồn}}",
+      "sources_used": "Nguồn đã dùng",
+      "sources_retrieved": "Tìm thấy bằng tìm kiếm ngữ nghĩa",
+      "sources_blocked": "{count, plural, one {# nguồn không được dùng} other {# nguồn không được dùng}}",
+      "source_stale": "Đã lỗi thời",
+      "no_sources": "Không có nguồn nào được sử dụng.",
+      "no_statements": "AI không trả về nhận định nào.",
+      "block_reason": {
+        "unavailable": "Không khả dụng",
+        "private_source": "Nguồn riêng tư",
+        "audience_mismatch": "Không hiển thị với tất cả người nhận",
+        "quarantined": "Tệp bị cách ly",
+        "scan_pending": "Đang chờ quét virus"
+      },
+      "dismiss": "Bỏ qua",
+      "patch": {
+        "new": "Mới",
+        "verification": "Xác minh: {method}"
+      },
+      "assist": {
+        "title": "Trợ lý AI",
+        "description": "Để AI cụ thể hóa, diễn giải hoặc báo cáo về yêu cầu này. Kết quả xuất hiện trong Đề xuất của AI; không có gì thay đổi cho đến khi bạn chấp nhận.",
+        "instruction": "Chỉ dẫn",
+        "instruction_placeholder": "ví dụ: Tập trung vào tiêu chí chấp nhận cho API",
+        "concretize": "Cụ thể hóa",
+        "concretize_hint": "Đề xuất kết quả, mục tiêu, phần ngoài mục tiêu và tiêu chí chấp nhận",
+        "interpret": "Diễn giải",
+        "interpret_hint": "Giải thích yêu cầu này có nghĩa là gì và điều gì còn chưa rõ",
+        "report": "Báo cáo",
+        "report_hint": "Tóm tắt trạng thái hiện tại của gói công việc này",
+        "requested": "Đề xuất của AI đã sẵn sàng"
+      },
+      "ask": {
+        "title": "Hỏi AI",
+        "description": "Đặt câu hỏi trên tất cả dự án bạn có thể đọc. Chỉ bạn thấy câu trả lời.",
+        "label": "Câu hỏi của bạn",
+        "placeholder": "ví dụ: Gói công việc nào đang bị chặn và vì sao?",
+        "submit": "Hỏi",
+        "clear": "Xóa",
+        "shortcut": "Ctrl/⌘ + Enter để gửi",
+        "answer": "Câu trả lời"
+      },
+      "report": {
+        "title": "Báo cáo trạng thái AI",
+        "description": "Bản tóm tắt trạng thái được tạo từ dữ liệu mà mọi thành viên dự án đều có thể đọc.",
+        "empty": "Chưa có báo cáo trạng thái",
+        "generate": "Tạo báo cáo",
+        "regenerate": "Tạo lại",
+        "snapshot": "Các dữ kiện làm cơ sở cho báo cáo"
+      },
+      "usage": {
+        "title": "Mức sử dụng AI",
+        "description": "Lượt gọi AI và token trong không gian làm việc này trong {days} ngày qua.",
+        "calls": "Lượt gọi",
+        "input_tokens": "Token đầu vào",
+        "output_tokens": "Token đầu ra",
+        "errors": "Lỗi",
+        "by_feature": "Theo tính năng",
+        "by_model": "Theo mô hình",
+        "row": "Lượt gọi: {calls} · Vào: {input} · Ra: {output}",
+        "empty": "Không có lượt gọi AI nào trong khoảng thời gian này.",
+        "reindex": "Chỉ mục ngữ nghĩa",
+        "reindex_action": "Xây dựng lại",
+        "reindex_description": "Tạo lại embedding cho trang, gói công việc và quyết định bằng {model} để \"Hỏi AI\" tìm thấy chúng. Chạy trong nền.",
+        "reindex_unavailable": "Chưa cấu hình mô hình embedding. \"Hỏi AI\" dùng tìm kiếm theo từ khóa.",
+        "reindex_queued": "Đã bắt đầu xây dựng lại chỉ mục ngữ nghĩa"
+      }
     }
   }
 }

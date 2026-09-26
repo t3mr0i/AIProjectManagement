@@ -1023,6 +1023,108 @@
       "edge": "Arco",
       "ambiguous_short": "Non chiaro",
       "read_only": "Sola lettura — per modificare questo diagramma è necessario «Modificare i pacchetti»."
+    },
+    "ai": {
+      "status": {
+        "llm": "{provider} · {model}",
+        "rule_based": "Basato su regole (nessun modello configurato)",
+        "rule_based_hint": "Nessun modello linguistico configurato: le risposte provengono da regole integrate. Un amministratore dell'istanza può configurare un provider nell'app di amministrazione.",
+        "embeddings": "Ricerca semantica: {model}"
+      },
+      "task": {
+        "concretize": "Concretizzazione",
+        "interpret": "Interpretazione",
+        "report": "Report di stato",
+        "answer": "Risposta"
+      },
+      "result_status": {
+        "ok": "Completato",
+        "timeout": "Tempo scaduto",
+        "budget_exceeded": "Budget superato",
+        "cancelled": "Annullato",
+        "error": "Errore",
+        "unavailable": "Non disponibile"
+      },
+      "result_failed": "L'IA non ha potuto completare: {status}",
+      "needs_clarification": "L'IA ha bisogno di altre informazioni per continuare.",
+      "flags_title": "Rilievi",
+      "flag": {
+        "unverified_claim": "Affermazione non verificata",
+        "missing_evidence": "Prova mancante",
+        "contradiction": "Contraddizione",
+        "unknown_intent": "Obiettivo poco chiaro",
+        "scope_change_requires_new_approval": "La modifica dell'ambito richiede una nuova approvazione",
+        "instruction_like_content": "Contenuto simile a un'istruzione ignorato"
+      },
+      "notes_title": "Note",
+      "generated_by": "Generato da {model}",
+      "statement_sources": "{count, plural, one {# fonte} many {# di fonti} other {# fonti}}",
+      "sources_used": "Fonti utilizzate",
+      "sources_retrieved": "Trovata con la ricerca semantica",
+      "sources_blocked": "{count, plural, one {# fonte non utilizzata} many {# di fonti non utilizzate} other {# fonti non utilizzate}}",
+      "source_stale": "Non aggiornata",
+      "no_sources": "Non è stata utilizzata alcuna fonte.",
+      "no_statements": "L'IA non ha restituito affermazioni.",
+      "block_reason": {
+        "unavailable": "Non disponibile",
+        "private_source": "Fonte privata",
+        "audience_mismatch": "Non visibile a tutti i destinatari",
+        "quarantined": "File in quarantena",
+        "scan_pending": "Scansione antivirus in attesa"
+      },
+      "dismiss": "Ignora",
+      "patch": {
+        "new": "Nuovo",
+        "verification": "Verifica: {method}"
+      },
+      "assist": {
+        "title": "Assistente IA",
+        "description": "Lasci che l'IA concretizzi, interpreti o riassuma questo incarico. I risultati compaiono in Proposte dell'IA; nulla cambia finché non accetta.",
+        "instruction": "Istruzione",
+        "instruction_placeholder": "ad es. Concentrarsi sui criteri di accettazione dell'API",
+        "concretize": "Concretizza",
+        "concretize_hint": "Proporre risultato, obiettivo, non obiettivi e criteri di accettazione",
+        "interpret": "Interpreta",
+        "interpret_hint": "Spiegare cosa significa questo incarico e cosa resta poco chiaro",
+        "report": "Report",
+        "report_hint": "Riassumere lo stato attuale di questo pacchetto di lavoro",
+        "requested": "La proposta dell'IA è pronta"
+      },
+      "ask": {
+        "title": "Chiedi all'IA",
+        "description": "Faccia una domanda su tutti i progetti che può leggere. Solo Lei vede la risposta.",
+        "label": "La Sua domanda",
+        "placeholder": "ad es. Quali pacchetti di lavoro sono bloccati e perché?",
+        "submit": "Chiedi",
+        "clear": "Cancella",
+        "shortcut": "Ctrl/⌘ + Enter per inviare",
+        "answer": "Risposta"
+      },
+      "report": {
+        "title": "Report di stato IA",
+        "description": "Un riepilogo dello stato basato sui dati che tutti i membri del progetto possono leggere.",
+        "empty": "Nessun report di stato",
+        "generate": "Genera report",
+        "regenerate": "Rigenera",
+        "snapshot": "Fatti su cui si basa il report"
+      },
+      "usage": {
+        "title": "Utilizzo dell'IA",
+        "description": "Chiamate e token di IA in questo workspace negli ultimi {days} giorni.",
+        "calls": "Chiamate",
+        "input_tokens": "Token in ingresso",
+        "output_tokens": "Token in uscita",
+        "errors": "Errori",
+        "by_feature": "Per funzione",
+        "by_model": "Per modello",
+        "row": "Chiamate: {calls} · Ingresso: {input} · Uscita: {output}",
+        "empty": "Nessuna chiamata di IA in questo periodo.",
+        "reindex": "Indice semantico",
+        "reindex_action": "Ricostruisci",
+        "reindex_description": "Ricalcola gli embedding di pagine, pacchetti di lavoro e decisioni con {model} affinché «Chiedi all'IA» li trovi. Viene eseguito in background.",
+        "reindex_unavailable": "Nessun modello di embedding configurato. «Chiedi all'IA» usa la ricerca per parole chiave.",
+        "reindex_queued": "Ricostruzione dell'indice semantico avviata"
+      }
     }
   }
 }

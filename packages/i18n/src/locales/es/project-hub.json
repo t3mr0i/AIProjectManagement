@@ -1023,6 +1023,108 @@
       "edge": "Arista",
       "ambiguous_short": "Poco claro",
       "read_only": "Solo lectura: se requiere «Editar paquetes» para cambiar este diagrama."
+    },
+    "ai": {
+      "status": {
+        "llm": "{provider} · {model}",
+        "rule_based": "Basado en reglas (sin modelo configurado)",
+        "rule_based_hint": "No hay ningún modelo de lenguaje configurado, así que las respuestas provienen de reglas integradas. Un administrador de la instancia puede configurar un proveedor en la aplicación de administración.",
+        "embeddings": "Búsqueda semántica: {model}"
+      },
+      "task": {
+        "concretize": "Concreción",
+        "interpret": "Interpretación",
+        "report": "Informe de estado",
+        "answer": "Respuesta"
+      },
+      "result_status": {
+        "ok": "Listo",
+        "timeout": "Tiempo agotado",
+        "budget_exceeded": "Presupuesto superado",
+        "cancelled": "Cancelado",
+        "error": "Error",
+        "unavailable": "No disponible"
+      },
+      "result_failed": "La IA no pudo terminar: {status}",
+      "needs_clarification": "La IA necesita más información para continuar.",
+      "flags_title": "Hallazgos",
+      "flag": {
+        "unverified_claim": "Afirmación no verificada",
+        "missing_evidence": "Falta evidencia",
+        "contradiction": "Contradicción",
+        "unknown_intent": "Objetivo poco claro",
+        "scope_change_requires_new_approval": "El cambio de alcance requiere una nueva aprobación",
+        "instruction_like_content": "Contenido tipo instrucción ignorado"
+      },
+      "notes_title": "Notas",
+      "generated_by": "Generado por {model}",
+      "statement_sources": "{count, plural, one {# fuente} other {# fuentes}}",
+      "sources_used": "Fuentes utilizadas",
+      "sources_retrieved": "Encontrada por búsqueda semántica",
+      "sources_blocked": "{count, plural, one {# fuente no utilizada} other {# fuentes no utilizadas}}",
+      "source_stale": "Desactualizada",
+      "no_sources": "No se utilizó ninguna fuente.",
+      "no_statements": "La IA no devolvió ninguna afirmación.",
+      "block_reason": {
+        "unavailable": "No disponible",
+        "private_source": "Fuente privada",
+        "audience_mismatch": "No visible para toda la audiencia",
+        "quarantined": "Archivo en cuarentena",
+        "scan_pending": "Análisis antivirus pendiente"
+      },
+      "dismiss": "Descartar",
+      "patch": {
+        "new": "Nuevo",
+        "verification": "Verificación: {method}"
+      },
+      "assist": {
+        "title": "Asistente de IA",
+        "description": "Deje que la IA concrete, interprete o informe sobre este encargo. Los resultados aparecen en Propuestas de IA; nada cambia hasta que usted acepte.",
+        "instruction": "Instrucción",
+        "instruction_placeholder": "p. ej., centrarse en los criterios de aceptación de la API",
+        "concretize": "Concretar",
+        "concretize_hint": "Proponer resultado, objetivo, exclusiones y criterios de aceptación",
+        "interpret": "Interpretar",
+        "interpret_hint": "Explicar qué significa este encargo y qué sigue sin estar claro",
+        "report": "Informe",
+        "report_hint": "Resumir el estado actual de este paquete de trabajo",
+        "requested": "La propuesta de la IA está lista"
+      },
+      "ask": {
+        "title": "Preguntar a la IA",
+        "description": "Haga una pregunta sobre todos los proyectos que puede leer. Solo usted ve la respuesta.",
+        "label": "Su pregunta",
+        "placeholder": "p. ej., ¿Qué paquetes de trabajo están bloqueados y por qué?",
+        "submit": "Preguntar",
+        "clear": "Borrar",
+        "shortcut": "Ctrl/⌘ + Enter para enviar",
+        "answer": "Respuesta"
+      },
+      "report": {
+        "title": "Informe de estado de IA",
+        "description": "Un resumen del estado creado a partir de datos que todos los miembros del proyecto pueden leer.",
+        "empty": "Todavía no hay informe de estado",
+        "generate": "Generar informe",
+        "regenerate": "Regenerar",
+        "snapshot": "Hechos en los que se basa el informe"
+      },
+      "usage": {
+        "title": "Uso de IA",
+        "description": "Llamadas y tokens de IA en este espacio de trabajo durante los últimos {days} días.",
+        "calls": "Llamadas",
+        "input_tokens": "Tokens de entrada",
+        "output_tokens": "Tokens de salida",
+        "errors": "Errores",
+        "by_feature": "Por función",
+        "by_model": "Por modelo",
+        "row": "Llamadas: {calls} · Entrada: {input} · Salida: {output}",
+        "empty": "No hubo llamadas de IA en este período.",
+        "reindex": "Índice semántico",
+        "reindex_action": "Reconstruir",
+        "reindex_description": "Vuelve a generar los embeddings de páginas, paquetes de trabajo y decisiones con {model} para que «Preguntar a la IA» los encuentre. Se ejecuta en segundo plano.",
+        "reindex_unavailable": "No hay ningún modelo de embeddings configurado. «Preguntar a la IA» usa búsqueda por palabras clave.",
+        "reindex_queued": "Se inició la reconstrucción del índice semántico"
+      }
     }
   }
 }

@@ -28,7 +28,7 @@ from django.utils import timezone
 from plane.db.models import Issue, Page
 
 from ..capabilities import accessible_project_ids
-from ..models import Conversation, ConversationParticipant, SearchDocument, UploadRecord
+from ..models import AIEmbedding, Conversation, ConversationParticipant, SearchDocument, UploadRecord
 
 DEFAULT_LIMIT = 30
 MAX_LIMIT = 100
@@ -69,6 +69,8 @@ def index_document(
 def remove_document(object_type, object_id) -> int:
     """Hard delete (not soft) — deleted confidential data must not stay searchable (FR-I08)."""
     deleted, _ = SearchDocument.all_objects.filter(object_type=object_type, object_id=object_id).delete()
+    # The semantic AI index is derived data too.
+    AIEmbedding.all_objects.filter(object_type=object_type, object_id=object_id).delete()
     return deleted
 
 

@@ -16,6 +16,7 @@ import { IconButton } from "@makeplane/propel/components/icon-button";
 import { TextArea } from "@makeplane/propel/components/text-area";
 import {
   AgentOutline,
+  AiStarOneOutline,
   ChatOutline,
   CloseOutline,
   LockOutline,
@@ -117,6 +118,9 @@ function SourceChips({ context, className }: { context: TPHAiContext | TPHContex
       {used.map((label) => (
         <HubChip key={label} variant="soft" icon={TickCircleOutline as TGlyph} label={label} />
       ))}
+      {"model" in context && context.model && (
+        <HubChip variant="outline" icon={AiStarOneOutline as TGlyph} label={context.model} />
+      )}
       {blocked.length > 0 && (
         <HubChip
           variant="outline"

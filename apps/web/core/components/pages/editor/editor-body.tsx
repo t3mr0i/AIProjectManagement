@@ -187,6 +187,7 @@ export const PageEditorBody = observer(function PageEditorBody(props: Props) {
   const getAIMenu = useCallback(
     ({ isOpen, onClose }: TAIMenuProps) => (
       <EditorAIMenu
+        key={isOpen ? "open" : "closed"}
         editorRef={editorRef}
         isOpen={isOpen}
         onClose={onClose}

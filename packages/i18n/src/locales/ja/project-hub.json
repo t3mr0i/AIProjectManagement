@@ -1023,6 +1023,108 @@
       "edge": "エッジ",
       "ambiguous_short": "不明確",
       "read_only": "読み取り専用 — このダイアグラムを変更するには「パッケージの編集」が必要です。"
+    },
+    "ai": {
+      "status": {
+        "llm": "{provider} · {model}",
+        "rule_based": "ルールベース（モデル未設定）",
+        "rule_based_hint": "言語モデルが設定されていないため、回答は組み込みルールから生成されます。インスタンス管理者は管理アプリでプロバイダーを設定できます。",
+        "embeddings": "セマンティック検索：{model}"
+      },
+      "task": {
+        "concretize": "具体化",
+        "interpret": "解釈",
+        "report": "ステータスレポート",
+        "answer": "回答"
+      },
+      "result_status": {
+        "ok": "完了",
+        "timeout": "タイムアウト",
+        "budget_exceeded": "予算超過",
+        "cancelled": "キャンセル済み",
+        "error": "エラー",
+        "unavailable": "利用不可"
+      },
+      "result_failed": "AI は完了できませんでした：{status}",
+      "needs_clarification": "続行するには AI に追加の情報が必要です。",
+      "flags_title": "指摘事項",
+      "flag": {
+        "unverified_claim": "未検証の主張",
+        "missing_evidence": "根拠の不足",
+        "contradiction": "矛盾",
+        "unknown_intent": "目的が不明確",
+        "scope_change_requires_new_approval": "スコープの変更には新たな承認が必要です",
+        "instruction_like_content": "指示のような内容は無視されました"
+      },
+      "notes_title": "メモ",
+      "generated_by": "{model} で生成",
+      "statement_sources": "{count, plural, one {ソース #件} other {ソース #件}}",
+      "sources_used": "使用したソース",
+      "sources_retrieved": "セマンティック検索で検出",
+      "sources_blocked": "{count, plural, one {未使用のソース #件} other {未使用のソース #件}}",
+      "source_stale": "古い情報",
+      "no_sources": "ソースは使用されていません。",
+      "no_statements": "AI から記述は返されませんでした。",
+      "block_reason": {
+        "unavailable": "利用不可",
+        "private_source": "非公開のソース",
+        "audience_mismatch": "対象者全員には表示されません",
+        "quarantined": "隔離されたファイル",
+        "scan_pending": "ウイルススキャン待ち"
+      },
+      "dismiss": "破棄",
+      "patch": {
+        "new": "新規",
+        "verification": "検証：{method}"
+      },
+      "assist": {
+        "title": "AI アシスタント",
+        "description": "AI にこの依頼の具体化、解釈、レポート作成を任せられます。結果は「AI の提案」に表示され、承認するまで何も変更されません。",
+        "instruction": "指示",
+        "instruction_placeholder": "例：API の受け入れ基準に絞る",
+        "concretize": "具体化",
+        "concretize_hint": "成果、目的、対象外、受け入れ基準を提案します",
+        "interpret": "解釈",
+        "interpret_hint": "この依頼の意味と、まだ不明確な点を説明します",
+        "report": "レポート",
+        "report_hint": "この作業パッケージの現在の状況を要約します",
+        "requested": "AI の提案の準備ができました"
+      },
+      "ask": {
+        "title": "AI に質問",
+        "description": "閲覧できるすべてのプロジェクトを対象に質問できます。回答はあなたにのみ表示されます。",
+        "label": "質問",
+        "placeholder": "例：ブロックされている作業パッケージとその理由は？",
+        "submit": "質問する",
+        "clear": "クリア",
+        "shortcut": "Ctrl/⌘ + Enter で送信",
+        "answer": "回答"
+      },
+      "report": {
+        "title": "AI ステータスレポート",
+        "description": "すべてのプロジェクトメンバーが閲覧できるデータから作成したステータスの要約です。",
+        "empty": "ステータスレポートはまだありません",
+        "generate": "レポートを生成",
+        "regenerate": "再生成",
+        "snapshot": "レポートの根拠となる事実"
+      },
+      "usage": {
+        "title": "AI の利用状況",
+        "description": "過去 {days} 日間のこのワークスペースでの AI 呼び出しとトークン。",
+        "calls": "呼び出し",
+        "input_tokens": "入力トークン",
+        "output_tokens": "出力トークン",
+        "errors": "エラー",
+        "by_feature": "機能別",
+        "by_model": "モデル別",
+        "row": "呼び出し：{calls} · 入力：{input} · 出力：{output}",
+        "empty": "この期間に AI の呼び出しはありません。",
+        "reindex": "セマンティックインデックス",
+        "reindex_action": "再構築",
+        "reindex_description": "「AI に質問」で見つけられるよう、ページ、作業パッケージ、意思決定の埋め込みを {model} で再作成します。バックグラウンドで実行されます。",
+        "reindex_unavailable": "埋め込みモデルが設定されていません。「AI に質問」はキーワード検索を使用します。",
+        "reindex_queued": "セマンティックインデックスの再構築を開始しました"
+      }
     }
   }
 }

@@ -5,8 +5,8 @@
  */
 
 import { useForm } from "react-hook-form";
-import { ThoughtsOutline } from "@makeplane/propel/icons";
 import { Button } from "@makeplane/propel/components/button";
+import { Select, SelectContent, SelectItem, SelectList, SelectTrigger } from "@makeplane/propel/components/select";
 import type { IFormattedInstanceConfiguration, TInstanceAIConfigurationKeys } from "@plane/types";
 // components
 import type { TControllerInputFormField } from "@/components/common/controller-input";
@@ -21,6 +21,68 @@ type IInstanceAIForm = {
 
 type AIFormValues = Record<TInstanceAIConfigurationKeys, string>;
 
+type TLLMProvider = "openai" | "anthropic" | "gemini" | "ollama" | "openai_compatible";
+
+type TProviderPreset = {
+  label: string;
+  /** Model used when `LLM_MODEL` is empty. */
+  defaultModel: string;
+  keyPlaceholder: string;
+  keyRequired: boolean;
+  baseUrlPlaceholder: string;
+  baseUrlRequired: boolean;
+  docsUrl?: string;
+};
+
+const PROVIDERS: Record<TLLMProvider, TProviderPreset> = {
+  openai: {
+    label: "OpenAI",
+    defaultModel: "gpt-4o-mini",
+    keyPlaceholder: "sk-…",
+    keyRequired: true,
+    baseUrlPlaceholder: "https://api.openai.com/v1",
+    baseUrlRequired: false,
+    docsUrl: "https://platform.openai.com/docs/models",
+  },
+  anthropic: {
+    label: "Anthropic",
+    defaultModel: "claude-opus-5",
+    keyPlaceholder: "sk-ant-…",
+    keyRequired: true,
+    baseUrlPlaceholder: "https://api.anthropic.com",
+    baseUrlRequired: false,
+    docsUrl: "https://docs.anthropic.com/en/docs/about-claude/models",
+  },
+  gemini: {
+    label: "Google Gemini",
+    defaultModel: "gemini-2.5-flash",
+    keyPlaceholder: "AIza…",
+    keyRequired: true,
+    baseUrlPlaceholder: "https://generativelanguage.googleapis.com",
+    baseUrlRequired: false,
+    docsUrl: "https://ai.google.dev/gemini-api/docs/models",
+  },
+  ollama: {
+    label: "Ollama (self-hosted)",
+    defaultModel: "llama3.1",
+    keyPlaceholder: "Not needed for a local Ollama",
+    keyRequired: false,
+    baseUrlPlaceholder: "http://localhost:11434",
+    baseUrlRequired: false,
+    docsUrl: "https://ollama.com/library",
+  },
+  openai_compatible: {
+    label: "OpenAI-compatible endpoint",
+    defaultModel: "",
+    keyPlaceholder: "API key of your endpoint",
+    keyRequired: false,
+    baseUrlPlaceholder: "https://llm.example.com/v1",
+    baseUrlRequired: true,
+  },
+};
+
+const isProvider = (value: string | undefined): value is TLLMProvider => !!value && value in PROVIDERS;
+
 export function InstanceAIForm(props: IInstanceAIForm) {
   const { config } = props;
   // store
@@ -29,57 +91,79 @@ export function InstanceAIForm(props: IInstanceAIForm) {
   const {
     handleSubmit,
     control,
-    formState: { errors, isSubmitting },
+    watch,
+    setValue,
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<AIFormValues>({
     defaultValues: {
+      LLM_PROVIDER: isProvider(config["LLM_PROVIDER"]) ? config["LLM_PROVIDER"] : "openai",
       LLM_API_KEY: config["LLM_API_KEY"],
       LLM_MODEL: config["LLM_MODEL"],
+      LLM_BASE_URL: config["LLM_BASE_URL"],
+      LLM_EMBEDDING_MODEL: config["LLM_EMBEDDING_MODEL"],
     },
   });
+
+  const providerKey = watch("LLM_PROVIDER");
+  const provider = PROVIDERS[isProvider(providerKey) ? providerKey : "openai"];
 
   const aiFormFields: TControllerInputFormField<AIFormValues>[] = [
     {
       key: "LLM_MODEL",
       type: "text",
-      label: "LLM Model",
+      label: "Model",
       description: (
         <>
-          Choose an OpenAI engine.{" "}
-          <a
-            href="https://platform.openai.com/docs/models/overview"
-            target="_blank"
-            className="text-accent-primary hover:underline"
-            rel="noreferrer"
-            aria-label="OpenAI models documentation"
-          >
-            Learn more
-          </a>
+          {provider.defaultModel
+            ? `Leave empty to use the ${provider.label} default (${provider.defaultModel}).`
+            : "The model name your endpoint serves."}{" "}
+          {provider.docsUrl && (
+            <a
+              href={provider.docsUrl}
+              target="_blank"
+              className="text-accent-primary hover:underline"
+              rel="noreferrer"
+              aria-label={`${provider.label} models documentation`}
+            >
+              Available models
+            </a>
+          )}
         </>
       ),
-      placeholder: "gpt-4o-mini",
+      placeholder: provider.defaultModel || "model-name",
       error: Boolean(errors.LLM_MODEL),
-      required: false,
+      required: !provider.defaultModel,
     },
     {
       key: "LLM_API_KEY",
       type: "password",
       label: "API key",
-      description: (
-        <>
-          You will find your API key{" "}
-          <a
-            href="https://platform.openai.com/api-keys"
-            target="_blank"
-            className="text-accent-primary hover:underline"
-            rel="noreferrer"
-            aria-label="OpenAI API keys page"
-          >
-            here.
-          </a>
-        </>
-      ),
-      placeholder: "sk-asddassdfasdefqsdfasd23das3dasdcasd",
+      description: provider.keyRequired
+        ? `Your ${provider.label} API key. It is stored encrypted and never shown to workspace members.`
+        : "Optional for this provider. Stored encrypted when set.",
+      placeholder: provider.keyPlaceholder,
       error: Boolean(errors.LLM_API_KEY),
+      required: false,
+    },
+    {
+      key: "LLM_BASE_URL",
+      type: "text",
+      label: "Base URL",
+      description: provider.baseUrlRequired
+        ? "Required: the OpenAI-compatible endpoint (e.g. vLLM, LM Studio, Azure OpenAI, LiteLLM)."
+        : "Optional. Leave empty for the provider's default endpoint, or set a proxy / self-hosted URL.",
+      placeholder: provider.baseUrlPlaceholder,
+      error: Boolean(errors.LLM_BASE_URL),
+      required: provider.baseUrlRequired,
+    },
+    {
+      key: "LLM_EMBEDDING_MODEL",
+      type: "text",
+      label: "Embedding model",
+      description:
+        "Optional. Enables semantic search for Ask AI and proposals. Leave empty for the provider default; providers without embeddings fall back to keyword search.",
+      placeholder: "text-embedding-3-small",
+      error: Boolean(errors.LLM_EMBEDDING_MODEL),
       required: false,
     },
   ];
@@ -92,7 +176,7 @@ export function InstanceAIForm(props: IInstanceAIForm) {
         setToast({
           type: "success",
           title: "Success",
-          message: "AI Settings updated successfully",
+          message: "AI settings updated successfully",
         })
       )
       .catch((err) => console.error(err));
@@ -102,10 +186,33 @@ export function InstanceAIForm(props: IInstanceAIForm) {
     <div className="space-y-8">
       <div className="space-y-3">
         <div>
-          <div className="pb-1 text-18 font-medium text-primary">OpenAI</div>
-          <div className="text-13 font-regular text-tertiary">If you use ChatGPT, this is for you.</div>
+          <div className="pb-1 text-18 font-medium text-primary">Language model</div>
+          <div className="text-13 font-regular text-tertiary">
+            One provider powers every AI feature: Ask AI, brief proposals, status reports and writing help. Without a
+            configured model the AI runs in rule-based mode.
+          </div>
         </div>
-        <div className="grid-col grid w-full grid-cols-1 items-center justify-between gap-x-12 gap-y-8 lg:grid-cols-3">
+        <div className="grid-col grid w-full grid-cols-1 items-start justify-between gap-x-12 gap-y-8 lg:grid-cols-3">
+          <div className="flex flex-col gap-1">
+            <h4 className="text-13 text-tertiary">Provider</h4>
+            <Select
+              items={Object.fromEntries(Object.entries(PROVIDERS).map(([key, value]) => [key, value.label]))}
+              value={isProvider(providerKey) ? providerKey : "openai"}
+              onValueChange={(value) => setValue("LLM_PROVIDER", String(value), { shouldDirty: true })}
+            >
+              <SelectTrigger size="lg" placeholder="Select a provider" />
+              <SelectContent>
+                <SelectList>
+                  {Object.entries(PROVIDERS).map(([key, value]) => (
+                    <SelectItem key={key} value={key} label={value.label} size="lg" />
+                  ))}
+                </SelectList>
+              </SelectContent>
+            </Select>
+            <p className="text-11 text-tertiary">
+              OpenAI, Anthropic, Google Gemini, a local Ollama or any OpenAI-compatible endpoint.
+            </p>
+          </div>
           {aiFormFields.map((field) => (
             <ControllerInput
               key={field.key}
@@ -129,18 +236,9 @@ export function InstanceAIForm(props: IInstanceAIForm) {
           stretch="auto"
           onClick={handleSubmit(onSubmit)}
           loading={isSubmitting}
+          disabled={!isDirty}
           label={isSubmitting ? "Saving" : "Save changes"}
         />
-
-        <div className="relative inline-flex items-center gap-1.5 rounded-sm border border-accent-subtle bg-accent-subtle px-4 py-2 text-caption-sm-regular text-accent-secondary">
-          <ThoughtsOutline className="size-4" />
-          <div>
-            If you have a preferred AI models vendor, please get in{" "}
-            <a className="font-medium underline" href="https://plane.so/contact">
-              touch with us.
-            </a>
-          </div>
-        </div>
       </div>
     </div>
   );

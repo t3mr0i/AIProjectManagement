@@ -11,6 +11,7 @@ import type { TPackageProfile } from "@plane/types";
 import { useProjectHubCapabilities } from "../../common/gate";
 import type { TWorkPackageScope } from "../types";
 import { usePackageApprovals, usePackageReadiness, usePackageRevisions } from "../use-work-package";
+import { AIAssistPanel } from "./ai-assist";
 import { ApprovalPanel } from "./approval";
 import { BriefForm } from "./brief-form";
 import { ClarifyPanel } from "./clarify";
@@ -18,7 +19,7 @@ import { ProposalsPanel } from "./proposals";
 import { ReadinessPanel } from "./readiness";
 import { RevisionsPanel } from "./revisions";
 
-/** "Auftrag" tab (S04): editable brief, readiness, revisions, approval, AI clarification. */
+/** "Auftrag" tab (S04): editable brief, AI assistant + proposals, clarification, readiness, revisions, approval. */
 export const BriefTab = observer(function BriefTab({
   scope,
   profile,
@@ -36,6 +37,13 @@ export const BriefTab = observer(function BriefTab({
   return (
     <div className="flex min-w-0 flex-col gap-5">
       <BriefForm {...scope} profile={profile} canEdit={canEdit} />
+      <AIAssistPanel scope={scope} canEdit={canEdit} />
+      <ProposalsPanel
+        scope={scope}
+        canEdit={canEdit}
+        existingCriterionIds={(profile.criteria ?? []).map((c) => c.id)}
+      />
+      <ClarifyPanel scope={scope} canEdit={canEdit} />
       <ReadinessPanel readiness={readiness} />
       <RevisionsPanel
         scope={scope}
@@ -44,8 +52,6 @@ export const BriefTab = observer(function BriefTab({
         canEdit={canEdit}
       />
       <ApprovalPanel scope={scope} approvals={approvals} revisions={revisions.data} readiness={readiness.data} />
-      <ClarifyPanel scope={scope} canEdit={canEdit} />
-      <ProposalsPanel scope={scope} canEdit={canEdit} />
     </div>
   );
 });

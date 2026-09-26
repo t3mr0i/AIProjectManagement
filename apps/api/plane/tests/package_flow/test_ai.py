@@ -9,6 +9,7 @@ import time
 import pytest
 
 from plane.package_flow.ai import provider as provider_mod
+from plane.package_flow.ai.config import build_config
 from plane.package_flow.ai.provider import (
     AIResult,
     CancellationToken,
@@ -111,10 +112,11 @@ class TestProvider:
         assert {s.status for s in r.statements} <= {"observed", "confirmed", "inferred", "proposed"}
 
     def test_get_provider_offline_by_default(self, monkeypatch, db):
-        monkeypatch.delenv("LLM_API_KEY", raising=False)
-        monkeypatch.setattr(provider_mod, "_llm_config", lambda: (None, "openai", None))
+        monkeypatch.setattr(provider_mod, "load_config", lambda: build_config(provider="openai", api_key=""))
         assert isinstance(get_provider(), RuleBasedProvider)
-        monkeypatch.setattr(provider_mod, "_llm_config", lambda: ("sk-test", "openai", "gpt-4o-mini"))
+        monkeypatch.setattr(
+            provider_mod, "load_config", lambda: build_config(provider="openai", api_key="sk-test", model="gpt-4o-mini")
+        )
         assert isinstance(get_provider(), OpenAICompatibleProvider)
 
 

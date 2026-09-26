@@ -106,6 +106,11 @@ app.conf.beat_schedule.update(
             "task": "plane.package_flow.tasks.expire_leases",
             "schedule": schedule(run_every=timedelta(minutes=1)),
         },
+        "package-flow-ai-refresh-embeddings": {
+            "task": "plane.package_flow.tasks.ai_refresh_embeddings",
+            "schedule": crontab(minute="*/15"),  # changed sources only (content hash), plus pruning
+            "kwargs": {"since_minutes": 30},
+        },
     }
 )
 

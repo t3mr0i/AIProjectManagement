@@ -4,6 +4,7 @@
  * See the LICENSE file for details.
  */
 
+export * from "./ai.service";
 export * from "./base.service";
 export * from "./collaboration.service";
 export * from "./execution.service";

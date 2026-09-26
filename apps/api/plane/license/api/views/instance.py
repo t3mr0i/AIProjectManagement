@@ -19,6 +19,7 @@ from plane.db.models import Workspace
 from plane.license.api.permissions import InstanceAdminPermission
 from plane.license.api.serializers import InstanceSerializer
 from plane.license.models import Instance
+from plane.package_flow.ai.config import load_config
 from plane.license.utils.instance_value import get_configuration_value
 from plane.utils.cache import cache_response, invalidate_cache
 from django.utils.decorators import method_decorator
@@ -147,8 +148,8 @@ class InstanceEndpoint(BaseAPIView):
         # Unsplash
         data["has_unsplash_configured"] = bool(UNSPLASH_ACCESS_KEY)
 
-        # Open AI settings
-        data["has_llm_configured"] = bool(LLM_API_KEY)
+        # AI settings (any provider; Ollama needs no key)
+        data["has_llm_configured"] = bool(LLM_API_KEY) or load_config().is_configured
 
         # File size settings
         data["file_size_limit"] = float(os.environ.get("FILE_SIZE_LIMIT", 5242880))

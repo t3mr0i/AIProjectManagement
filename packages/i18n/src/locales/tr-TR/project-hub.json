@@ -1023,6 +1023,108 @@
       "edge": "Kenar",
       "ambiguous_short": "Belirsiz",
       "read_only": "Salt okunur — bu diyagramı değiştirmek için \"Paketleri düzenleme\" gerekir."
+    },
+    "ai": {
+      "status": {
+        "llm": "{provider} · {model}",
+        "rule_based": "Kural tabanlı (yapılandırılmış model yok)",
+        "rule_based_hint": "Yapılandırılmış bir dil modeli yok, bu nedenle yanıtlar yerleşik kurallardan gelir. Bir örnek yöneticisi yönetim uygulamasında sağlayıcı ayarlayabilir.",
+        "embeddings": "Anlamsal arama: {model}"
+      },
+      "task": {
+        "concretize": "Somutlaştırma",
+        "interpret": "Yorumlama",
+        "report": "Durum raporu",
+        "answer": "Yanıt"
+      },
+      "result_status": {
+        "ok": "Tamamlandı",
+        "timeout": "Zaman aşımı",
+        "budget_exceeded": "Bütçe aşıldı",
+        "cancelled": "İptal edildi",
+        "error": "Hata",
+        "unavailable": "Kullanılamıyor"
+      },
+      "result_failed": "AI tamamlayamadı: {status}",
+      "needs_clarification": "AI'ın devam edebilmesi için daha fazla bilgiye ihtiyacı var.",
+      "flags_title": "Bulgular",
+      "flag": {
+        "unverified_claim": "Doğrulanmamış iddia",
+        "missing_evidence": "Eksik kanıt",
+        "contradiction": "Çelişki",
+        "unknown_intent": "Belirsiz amaç",
+        "scope_change_requires_new_approval": "Kapsam değişikliği yeni onay gerektirir",
+        "instruction_like_content": "Talimat benzeri içerik yok sayıldı"
+      },
+      "notes_title": "Notlar",
+      "generated_by": "{model} tarafından oluşturuldu",
+      "statement_sources": "{count, plural, one {# kaynak} other {# kaynak}}",
+      "sources_used": "Kullanılan kaynaklar",
+      "sources_retrieved": "Anlamsal aramayla bulundu",
+      "sources_blocked": "{count, plural, one {# kaynak kullanılmadı} other {# kaynak kullanılmadı}}",
+      "source_stale": "Güncel değil",
+      "no_sources": "Hiçbir kaynak kullanılmadı.",
+      "no_statements": "AI hiçbir ifade döndürmedi.",
+      "block_reason": {
+        "unavailable": "Kullanılamıyor",
+        "private_source": "Özel kaynak",
+        "audience_mismatch": "Hedef kitlenin tamamına görünür değil",
+        "quarantined": "Karantinadaki dosya",
+        "scan_pending": "Virüs taraması bekleniyor"
+      },
+      "dismiss": "Kapat",
+      "patch": {
+        "new": "Yeni",
+        "verification": "Doğrulama: {method}"
+      },
+      "assist": {
+        "title": "AI asistanı",
+        "description": "AI'ın bu görevi somutlaştırmasına, yorumlamasına veya raporlamasına izin verin. Sonuçlar AI önerileri altında görünür; siz kabul edene kadar hiçbir şey değişmez.",
+        "instruction": "Talimat",
+        "instruction_placeholder": "örn. API için kabul kriterlerine odaklanın",
+        "concretize": "Somutlaştır",
+        "concretize_hint": "Sonuç, amaç, hedef dışı öğeler ve kabul kriterleri önerin",
+        "interpret": "Yorumla",
+        "interpret_hint": "Bu görevin ne anlama geldiğini ve neyin hâlâ belirsiz olduğunu açıklayın",
+        "report": "Rapor",
+        "report_hint": "Bu iş paketinin mevcut durumunu özetleyin",
+        "requested": "AI önerisi hazır"
+      },
+      "ask": {
+        "title": "AI'a sor",
+        "description": "Okuyabildiğiniz tüm projeler hakkında soru sorun. Yanıtı yalnızca siz görürsünüz.",
+        "label": "Sorunuz",
+        "placeholder": "örn. Hangi iş paketleri engellendi ve neden?",
+        "submit": "Sor",
+        "clear": "Temizle",
+        "shortcut": "Göndermek için Ctrl/⌘ + Enter",
+        "answer": "Yanıt"
+      },
+      "report": {
+        "title": "AI durum raporu",
+        "description": "Tüm proje üyelerinin okuyabildiği verilerden oluşturulan bir durum özeti.",
+        "empty": "Henüz durum raporu yok",
+        "generate": "Rapor oluştur",
+        "regenerate": "Yeniden oluştur",
+        "snapshot": "Raporun dayandığı olgular"
+      },
+      "usage": {
+        "title": "AI kullanımı",
+        "description": "Son {days} günde bu çalışma alanındaki AI çağrıları ve tokenlar.",
+        "calls": "Çağrılar",
+        "input_tokens": "Giriş tokenları",
+        "output_tokens": "Çıkış tokenları",
+        "errors": "Hatalar",
+        "by_feature": "Özelliğe göre",
+        "by_model": "Modele göre",
+        "row": "Çağrılar: {calls} · Giriş: {input} · Çıkış: {output}",
+        "empty": "Bu dönemde AI çağrısı yok.",
+        "reindex": "Anlamsal dizin",
+        "reindex_action": "Yeniden oluştur",
+        "reindex_description": "\"AI'a sor\" bulabilsin diye sayfaların, iş paketlerinin ve kararların embedding'lerini {model} ile yeniden oluşturur. Arka planda çalışır.",
+        "reindex_unavailable": "Yapılandırılmış embedding modeli yok. \"AI'a sor\" anahtar kelime aramasını kullanır.",
+        "reindex_queued": "Anlamsal dizinin yeniden oluşturulması başlatıldı"
+      }
     }
   }
 }

@@ -24,4 +24,5 @@ PRD §4 and §20 keep some product decisions explicitly open. None of them were 
 - **Realtime revocation.** Checked every 30 s (`LIVE_ACCESS_RECHECK_INTERVAL_MS`), which bounds revocation at about 50 s (NFR-04 target: 60 s).
 - **Webhooks.** Limited to 600 per minute per connection; events older than 7 days are stored as ignored.
 - **Exports** expire after 7 days (`PACKAGE_FLOW_EXPORT_TTL_DAYS`).
-- **Offline AI.** Without `LLM_API_KEY` the offline rule-based AI provider is used. It never writes; every AI output is a proposal.
+- **Offline AI.** Without a configured model (`LLM_PROVIDER`/`LLM_MODEL`/`LLM_API_KEY`; Ollama needs no key) the offline rule-based AI provider is used. It never writes; every AI output is a proposal.
+- **One AI core.** The upstream AI assistant endpoints no longer call OpenAI directly; they use the same provider layer, limits and metering as Project Hub. There is no model allow-list; Anthropic is called through its native SDK, Gemini and Ollama through their OpenAI-compatible endpoints.
